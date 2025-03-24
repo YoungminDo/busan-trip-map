@@ -1,7 +1,7 @@
 
 import { useEffect, useRef, useState } from "react";
 
-const GOOGLE_MAPS_API_KEY = "YOUR_GOOGLE_MAPS_API_KEY";
+const GOOGLE_MAPS_API_KEY = "AIzaSyDkUjk-_5FKVad2wBx83v0I37RDAUDI7YU";
 
 const addresses = [
   "서울특별시 강남구 광평로 281",
