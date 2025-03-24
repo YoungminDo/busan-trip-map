@@ -1,0 +1,1 @@
+export const Input = (props) => <input {...props} className='w-full border p-2 rounded' />;
