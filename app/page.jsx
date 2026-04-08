@@ -94,6 +94,27 @@ export default function Page() {
         </div>
       </div>
 
+      {/* Blog Generator & Monetization CTA */}
+      <div style={{ padding: '0 16px', marginTop: 32 }}>
+        <div style={{ fontWeight: 700, fontSize: 18, margin: '0 0 12px 4px' }}>AI 블로그 수익화</div>
+        <div style={{ display: 'flex', gap: 12 }}>
+          <a href="/blog-generator" style={{ flex: 1, textDecoration: 'none' }}>
+            <div style={{ background: mint, borderRadius: 16, padding: 20, boxShadow: '0 1px 4px rgba(44,44,44,0.06)' }}>
+              <div style={{ fontSize: 28, marginBottom: 8 }}>✍️</div>
+              <div style={{ fontWeight: 700, fontSize: 15, color: dark, marginBottom: 4 }}>블로그 자동 생성기</div>
+              <div style={{ fontSize: 12, color: '#555' }}>SEO 최적화 포스트를 AI로 자동 생성</div>
+            </div>
+          </a>
+          <a href="/monetization" style={{ flex: 1, textDecoration: 'none' }}>
+            <div style={{ background: dark, borderRadius: 16, padding: 20, boxShadow: '0 1px 4px rgba(44,44,44,0.06)' }}>
+              <div style={{ fontSize: 28, marginBottom: 8 }}>💰</div>
+              <div style={{ fontWeight: 700, fontSize: 15, color: '#fff', marginBottom: 4 }}>수익화 대시보드</div>
+              <div style={{ fontSize: 12, color: '#aaa' }}>트래픽·수익 분석 및 ROI 추적</div>
+            </div>
+          </a>
+        </div>
+      </div>
+
       {/* Section 3: 실험자 랭킹 */}
       <div style={{ padding: '0 16px', marginTop: 32, marginBottom: 32 }}>
         <div style={{ fontWeight: 700, fontSize: 18, margin: '0 0 12px 4px' }}>실험자 랭킹</div>
