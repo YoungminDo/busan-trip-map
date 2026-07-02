@@ -4,7 +4,8 @@ import React, { useState, useCallback } from "react";
 /* ================= 데이터 ================= */
 const coaches = [
   {
-    id: "han", role: "핀테크 데이터 분석 리더", yr: "17년차", meta: "데이터 분석 · 핀테크 · 비전공 출신",
+    id: "han", role: "데이터 분석 리더", yr: "17년차", meta: "데이터 분석 · 핀테크 · 비전공 출신",
+    company: "토스", companyType: "핀테크 유니콘", job: "데이터 분석",
     q: "비전공자인데 데이터 분석가가 될 수 있을까요?", tags: ["#비전공자", "#데이터입문", "#포트폴리오"],
     help: 94, cnt: 31, time: "평균 12시간", name: "한태용",
     mission: "통계·코딩 전공이 아니어도 데이터 일은 가능해요. 전공자와 비전공자 모두의 로드맵을 함께 그려드릴게요.",
@@ -17,7 +18,8 @@ const coaches = [
     reviewTags: ["#현실적", "#방향정리"], review: "“막연했던 데이터 직무가 구체적으로 그려졌어요. 뭐부터 할지 정해졌습니다.”", reviewBy: "문과 3학년 · 매우 도움이 됐어요",
   },
   {
-    id: "min", role: "글로벌 헬스케어 사업개발 리더", yr: "15년차", meta: "BD · 사업개발 · 외국계/글로벌",
+    id: "min", role: "사업개발(BD) 리더", yr: "15년차", meta: "BD · 사업개발 · 외국계/글로벌",
+    company: "존슨앤존슨", companyType: "글로벌 헬스케어", job: "사업개발(BD)",
     q: "외국계 BD, 신입은 어떻게 준비하나요?", tags: ["#BD", "#사업개발", "#외국계"],
     help: 91, cnt: 24, time: "평균 20시간", name: "민영호",
     mission: "외국계·스타트업·글로벌의 BD가 회사마다 어떻게 다른지, 15년간 겪은 걸 솔직하게 풀어드릴게요.",
@@ -30,7 +32,8 @@ const coaches = [
     reviewTags: ["#시야가넓어짐"], review: "“막연히 멋있어 보였던 BD의 실체를 알게 됐어요.”", reviewBy: "경영 4학년 · 도움이 됐어요",
   },
   {
-    id: "lee", role: "스타트업 UX/UI 디자이너", yr: "주니어", meta: "UX/UI · IT 스타트업 · 학생과 가까운 연차",
+    id: "lee", role: "UX/UI 디자이너", yr: "주니어", meta: "UX/UI · IT 스타트업 · 학생과 가까운 연차",
+    company: "당근", companyType: "IT 스타트업", job: "UX/UI 디자인",
     q: "신입 디자이너 포트폴리오, 뭐가 중요해요?", tags: ["#UXUI", "#디자이너", "#포트폴리오"],
     help: 96, cnt: 18, time: "평균 6시간", name: "이민지",
     mission: "학생과 가장 가까운 신입 디자이너예요. 진로 고민, 같이 풀어봐요!",
@@ -43,7 +46,8 @@ const coaches = [
     reviewTags: ["#따뜻한조언", "#현실적"], review: "“나이 차이가 적어 더 편하게 물어볼 수 있었어요.”", reviewBy: "시디 2학년 · 매우 도움이 됐어요",
   },
   {
-    id: "kang", role: "글로벌 IT 플랫폼 마케팅 리더", yr: "12년차", meta: "마케팅 전략 · IT 플랫폼 · 브랜드/그로스",
+    id: "kang", role: "마케팅 리더", yr: "12년차", meta: "마케팅 전략 · IT 플랫폼 · 브랜드/그로스",
+    company: "네이버", companyType: "IT 플랫폼", job: "마케팅",
     q: "마케팅 직무가 이렇게 많은데 뭘 골라야 하죠?", tags: ["#마케팅전략", "#브랜드", "#그로스"],
     help: 93, cnt: 37, time: "평균 15시간", name: "강우연",
     mission: "브랜드·퍼포먼스·그로스·전략 등 마케팅 직무를 12년 시선으로 한눈에 정리해드릴게요.",
@@ -83,6 +87,7 @@ export default function CoffeeChat() {
   const [stack, setStack] = useState(["list"]);
   const [selected, setSelected] = useState("han");
   const [filters, setFilters] = useState([true, false, false, false, false, false]);
+  const [variant, setVariant] = useState("company"); // 'role' | 'company'(가설)
   const [modes, setModes] = useState([]);
   const [toastMsg, setToastMsg] = useState("");
 
@@ -117,11 +122,23 @@ export default function CoffeeChat() {
     </nav>
   );
 
+  const RoleTitle = ({ c }) =>
+    variant === "company" ? (
+      <>
+        <div className="role"><span className="co">{c.company}</span> · {c.job} <span className="yr">· {c.yr}</span></div>
+        <div className="meta">{c.companyType} · {c.role}</div>
+      </>
+    ) : (
+      <>
+        <div className="role">{c.role} <span className="yr">· {c.yr}</span></div>
+        <div className="meta">{c.meta}</div>
+      </>
+    );
+
   const CoachCard = ({ c }) => (
     <div className="ccard" onClick={() => openCoach(c.id)}>
       <Verify />
-      <div className="role">{c.role} <span className="yr">· {c.yr}</span></div>
-      <div className="meta">{c.meta}</div>
+      <RoleTitle c={c} />
       <div className="qbox"><div className="l">이런 질문에 잘 답해요</div><div className="q">“{c.q}”</div></div>
       <div className="tags" style={{ marginTop: 11 }}>{c.tags.map((t) => <span key={t} className="tag b">{t}</span>)}</div>
       <div className="metrics"><span className="s">도움됐어요 {c.help}%</span><span className="d">·</span><span>질문 {c.cnt}개</span><span className="d">·</span><span>{c.time}</span></div>
@@ -132,7 +149,9 @@ export default function CoffeeChat() {
   const HomeCard = ({ c }) => (
     <div className="hc" onClick={() => openCoach(c.id)}>
       <Verify text="검증 파트너" />
-      <div className="role">{c.role} <span className="yr">· {c.yr}</span></div>
+      {variant === "company"
+        ? <div className="role"><span className="co">{c.company}</span> · {c.job} <span className="yr">· {c.yr}</span></div>
+        : <div className="role">{c.role} <span className="yr">· {c.yr}</span></div>}
       <div className="q">“{c.q}”</div>
       <div className="mini">{c.id === "lee" ? <span className="s">학생과 가장 가까운 연차</span> : <><span className="s">도움됐어요 {c.help}%</span> · {c.time}</>}</div>
       <div className="who"><div className="face sm"><FaceSvg /></div><div className="n">{c.name} 파트너</div></div>
@@ -167,6 +186,10 @@ export default function CoffeeChat() {
               <div className="pad" style={{ paddingTop: 2 }}>
                 <div className="sec-h">현직자 커피챗</div>
                 <div className="sec-sub">헬로마이미가 직접 검증한 현직자예요. <b>내 질문에 맞는지</b> 먼저 보세요.</div>
+                <div className="seg">
+                  <div className={`seg-b ${variant === "role" ? "on" : ""}`} onClick={() => setVariant("role")}>역할 중심</div>
+                  <div className={`seg-b ${variant === "company" ? "on" : ""}`} onClick={() => setVariant("company")}>회사·직무 중심 <span className="hy">가설</span></div>
+                </div>
                 {coaches.map((c) => <CoachCard key={c.id} c={c} />)}
               </div>
             </div>
@@ -201,8 +224,17 @@ export default function CoffeeChat() {
             <div className="scroll">
               <div className="detail-hero">
                 <Verify />
-                <div className="role">{coach.role} <span className="yr">· {coach.yr}</span></div>
-                <div className="meta">{coach.meta}</div>
+                {variant === "company" ? (
+                  <>
+                    <div className="role"><span className="co">{coach.company}</span> · {coach.job} <span className="yr">· {coach.yr}</span></div>
+                    <div className="meta">{coach.companyType} · {coach.role}</div>
+                  </>
+                ) : (
+                  <>
+                    <div className="role">{coach.role} <span className="yr">· {coach.yr}</span></div>
+                    <div className="meta">{coach.meta}</div>
+                  </>
+                )}
                 <div className="mission"><div className="l">파트너 미션</div><div className="t">“{coach.mission}”</div></div>
               </div>
               <div className="pad">
@@ -374,6 +406,11 @@ const CSS = `
 .ccard:active{transform:scale(.99)}
 .ccard .role{font-size:16.5px;font-weight:800;letter-spacing:-.02em;line-height:1.32;margin-top:10px}
 .ccard .role .yr,.hc .role .yr,.detail-hero .role .yr{color:var(--brand-ink)}
+.role .co{color:var(--brand-ink);font-weight:800}
+.seg{display:flex;gap:4px;background:#EEF1F3;border-radius:12px;padding:4px;margin-bottom:14px}
+.seg-b{flex:1;text-align:center;font-size:12.5px;font-weight:800;color:var(--ink-soft);padding:9px 6px;border-radius:9px;cursor:pointer;transition:.15s;display:flex;align-items:center;justify-content:center;gap:5px}
+.seg-b.on{background:#fff;color:var(--brand-ink);box-shadow:0 1px 3px rgba(20,40,50,.12)}
+.seg-b .hy{font-size:9px;font-weight:800;color:#fff;background:var(--amber);padding:2px 5px;border-radius:5px}
 .ccard .meta{font-size:11.5px;color:var(--muted);font-weight:600;margin-top:4px}
 .qbox{background:var(--brand-soft2);border:1px solid #D6EFEB;border-radius:13px;padding:11px 12px;margin-top:13px}
 .qbox .l{font-size:10.5px;font-weight:800;color:var(--brand-ink);letter-spacing:.02em}
