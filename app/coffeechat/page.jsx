@@ -5,7 +5,7 @@ import React, { useState, useCallback } from "react";
 const coaches = [
   {
     id: "han", role: "데이터 분석 리더", yr: "17년차", meta: "데이터 분석 · 핀테크 · 비전공 출신",
-    company: "토스", companyType: "핀테크 유니콘", job: "데이터 분석",
+    company: "토스", companyType: "핀테크 유니콘", job: "데이터 분석", logo: { text: "toss", bg: "#3182F6" },
     q: "비전공자인데 데이터 분석가가 될 수 있을까요?", tags: ["#비전공자", "#데이터입문", "#포트폴리오"],
     help: 94, cnt: 31, time: "평균 12시간", name: "한태용",
     mission: "통계·코딩 전공이 아니어도 데이터 일은 가능해요. 전공자와 비전공자 모두의 로드맵을 함께 그려드릴게요.",
@@ -19,7 +19,7 @@ const coaches = [
   },
   {
     id: "min", role: "사업개발(BD) 리더", yr: "15년차", meta: "BD · 사업개발 · 외국계/글로벌",
-    company: "존슨앤존슨", companyType: "글로벌 헬스케어", job: "사업개발(BD)",
+    company: "존슨앤존슨", companyType: "글로벌 헬스케어", job: "사업개발(BD)", logo: { text: "J&J", bg: "#EB1700" },
     q: "외국계 BD, 신입은 어떻게 준비하나요?", tags: ["#BD", "#사업개발", "#외국계"],
     help: 91, cnt: 24, time: "평균 20시간", name: "민영호",
     mission: "외국계·스타트업·글로벌의 BD가 회사마다 어떻게 다른지, 15년간 겪은 걸 솔직하게 풀어드릴게요.",
@@ -33,7 +33,7 @@ const coaches = [
   },
   {
     id: "lee", role: "UX/UI 디자이너", yr: "주니어", meta: "UX/UI · IT 스타트업 · 학생과 가까운 연차",
-    company: "당근", companyType: "IT 스타트업", job: "UX/UI 디자인",
+    company: "당근", companyType: "IT 스타트업", job: "UX/UI 디자인", logo: { text: "당근", bg: "#FF6F0F" },
     q: "신입 디자이너 포트폴리오, 뭐가 중요해요?", tags: ["#UXUI", "#디자이너", "#포트폴리오"],
     help: 96, cnt: 18, time: "평균 6시간", name: "이민지",
     mission: "학생과 가장 가까운 신입 디자이너예요. 진로 고민, 같이 풀어봐요!",
@@ -47,7 +47,7 @@ const coaches = [
   },
   {
     id: "kang", role: "마케팅 리더", yr: "12년차", meta: "마케팅 전략 · IT 플랫폼 · 브랜드/그로스",
-    company: "네이버", companyType: "IT 플랫폼", job: "마케팅",
+    company: "네이버", companyType: "IT 플랫폼", job: "마케팅", logo: { text: "NAVER", bg: "#03C75A" },
     q: "마케팅 직무가 이렇게 많은데 뭘 골라야 하죠?", tags: ["#마케팅전략", "#브랜드", "#그로스"],
     help: 93, cnt: 37, time: "평균 15시간", name: "강우연",
     mission: "브랜드·퍼포먼스·그로스·전략 등 마케팅 직무를 12년 시선으로 한눈에 정리해드릴게요.",
@@ -80,6 +80,9 @@ const FaceSvg = () => (
 );
 const Verify = ({ text = "헬로마이미 검증 파트너" }) => (
   <span className="verify"><span className="ck">✓</span>{text}</span>
+);
+const Logo = ({ c }) => (
+  <span className="logo" style={{ background: c.logo.bg }}>{c.logo.text}</span>
 );
 
 /* ================= 컴포넌트 ================= */
@@ -125,7 +128,7 @@ export default function CoffeeChat() {
   const RoleTitle = ({ c }) =>
     variant === "company" ? (
       <>
-        <div className="role"><span className="co">{c.company}</span> · {c.job} <span className="yr">· {c.yr}</span></div>
+        <div className="role"><Logo c={c} /><span className="co">{c.company}</span> · {c.job} <span className="yr">· {c.yr}</span></div>
         <div className="meta">{c.companyType} · {c.role}</div>
       </>
     ) : (
@@ -150,7 +153,7 @@ export default function CoffeeChat() {
     <div className="hc" onClick={() => openCoach(c.id)}>
       <Verify text="검증 파트너" />
       {variant === "company"
-        ? <div className="role"><span className="co">{c.company}</span> · {c.job} <span className="yr">· {c.yr}</span></div>
+        ? <div className="role"><Logo c={c} /><span className="co">{c.company}</span> · {c.job} <span className="yr">· {c.yr}</span></div>
         : <div className="role">{c.role} <span className="yr">· {c.yr}</span></div>}
       <div className="q">“{c.q}”</div>
       <div className="mini">{c.id === "lee" ? <span className="s">학생과 가장 가까운 연차</span> : <><span className="s">도움됐어요 {c.help}%</span> · {c.time}</>}</div>
@@ -226,7 +229,7 @@ export default function CoffeeChat() {
                 <Verify />
                 {variant === "company" ? (
                   <>
-                    <div className="role"><span className="co">{coach.company}</span> · {coach.job} <span className="yr">· {coach.yr}</span></div>
+                    <div className="role"><Logo c={coach} /><span className="co">{coach.company}</span> · {coach.job} <span className="yr">· {coach.yr}</span></div>
                     <div className="meta">{coach.companyType} · {coach.role}</div>
                   </>
                 ) : (
@@ -407,6 +410,8 @@ const CSS = `
 .ccard .role{font-size:16.5px;font-weight:800;letter-spacing:-.02em;line-height:1.32;margin-top:10px}
 .ccard .role .yr,.hc .role .yr,.detail-hero .role .yr{color:var(--brand-ink)}
 .role .co{color:var(--brand-ink);font-weight:800}
+.role .logo{display:inline-flex;align-items:center;justify-content:center;height:19px;padding:0 6px;border-radius:6px;color:#fff;font-size:10px;font-weight:800;letter-spacing:.01em;vertical-align:2px;margin-right:6px}
+.detail-hero .role .logo{height:24px;padding:0 8px;font-size:12px;margin-right:7px}
 .seg{display:flex;gap:4px;background:#EEF1F3;border-radius:12px;padding:4px;margin-bottom:14px}
 .seg-b{flex:1;text-align:center;font-size:12.5px;font-weight:800;color:var(--ink-soft);padding:9px 6px;border-radius:9px;cursor:pointer;transition:.15s;display:flex;align-items:center;justify-content:center;gap:5px}
 .seg-b.on{background:#fff;color:var(--brand-ink);box-shadow:0 1px 3px rgba(20,40,50,.12)}
