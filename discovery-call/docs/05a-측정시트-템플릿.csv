@@ -1,4 +1,0 @@
-date,user_code,persona,tts_variant,scheduled_time,answered,duration_sec,user_talk_ratio,diary_sent_at,diary_opened,opened_after_min,crisis_flag,notes
-2026-07-20,P01,bora,A,22:30,Y,240,0.65,22:41,Y,35,,
-2026-07-20,P02,muju,A,21:00,RETRY_Y,185,0.55,21:12,N,,,재시도 후 응답
-2026-07-20,P03,haena,A,23:00,N,,,,,,,부재중 - 폴백 문자 발송
