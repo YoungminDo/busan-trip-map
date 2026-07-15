@@ -45,6 +45,23 @@
 
   .pad{padding:16px 18px 26px}
 
+  /* 탐색/검색 */
+  .expl-input{flex:1;border:1.5px solid var(--line);background:var(--bg);border-radius:12px;padding:11px 14px;font-size:14px;font-family:var(--font);color:var(--ink)}
+  .expl-input:focus{outline:none;border-color:var(--brand);background:#fff}
+  .expl-input::placeholder{color:var(--muted)}
+  .expl-scopes{display:flex;gap:7px;padding:11px 18px;background:#fff;border-bottom:1px solid var(--line-soft)}
+  .escope{font-size:12.5px;font-weight:800;color:var(--ink-soft);background:var(--bg);padding:8px 14px;border-radius:999px;cursor:pointer;transition:.15s}
+  .escope.on{background:var(--brand);color:#fff}
+  .expl-sec{font-size:12.5px;font-weight:800;color:var(--ink-soft);margin:18px 2px 11px;letter-spacing:.01em}
+  .chipwrap{display:flex;flex-wrap:wrap}
+  .cchip{display:inline-flex;align-items:center;gap:7px;background:#fff;border:1px solid var(--line);border-radius:999px;padding:7px 13px 7px 8px;font-size:12.5px;font-weight:700;cursor:pointer;margin:0 7px 8px 0}
+  .cchip.plain{padding-left:13px}
+  .cchip .logo{height:18px;padding:0 6px;font-size:9.5px;margin:0}
+  .jchip{display:inline-flex;background:#fff;border:1px solid var(--line);border-radius:999px;padding:9px 14px;font-size:12.5px;font-weight:700;cursor:pointer;margin:0 7px 8px 0;color:var(--ink-soft)}
+  .rq{display:flex;gap:9px;padding:12px 14px;background:#fff;border:1px solid var(--line);border-radius:12px;margin-bottom:8px;font-size:13px;font-weight:600;cursor:pointer}
+  .rq .m{color:var(--brand);font-weight:800}
+  .empty{text-align:center;color:var(--muted);font-size:13px;padding:30px 0}
+
   /* 검색/가이드 */
   .search{background:#fff;border:1.5px solid #E3E7EA;border-radius:15px;padding:14px 15px;display:flex;align-items:center;gap:10px;box-shadow:var(--shadow);cursor:text}
   .search .i{color:var(--brand);font-size:16px}
@@ -228,7 +245,7 @@
         </div>
         <div class="scroll">
           <div class="pad" style="padding-bottom:6px">
-            <div class="search" onclick="go('write')"><span class="i">✎</span><span class="ph">어떤 커리어 고민이 있나요?</span></div>
+            <div class="search" onclick="openExplore()"><span class="i">🔍</span><span class="ph">질문·직무·회사로 찾아보세요</span></div>
             <div class="guide" style="margin-top:11px" onclick="toast('활용 가이드는 프로토타입에서 생략')"><span class="e">📄</span><span class="t">커피챗 활용 가이드</span><span class="a">›</span></div>
           </div>
           <div class="filters" id="filters"></div>
@@ -243,6 +260,16 @@
           </div>
         </div>
         <nav class="tabbar" id="tabbar1"></nav>
+      </section>
+
+      <!-- ==================== 1-b. 탐색/검색 ==================== -->
+      <section class="screen" id="s-explore">
+        <div class="topbar">
+          <button class="ic" onclick="go('list')">‹</button>
+          <input class="expl-input" id="explInput" placeholder="비전공자인데 데이터 분석가 될 수 있을까요?" oninput="exploreRender()" />
+        </div>
+        <div class="expl-scopes" id="explScopes"></div>
+        <div class="scroll"><div class="pad" id="exploreBody"></div></div>
       </section>
 
       <!-- ==================== 2. 홈 ==================== -->
@@ -470,6 +497,53 @@
   [1,2].forEach(n=>{
     document.getElementById('tabbar'+n).innerHTML = tabs.map(t=>`<div class="tb ${((n==1&&t.k=='list')||(n==2&&t.k=='home'))?'on':''}" onclick="tabGo('${t.k}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="${t.path}"/></svg>${t.label}</div>`).join('');
   });
+
+  /* ---------- 탐색/검색 (하이브리드: 질문·직무·회사) ---------- */
+  let scope = 'q'; // 'q' | 'job' | 'company'
+  const scopes = [{k:'q',label:'질문으로'},{k:'job',label:'직무로'},{k:'company',label:'회사로'}];
+  const placeholders = {q:'비전공자인데 데이터 분석가 될 수 있을까요?', job:'예: 마케팅, 데이터, UX/UI', company:'예: 토스, 네이버, 외국계'};
+  const popCompanies = [
+    {name:'토스', logo:{text:'toss',bg:'#3182F6'}},{name:'네이버', logo:{text:'NAVER',bg:'#03C75A'}},
+    {name:'당근', logo:{text:'당근',bg:'#FF6F0F'}},{name:'존슨앤존슨', logo:{text:'J&J',bg:'#EB1700'}},
+    {name:'외국계', logo:null},{name:'스타트업', logo:null},{name:'대기업', logo:null},
+  ];
+  const popJobs = ['마케팅/브랜드','데이터/AI','UX/UI','PM/기획','BD/사업개발','영업','콘텐츠/미디어','HR','금융/전략'];
+  const recentQs = ['비전공자인데 데이터 분석가 될 수 있을까요?','스타트업 첫 커리어, 괜찮을까요?','브랜드 마케터는 무슨 일을 하나요?'];
+  function openExplore(){ scope='q'; document.getElementById('explInput').value=''; renderScopes(); exploreRender(); go('explore'); }
+  function setScope(k){ scope=k; document.getElementById('explInput').placeholder=placeholders[k]; renderScopes(); exploreRender(); }
+  function renderScopes(){
+    document.getElementById('explScopes').innerHTML = scopes.map(s=>`<div class="escope ${s.k===scope?'on':''}" onclick="setScope('${s.k}')">${s.label}</div>`).join('');
+  }
+  function logoChip(name, logo){
+    const lg = logo ? `<span class="logo" style="background:${logo.bg}">${logo.text}</span>` : '';
+    return `<div class="cchip ${logo?'':'plain'}" onclick="searchFor('${name}')">${lg}${name}</div>`;
+  }
+  function exploreRender(){
+    const qv = (document.getElementById('explInput').value||'').trim().toLowerCase();
+    const body = document.getElementById('exploreBody');
+    if(!qv){
+      let html='';
+      if(scope==='q'){
+        html += `<div class="expl-sec">이렇게 물어보세요</div>` + recentQs.map(q=>`<div class="rq" onclick="searchFor('${q}')"><span class="m">Q</span>${q}</div>`).join('');
+      }
+      if(scope==='q'||scope==='job'){
+        html += `<div class="expl-sec">직무로 찾기</div><div class="chipwrap">` + popJobs.map(j=>`<div class="jchip" onclick="searchFor('${j}')">${j}</div>`).join('') + `</div>`;
+      }
+      if(scope==='q'||scope==='company'){
+        html += `<div class="expl-sec">회사로 찾기</div><div class="chipwrap">` + popCompanies.map(c=>logoChip(c.name,c.logo)).join('') + `</div>`;
+      }
+      body.innerHTML = html;
+      return;
+    }
+    // 매칭: 회사·직무·역할·태그·질문 전체 대상 (의도/엔티티 하이브리드)
+    const hits = coaches.filter(c=>{
+      const hay = [c.company,c.companyType,c.job,c.role,c.meta,c.q,...(c.tags||[]),...(c.rec||[])].join(' ').toLowerCase();
+      return qv.split(/\s+/).some(w=>hay.includes(w));
+    });
+    body.innerHTML = `<div class="expl-sec">‘${document.getElementById('explInput').value.trim()}’ 결과 ${hits.length}명</div>`
+      + (hits.length ? hits.map(coachCard).join('') : `<div class="empty">일치하는 파트너가 없어요.<br>다른 키워드로 찾아보세요.</div>`);
+  }
+  function searchFor(t){ const el=document.getElementById('explInput'); el.value=t; exploreRender(); }
 
   /* ---------- 코치 상세 ---------- */
   function openCoach(id){
