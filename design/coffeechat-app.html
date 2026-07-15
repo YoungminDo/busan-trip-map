@@ -140,6 +140,14 @@
   .scard .srole .logo{height:17px;padding:0 5px;font-size:9px;margin:0;border-radius:5px}
   .scard .syr{font-size:11.5px;color:var(--brand-ink);font-weight:700;margin-top:3px}
   .scard .swho{display:flex;align-items:center;gap:6px;margin-top:12px;font-size:11px;color:var(--muted);font-weight:600}
+  .ctx.rec{color:#5566A8;background:#EEF0F8}
+  /* 인피드 추천 블록 (광고 아님 · 추천) */
+  .reco{background:var(--brand-soft2);border:1px solid #DDEBE7;border-radius:16px;margin:4px 0 13px;padding:14px 0 4px}
+  .reco-h{font-size:14px;font-weight:800;letter-spacing:-.01em;padding:0 15px 12px;display:flex;align-items:center;gap:7px}
+  .reco-h .reco-tag{margin-left:auto;font-size:9.5px;font-weight:800;color:var(--muted);background:#fff;border:1px solid var(--line);padding:2px 8px;border-radius:999px;letter-spacing:.02em}
+  .reco-row{padding:0 15px 8px}
+  .reco-row .scard{background:#fff}
+  .feed-end{text-align:center;font-size:12px;color:var(--muted);font-weight:600;padding:16px 0 8px}
 
   /* 홈 가로 카드 */
   .hrow{display:flex;gap:11px;overflow-x:auto;padding:2px 18px 4px;scrollbar-width:none}
@@ -266,22 +274,18 @@
           <div class="ttl">커피챗</div><div class="sp"></div>
           <div class="coin">☕ 커피콩 1</div>
         </div>
-        <div class="scroll">
+        <div class="scroll" id="listScroll">
           <div class="pad" style="padding-bottom:6px">
             <div class="search" onclick="openExplore()"><span class="i">🔍</span><span class="ph">질문·직무·회사로 찾아보세요</span></div>
             <div class="guide" style="margin-top:11px" onclick="toast('활용 가이드는 프로토타입에서 생략')"><span class="e">📄</span><span class="t">커피챗 활용 가이드</span><span class="a">›</span></div>
           </div>
           <div class="filters" id="filters"></div>
 
-          <div class="pad" style="padding:14px 18px 0"><div class="sec-h" style="margin:6px 4px 2px">⚡ 이번 주 응답이 빨랐던 파트너</div></div>
-          <div class="hrow" id="shelfFast"></div>
-          <div class="pad" style="padding:2px 18px 0"><div class="sec-h" style="margin:16px 4px 2px">💚 이번 주 많은 도움을 준 파트너</div></div>
-          <div class="hrow" id="shelfHelp"></div>
-
           <div class="pad" style="padding-top:2px">
-            <div class="sec-h" style="margin-top:20px">현직자 커피챗</div>
+            <div class="sec-h" style="margin-top:16px">현직자 커피챗</div>
             <div class="sec-sub">헬로마이미가 직접 검증한 현직자예요. <b>내 질문에 맞는지</b> 먼저 보세요.</div>
-            <div id="coachlist"></div>
+            <div id="feed"></div>
+            <div id="feedEnd" class="feed-end"></div>
           </div>
         </div>
         <nav class="tabbar" id="tabbar1"></nav>
@@ -505,34 +509,66 @@
       <div class="who"><div class="face sm">${faceSvg}</div><div class="n">${c.name} 파트너</div></div>
     </div>`;
   }
-  // 큐레이션 선반 카드 — 순위 번호 없음(코치 명예 보호), 맥락(빠름/도움)으로만 묶음
-  function shelfCard(c, type){
-    const ctx = type==='fast'
-      ? `<span class="ctx fast">⚡ ${c.time.replace('평균 ','')} 내 답변</span>`
-      : `<span class="ctx help">💚 도움됐어요 ${c.help}%</span>`;
-    const title = variant==='company'
-      ? `<div class="srole"><span class="logo" style="background:${c.logo.bg}">${c.logo.text}</span>${c.company} · ${c.job}</div>`
-      : `<div class="srole">${c.role}</div>`;
+  // 선반 카드 — 순위 번호 없음(코치 명예 보호), 맥락 칩으로만 묶음
+  function shelfCard(c, ctx){
     return `<div class="scard" onclick="openCoach('${c.id}')">
-      ${ctx}${title}<div class="syr">${c.yr}</div>
+      <span class="ctx ${ctx.cls}">${ctx.text}</span>
+      <div class="srole"><span class="logo" style="background:${c.logo.bg}">${c.logo.text}</span>${c.company} · ${c.job}</div>
+      <div class="syr">${c.yr}</div>
       <div class="swho"><div class="face sm">${faceSvg}</div><span>${c.name} 파트너</span></div>
     </div>`;
   }
   const num = t => parseInt(String(t).replace(/[^0-9]/g,'')) || 999;
   function renderCards(){
-    document.getElementById('coachlist').innerHTML = coaches.map(coachCard).join('');
     document.getElementById('homerow').innerHTML = coaches.map(homeCard).join('');
-    const byFast = [...coaches].sort((a,b)=>num(a.time)-num(b.time));
-    const byHelp = [...coaches].sort((a,b)=>b.help-a.help);
-    document.getElementById('shelfFast').innerHTML = byFast.map(c=>shelfCard(c,'fast')).join('');
-    document.getElementById('shelfHelp').innerHTML = byHelp.map(c=>shelfCard(c,'help')).join('');
   }
+
+  /* ---------- 인피드 추천 + 무한 스크롤 ---------- */
+  // 코치가 돈 내서 오르는 '광고'가 아니라 알고리즘 '추천' 블록 (명예 보호)
+  const recoDefs = [
+    { icon:'⚡', title:'이번 주 응답이 빨랐던 파트너',
+      pick:()=>[...coaches].sort((a,b)=>num(a.time)-num(b.time)),
+      ctx:c=>({cls:'fast', text:`⚡ ${c.time.replace('평균 ','')} 내 답변`}) },
+    { icon:'💚', title:'이번 주 많은 도움을 준 파트너',
+      pick:()=>[...coaches].sort((a,b)=>b.help-a.help),
+      ctx:c=>({cls:'help', text:`💚 도움됐어요 ${c.help}%`}) },
+    { icon:'🎯', title:'비전공·문과생에게 추천',
+      pick:()=>coaches.filter(c=>c.rec.some(r=>/비전공|문과|입문/.test(r))).concat(coaches),
+      ctx:c=>({cls:'rec', text:`🎯 ${c.rec[0]}`}) },
+    { icon:'🌏', title:'외국계·글로벌이 궁금하다면',
+      pick:()=>coaches.filter(c=>/외국계|글로벌/.test(c.companyType+c.meta)).concat(coaches),
+      ctx:c=>({cls:'rec', text:`🌏 ${c.companyType}`}) },
+  ];
+  function shuffled(arr){ const a=[...arr]; for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
+  function recoBlock(def){
+    const list = def.pick().filter((c,i,self)=>self.findIndex(x=>x.id===c.id)===i).slice(0,4);
+    return `<div class="reco">
+      <div class="reco-h"><span>${def.icon}</span>${def.title}<span class="reco-tag">추천</span></div>
+      <div class="hrow reco-row">${list.map(c=>shelfCard(c,def.ctx(c))).join('')}</div>
+    </div>`;
+  }
+  let feedCount=0, recoQueue=[], MAXFEED=20;
+  function nextReco(){ if(!recoQueue.length) recoQueue=shuffled(recoDefs); return recoQueue.shift(); }
+  function appendBatch(){
+    if(feedCount>=MAXFEED){ document.getElementById('feedEnd').innerHTML='검증된 파트너를 모두 둘러봤어요 ☕'; return; }
+    let html='';
+    const pool = shuffled(coaches);
+    for(let i=0;i<3 && feedCount<MAXFEED;i++){ html += coachCard(pool[i%pool.length]); feedCount++; }
+    html += recoBlock(nextReco());   // 3장마다 추천 블록 삽입
+    document.getElementById('feed').insertAdjacentHTML('beforeend', html);
+  }
+  function buildFeed(){ feedCount=0; recoQueue=[]; document.getElementById('feed').innerHTML=''; document.getElementById('feedEnd').innerHTML='불러오는 중…'; appendBatch(); appendBatch(); }
+  document.getElementById('listScroll').addEventListener('scroll', e=>{
+    const el=e.target;
+    if(el.scrollTop+el.clientHeight >= el.scrollHeight-320) appendBatch();
+  });
   function setVariant(v){
     variant = v;
     document.querySelectorAll('.seg-b').forEach(b=>b.classList.toggle('on', b.dataset.v===v));
     renderCards();
   }
   renderCards();
+  buildFeed();
   document.getElementById('filters').innerHTML = filters.map((f,i)=>`<div class="fp ${f.on?'on':''}" onclick="toggleFilter(this)">${f.label}${f.drop?' ▾':''}</div>`).join('');
   document.getElementById('answermode').innerHTML = answerModes.map(m=>`<div class="seltag" onclick="this.classList.toggle('on')">${m}</div>`).join('');
   [1,2].forEach(n=>{
