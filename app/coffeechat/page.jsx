@@ -177,7 +177,7 @@ export default function CoffeeChat() {
 
           {/* ===== 리스트 ===== */}
           <section className={`screen ${screen === "list" ? "active" : ""}`}>
-            <div className="topbar"><div className="ttl">커피챗</div><div className="sp" /><div className="coin">🎫 티켓 1</div></div>
+            <div className="topbar"><div className="ttl">커피챗</div><div className="sp" /><div className="coin">☕ 커피콩 1</div></div>
             <div className="scroll">
               <div className="pad" style={{ paddingBottom: 6 }}>
                 <div className="search" onClick={() => go("write")}><span className="i">✎</span><span className="ph">어떤 커리어 고민이 있나요?</span></div>
@@ -262,8 +262,8 @@ export default function CoffeeChat() {
               </div>
             </div>
             <div className="ctabar">
-              <button className="cta" onClick={() => go("write")}>🎫 질문 티켓으로 물어보기</button>
-              <div className="ctasub">990원 · 정중하게 질문 1개를 남길 수 있어요</div>
+              <button className="cta" onClick={() => go("write")}>☕ 커피콩으로 질문하기</button>
+              <div className="ctasub">커피콩 1개 · 990원 · 정중하게 질문 1개를 전달해요</div>
             </div>
           </section>
 
@@ -287,18 +287,18 @@ export default function CoffeeChat() {
                 <div className="tags">{ANSWER_MODES.map((m) => <div key={m} className={`seltag ${modes.includes(m) ? "on" : ""}`} onClick={() => toggleMode(m)}>{m}</div>)}</div>
               </div>
             </div>
-            <div className="ctabar"><button className="cta" onClick={() => go("pay")}>질문 미리보고 티켓 사용하기</button></div>
+            <div className="ctabar"><button className="cta" onClick={() => go("pay")}>질문 미리보고 전달하기</button></div>
           </section>
 
           {/* ===== 결제 ===== */}
           <section className={`screen ${screen === "pay" ? "active" : ""}`}>
-            <div className="topbar"><button className="ic" onClick={back}>‹</button><div className="ttl">질문 티켓</div></div>
+            <div className="topbar"><button className="ic" onClick={back}>‹</button><div className="ttl">커피콩으로 전달</div></div>
             <div className="scroll">
               <div className="pad">
                 <div className="ticket">
-                  <div className="tp">🎫 질문 티켓 1장</div>
+                  <div className="tp">☕ 커피콩 1개</div>
                   <div className="pr">990원</div>
-                  <div className="ds">현직자의 시간을 존중하며,<br />정중하게 질문 1개를 남길 수 있어요.</div>
+                  <div className="ds">질문이 준비됐어요.<br />커피콩으로 정중하게 전달할까요?</div>
                   <div className="ln" />
                   <div style={{ fontSize: 12, opacity: 0.92, lineHeight: 1.55 }}>무료 DM은 학생도 망설여지고, 현직자도 답하기 어렵습니다. 헬로마이미는 <b>부담 없이 묻고 정중하게 답하는 구조</b>를 만듭니다.</div>
                 </div>
@@ -308,15 +308,15 @@ export default function CoffeeChat() {
                   <div className="cfoot"><div className="face sm"><FaceSvg /></div><div className="nm"><b>{coach.role} · {coach.yr}</b><br />{coach.name} 파트너</div></div>
                 </div>
                 <div className="safe" style={{ marginTop: 13 }}>
-                  <div className="r"><span className="c">✓</span><span>답변이 없으면 티켓은 <b>자동으로 복구</b>돼요.</span></div>
+                  <div className="r"><span className="c">✓</span><span>코치가 답하지 못하면 <b>커피콩을 돌려드려요</b>.</span></div>
                   <div className="r"><span className="c">✓</span><span>전송 전까지 질문을 <b>수정</b>할 수 있어요.</span></div>
                   <div className="r"><span className="c">✓</span><span>답변은 평균 <b>24시간 내</b> 도착해요.</span></div>
                 </div>
               </div>
             </div>
             <div className="ctabar">
-              <button className="cta amber" onClick={() => go("done")}>🎫 질문 티켓 사용하기</button>
-              <div className="ctasub">결제 즉시 파트너에게 정중하게 전달돼요</div>
+              <button className="cta amber" onClick={() => go("done")}>☕ 커피콩으로 전달하기 · 990원</button>
+              <div className="ctasub">전달 즉시 파트너가 질문을 받아요</div>
             </div>
           </section>
 
@@ -325,7 +325,7 @@ export default function CoffeeChat() {
             <div className="scroll">
               <div className="done-hero">
                 <div className="circle">✓</div>
-                <h2>질문이 파트너에게<br />전달되었어요</h2>
+                <h2>커피콩과 함께 질문이<br />전달되었어요</h2>
                 <p>평균 24시간 내 답변을 받을 수 있어요.<br />도착하면 알림으로 알려드릴게요.</p>
               </div>
               <div className="pad">
@@ -347,7 +347,7 @@ export default function CoffeeChat() {
         </div>
       </div>
 
-      <div className="hint">💡 <b>코치 카드를 탭</b>하면 상세로, <b>질문 티켓으로 물어보기</b>를 누르면 작성→결제→완료 흐름이 이어집니다. 하단 탭바에서 <b>홈</b>도 확인해 보세요.</div>
+      <div className="hint">💡 <b>코치 카드를 탭</b>하면 상세로, <b>커피콩으로 질문하기</b>를 누르면 작성→미리보기→커피콩 전달→완료 흐름이 이어집니다. 하단 탭바에서 <b>홈</b>도 확인해 보세요.</div>
     </div>
   );
 }
