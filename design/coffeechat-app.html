@@ -130,6 +130,17 @@
   .cfoot .nm{font-size:12px;color:var(--muted);font-weight:600}
   .cfoot .nm b{color:var(--ink-soft)}
 
+  /* 큐레이션 선반 카드 (순위 없음) */
+  .scard{flex:0 0 194px;background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:var(--shadow);cursor:pointer}
+  .scard:active{transform:scale(.99)}
+  .ctx{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:800;padding:4px 9px;border-radius:999px;margin-bottom:11px}
+  .ctx.fast{color:var(--brand-ink);background:var(--brand-soft)}
+  .ctx.help{color:#B26B12;background:var(--amber-soft)}
+  .scard .srole{font-size:13.5px;font-weight:800;line-height:1.32;letter-spacing:-.01em;display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+  .scard .srole .logo{height:17px;padding:0 5px;font-size:9px;margin:0;border-radius:5px}
+  .scard .syr{font-size:11.5px;color:var(--brand-ink);font-weight:700;margin-top:3px}
+  .scard .swho{display:flex;align-items:center;gap:6px;margin-top:12px;font-size:11px;color:var(--muted);font-weight:600}
+
   /* 홈 가로 카드 */
   .hrow{display:flex;gap:11px;overflow-x:auto;padding:2px 18px 4px;scrollbar-width:none}
   .hrow::-webkit-scrollbar{display:none}
@@ -261,13 +272,15 @@
             <div class="guide" style="margin-top:11px" onclick="toast('활용 가이드는 프로토타입에서 생략')"><span class="e">📄</span><span class="t">커피챗 활용 가이드</span><span class="a">›</span></div>
           </div>
           <div class="filters" id="filters"></div>
+
+          <div class="pad" style="padding:14px 18px 0"><div class="sec-h" style="margin:6px 4px 2px">⚡ 이번 주 응답이 빨랐던 파트너</div></div>
+          <div class="hrow" id="shelfFast"></div>
+          <div class="pad" style="padding:2px 18px 0"><div class="sec-h" style="margin:16px 4px 2px">💚 이번 주 많은 도움을 준 파트너</div></div>
+          <div class="hrow" id="shelfHelp"></div>
+
           <div class="pad" style="padding-top:2px">
-            <div class="sec-h">현직자 커피챗</div>
+            <div class="sec-h" style="margin-top:20px">현직자 커피챗</div>
             <div class="sec-sub">헬로마이미가 직접 검증한 현직자예요. <b>내 질문에 맞는지</b> 먼저 보세요.</div>
-            <div class="seg">
-              <div class="seg-b" data-v="role" onclick="setVariant('role')">역할 중심</div>
-              <div class="seg-b on" data-v="company" onclick="setVariant('company')">회사·직무 중심 <span class="hy">가설</span></div>
-            </div>
             <div id="coachlist"></div>
           </div>
         </div>
@@ -467,9 +480,7 @@
   /* ---------- 렌더 ---------- */
   let variant = 'company'; // 'role' | 'company'(가설)
   function titleHTML(c){
-    return variant==='company'
-      ? `<div class="role"><span class="logo" style="background:${c.logo.bg}">${c.logo.text}</span><span class="co">${c.company}</span> · ${c.job} <span class="yr">· ${c.yr}</span></div><div class="meta">${c.companyType} · ${c.role}</div>`
-      : `<div class="role">${c.role} <span class="yr">· ${c.yr}</span></div><div class="meta">${c.meta}</div>`;
+    return `<div class="role"><span class="logo" style="background:${c.logo.bg}">${c.logo.text}</span><span class="co">${c.company}</span> · ${c.job} <span class="yr">· ${c.yr}</span></div><div class="meta">${c.companyType}</div>`;
   }
   function coachCard(c){
     return `<div class="ccard" onclick="openCoach('${c.id}')">
@@ -494,9 +505,27 @@
       <div class="who"><div class="face sm">${faceSvg}</div><div class="n">${c.name} 파트너</div></div>
     </div>`;
   }
+  // 큐레이션 선반 카드 — 순위 번호 없음(코치 명예 보호), 맥락(빠름/도움)으로만 묶음
+  function shelfCard(c, type){
+    const ctx = type==='fast'
+      ? `<span class="ctx fast">⚡ ${c.time.replace('평균 ','')} 내 답변</span>`
+      : `<span class="ctx help">💚 도움됐어요 ${c.help}%</span>`;
+    const title = variant==='company'
+      ? `<div class="srole"><span class="logo" style="background:${c.logo.bg}">${c.logo.text}</span>${c.company} · ${c.job}</div>`
+      : `<div class="srole">${c.role}</div>`;
+    return `<div class="scard" onclick="openCoach('${c.id}')">
+      ${ctx}${title}<div class="syr">${c.yr}</div>
+      <div class="swho"><div class="face sm">${faceSvg}</div><span>${c.name} 파트너</span></div>
+    </div>`;
+  }
+  const num = t => parseInt(String(t).replace(/[^0-9]/g,'')) || 999;
   function renderCards(){
     document.getElementById('coachlist').innerHTML = coaches.map(coachCard).join('');
     document.getElementById('homerow').innerHTML = coaches.map(homeCard).join('');
+    const byFast = [...coaches].sort((a,b)=>num(a.time)-num(b.time));
+    const byHelp = [...coaches].sort((a,b)=>b.help-a.help);
+    document.getElementById('shelfFast').innerHTML = byFast.map(c=>shelfCard(c,'fast')).join('');
+    document.getElementById('shelfHelp').innerHTML = byHelp.map(c=>shelfCard(c,'help')).join('');
   }
   function setVariant(v){
     variant = v;
