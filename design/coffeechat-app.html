@@ -189,6 +189,16 @@
   .dsec{font-size:14.5px;font-weight:800;margin:22px 4px 10px;display:flex;align-items:center;gap:7px}
   .dsec-tag{font-size:10px;font-weight:800;color:var(--brand-ink);background:var(--brand-soft);padding:3px 8px;border-radius:999px}
   .about{font-size:13.5px;color:var(--ink-soft);line-height:1.7}
+  .trust{background:var(--brand-soft2);border:1px solid #D6EFEB;border-radius:14px;padding:14px 15px}
+  .trow{display:flex;align-items:center;gap:9px;font-size:13px;font-weight:700;color:var(--brand-deep);margin-bottom:8px}
+  .trow .tk{width:16px;height:16px;border-radius:50%;background:var(--brand);color:#fff;display:flex;align-items:center;justify-content:center;font-size:10px;flex:0 0 auto}
+  .tnote{font-size:12px;color:var(--ink-soft);line-height:1.6;margin-top:4px;padding-top:10px;border-top:1px solid #DCEBE6}
+  .multi{margin-top:10px;background:#fff;border:1px dashed #CFE2DA;border-radius:12px;padding:11px 13px;font-size:12.5px;color:var(--ink-soft);cursor:pointer}
+  .multi b{color:var(--brand-ink)}
+  .upsell{background:linear-gradient(135deg,#EFFAF8,#E3F7F4);border:1px solid #CFE9E3;border-radius:16px;padding:16px;cursor:pointer}
+  .upsell .ut{font-size:13.5px;color:var(--ink);line-height:1.6}
+  .upsell .ut b{color:var(--brand-ink)}
+  .upsell .ub{font-size:12.5px;font-weight:800;color:var(--brand-ink);margin-top:10px}
   .bullets{list-style:none;margin:0;padding:0}
   .bullets li{position:relative;padding:4px 0 4px 17px;font-size:13.5px;color:var(--ink-soft);line-height:1.55}
   .bullets li::before{content:"";position:absolute;left:2px;top:11px;width:5px;height:5px;border-radius:50%;background:var(--brand)}
@@ -439,7 +449,7 @@
       intro:'통계·코딩 전공이 아니어도 데이터 직무는 갈 수 있어요. 비전공자가 방학에 뭐부터 준비할지, 현실적인 로드맵을 같이 그려드려요.',
       about:'안녕하세요. 데이터 분석 17년차, 한태용입니다.\n비전공으로 시작해 지금은 핀테크에서 데이터팀을 이끌고 있어요. 통계·코딩을 처음부터 다 알 필요 없어요. 뭐부터, 어떤 순서로 준비하면 되는지 안에서 본 시선으로 솔직하게 정리해드려요.',
       recWho:['데이터 직무가 궁금한 비전공·문과생','코딩 경험이 거의 없어 막막한 분','방학에 뭘 준비할지 모르는 분'],
-      career:[{o:'토스',r:'데이터 분석 리더',p:'2019–현재'},{o:'카카오',r:'데이터 분석가',p:'2014–2019'},{o:'서강대',r:'통계학과',p:'졸업'}],
+      career:[{o:'토스',r:'데이터 분석 리더',p:'2019–현재'},{o:'카카오',r:'데이터 분석가',p:'2014–2019'},{o:'서강대',r:'통계학과',p:'졸업'}], school:'서강대', alsoAt:['카카오'],
       q:'비전공자인데 데이터 분석가가 될 수 있을까요?', tags:['#비전공자','#데이터입문','#포트폴리오'],
       help:94, cnt:31, time:'평균 12시간', name:'한태용', badge:true,
       mission:'통계·코딩 전공이 아니어도 데이터 일은 가능해요. 전공자와 비전공자 모두의 로드맵을 함께 그려드릴게요.',
@@ -454,7 +464,7 @@
       intro:'막연한 "사업개발"이 실제로 뭘 하는 일인지, 외국계·스타트업·글로벌에서 어떻게 다른지 15년 경험으로 구체적으로 정리해드려요.',
       about:'안녕하세요. 사업개발(BD) 15년차 민영호입니다.\n스타트업부터 글로벌 헬스케어까지 여러 회사에서 BD를 해왔어요. 회사마다 BD가 어떻게 다른지, 영업과는 뭐가 다른지, 신입은 뭘 준비하면 되는지 솔직하게 풀어드려요.',
       recWho:['사업개발(BD)이 실제로 뭔지 궁금한 분','외국계·글로벌 커리어가 궁금한 분','영업과 BD 차이가 헷갈리는 분'],
-      career:[{o:'존슨앤존슨',r:'BD 디렉터',p:'2016–현재'},{o:'스타트업 3곳',r:'사업개발',p:'2009–2016'},{o:'연세대',r:'경영학과',p:'졸업'}],
+      career:[{o:'존슨앤존슨',r:'BD 디렉터',p:'2016–현재'},{o:'스타트업 3곳',r:'사업개발',p:'2009–2016'},{o:'연세대',r:'경영학과',p:'졸업'}], school:'연세대', alsoAt:[],
       q:'외국계 BD, 신입은 어떻게 준비하나요?', tags:['#BD','#사업개발','#외국계'],
       help:91, cnt:24, time:'평균 20시간', name:'민영호', badge:true,
       mission:'외국계·스타트업·글로벌의 BD가 회사마다 어떻게 다른지, 15년간 겪은 걸 솔직하게 풀어드릴게요.',
@@ -469,7 +479,7 @@
       intro:'학생과 가장 가까운 주니어 디자이너예요. 포트폴리오에 뭘 담아야 할지, 비전공도 될 수 있을지 편하게 같이 풀어봐요.',
       about:'안녕하세요. 스타트업 UX/UI 디자이너 이민지예요.\n학생과 나이 차이가 크지 않아 더 편하게 물어볼 수 있어요. 첫 포트폴리오를 어떻게 시작할지, 비전공도 되는지, 취업 준비의 현실을 같이 풀어봐요.',
       recWho:['첫 디자인 포트폴리오가 막막한 분','비전공인데 디자이너가 되고 싶은 분','나이 가까운 선배에게 편하게 묻고 싶은 분'],
-      career:[{o:'당근',r:'UX/UI 디자이너',p:'2022–현재'},{o:'디자인 에이전시',r:'인턴',p:'2021'},{o:'홍익대',r:'시각디자인과',p:'졸업'}],
+      career:[{o:'당근',r:'UX/UI 디자이너',p:'2022–현재'},{o:'디자인 에이전시',r:'인턴',p:'2021'},{o:'홍익대',r:'시각디자인과',p:'졸업'}], school:'홍익대', alsoAt:[],
       q:'신입 디자이너 포트폴리오, 뭐가 중요해요?', tags:['#UXUI','#디자이너','#포트폴리오'],
       help:96, cnt:18, time:'평균 6시간', name:'이민지', badge:true,
       mission:'학생과 가장 가까운 신입 디자이너예요. 진로 고민, 같이 풀어봐요!',
@@ -484,7 +494,7 @@
       intro:'브랜드·퍼포먼스·그로스… 헷갈리는 마케팅 직무를 한 장으로 정리해드려요. 문과생이 뭐부터 시작할지 방향을 잡아드려요.',
       about:'안녕하세요. 마케팅 12년차 강우연입니다.\nP&G 브랜드 매니저부터 IT 플랫폼 마케팅 리더까지, 마케팅의 여러 갈래를 두루 겪었어요. 브랜드·퍼포먼스·그로스가 어떻게 다른지, 문과생이 뭐부터 시작하면 되는지 한눈에 정리해드려요.',
       recWho:['마케팅 직무가 너무 많아 헷갈리는 분','문과생이 마케터가 되려는 분','브랜드·퍼포먼스·그로스가 헷갈리는 분'],
-      career:[{o:'네이버',r:'마케팅 리더',p:'2018–현재'},{o:'P&G',r:'브랜드 매니저',p:'2012–2018'},{o:'고려대',r:'경영학과',p:'졸업'}],
+      career:[{o:'네이버',r:'마케팅 리더',p:'2018–현재'},{o:'P&G',r:'브랜드 매니저',p:'2012–2018'},{o:'고려대',r:'경영학과',p:'졸업'}], school:'홍익대', alsoAt:['P&G'],
       q:'마케팅 직무가 이렇게 많은데 뭘 골라야 하죠?', tags:['#마케팅전략','#브랜드','#그로스'],
       help:93, cnt:37, time:'평균 15시간', name:'강우연', badge:true,
       mission:'브랜드·퍼포먼스·그로스·전략 등 마케팅 직무를 12년 시선으로 한눈에 정리해드릴게요.',
@@ -553,6 +563,7 @@
 
   /* ---------- 인피드 추천 + 무한 스크롤 ---------- */
   // 코치가 돈 내서 오르는 '광고'가 아니라 알고리즘 '추천' 블록 (명예 보호)
+  const MY_SCHOOL = '홍익대'; // 로그인하면 학생 학교로 개인화
   const recoDefs = [
     { icon:'⚡', title:'이번 주 응답이 빨랐던 파트너',
       pick:()=>[...coaches].sort((a,b)=>num(a.time)-num(b.time)),
@@ -566,6 +577,9 @@
     { icon:'🌏', title:'외국계·글로벌이 궁금하다면',
       pick:()=>coaches.filter(c=>/외국계|글로벌/.test(c.companyType+c.meta)).concat(coaches),
       ctx:c=>({cls:'rec', text:`🌏 ${c.companyType}`}) },
+    { icon:'🎓', title:`나와 같은 ${MY_SCHOOL} 선배`,
+      pick:()=>coaches.filter(c=>c.school===MY_SCHOOL).concat(coaches),
+      ctx:c=>({cls:'rec', text:`🎓 ${c.school} 선배`}) },
   ];
   function shuffled(arr){ const a=[...arr]; for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
   function recoBlock(def){
@@ -678,6 +692,14 @@
         <div class="mission"><div class="l">💬 이런 고민을 도와드려요</div><div class="t">${c.intro}</div></div>
       </div>
       <div class="pad">
+        <div class="dsec">신뢰 정보</div>
+        <div class="trust">
+          <div class="trow"><span class="tk">✓</span>재직·경력 인증 완료</div>
+          <div class="trow"><span class="tk">✓</span>실명 인증 (프로필엔 비공개)</div>
+          <div class="tnote">실명·얼굴은 파트너 선택으로 비공개예요. 헬로마이미가 신원과 경력을 <b>직접 확인</b>했으니 안심하고 질문하세요.</div>
+        </div>
+        ${c.alsoAt&&c.alsoAt.length?`<div class="multi">💼 <b>${c.alsoAt.join('·')}</b> 경력도 있어요 · 이 회사 궁금하면 그 프로필도 보기 ›</div>`:''}
+
         <div class="dsec">어떤 파트너예요</div>
         <div class="about">${c.about.replace(/\n/g,'<br>')}</div>
 
@@ -704,6 +726,12 @@
         <div class="sample"><div class="q">Q. ${c.sampleQ}</div><div class="a">${c.sampleA} <span style="color:var(--muted)">(미리보기)</span></div></div>
         <div class="dsec">도움 후기</div>
         <div class="review"><div class="tags" style="margin-bottom:8px">${c.reviewTags.map(t=>`<span class="tag b">${t}</span>`).join('')}</div><div class="txt">${c.review}</div><div class="by">${c.reviewBy}</div></div>
+
+        <div class="dsec">더 깊게 이야기하고 싶다면</div>
+        <div class="upsell" onclick="toast('비대면 상담은 다음 단계에서 연결돼요')">
+          <div class="ut"><b>커피콩 질문</b>으로 시작해, 더 깊은 고민은<br><b>비대면 상담(30분)</b>으로 이어갈 수 있어요</div>
+          <div class="ub">비대면 상담 알아보기 ›</div>
+        </div>
       </div>`;
     document.getElementById('payto').innerHTML = `<div class="face sm">${faceSvg}</div><div class="nm"><b>${c.role} · ${c.yr}</b><br>${c.name} 파트너</div>`;
     go('detail');
