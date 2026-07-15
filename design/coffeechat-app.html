@@ -61,6 +61,18 @@
   .rq{display:flex;gap:9px;padding:12px 14px;background:#fff;border:1px solid var(--line);border-radius:12px;margin-bottom:8px;font-size:13px;font-weight:600;cursor:pointer}
   .rq .m{color:var(--brand);font-weight:800}
   .empty{text-align:center;color:var(--muted);font-size:13px;padding:30px 0}
+  /* 실시간 인기 검색어(주제) 랭킹 */
+  .live{width:7px;height:7px;border-radius:50%;background:#E5556B;box-shadow:0 0 0 0 rgba(229,85,107,.5);animation:pulse 1.6s infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(229,85,107,.5)}70%{box-shadow:0 0 0 6px rgba(229,85,107,0)}100%{box-shadow:0 0 0 0 rgba(229,85,107,0)}}
+  .trend{background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:var(--shadow)}
+  .trend .row{display:flex;align-items:center;gap:13px;padding:12px 15px;border-top:1px solid var(--line-soft);cursor:pointer;font-size:13.5px;font-weight:600}
+  .trend .row:first-child{border-top:none}
+  .trend .rk{font-size:14px;font-weight:800;color:var(--muted);width:15px;text-align:center;font-variant-numeric:tabular-nums}
+  .trend .rk.top{color:var(--brand)}
+  .trend .tm{flex:1}
+  .dl{font-size:11px;font-weight:800}
+  .dl.up{color:#E5556B}.dl.down{color:#5B87E5}.dl.same{color:var(--muted)}
+  .dl.new{color:#fff;background:var(--amber);padding:2px 6px;border-radius:5px;font-size:9px}
 
   /* 검색/가이드 */
   .search{background:#fff;border:1.5px solid #E3E7EA;border-radius:15px;padding:14px 15px;display:flex;align-items:center;gap:10px;box-shadow:var(--shadow);cursor:text}
@@ -518,12 +530,30 @@
     const lg = logo ? `<span class="logo" style="background:${logo.bg}">${logo.text}</span>` : '';
     return `<div class="cchip ${logo?'':'plain'}" onclick="searchFor('${name}')">${lg}${name}</div>`;
   }
+  // 실시간 인기 '검색어(주제)' 랭킹 — 사람이 아닌 주제를 줄세움 (코치 명예 보호)
+  const trending = [
+    {t:'비전공 데이터 분석', d:'up'},{t:'스타트업 첫 커리어', d:'up'},{t:'외국계 마케팅', d:'new'},
+    {t:'포트폴리오 준비', d:'up'},{t:'UX/UI 디자이너', d:'same'},{t:'PM 직무', d:'down'},
+  ];
+  function trendMark(d){
+    if(d==='up') return `<span class="dl up">▲</span>`;
+    if(d==='down') return `<span class="dl down">▼</span>`;
+    if(d==='new') return `<span class="dl new">NEW</span>`;
+    return `<span class="dl same">–</span>`;
+  }
+  function renderTrending(){
+    return `<div class="expl-sec" style="display:flex;align-items:center;gap:6px"><span class="live"></span>지금 많이 찾는 검색어</div>`
+      + `<div class="trend">` + trending.map((r,i)=>
+        `<div class="row" onclick="searchFor('${r.t}')"><span class="rk ${i<3?'top':''}">${i+1}</span><span class="tm">${r.t}</span>${trendMark(r.d)}</div>`
+      ).join('') + `</div>`;
+  }
   function exploreRender(){
     const qv = (document.getElementById('explInput').value||'').trim().toLowerCase();
     const body = document.getElementById('exploreBody');
     if(!qv){
       let html='';
       if(scope==='q'){
+        html += renderTrending();
         html += `<div class="expl-sec">이렇게 물어보세요</div>` + recentQs.map(q=>`<div class="rq" onclick="searchFor('${q}')"><span class="m">Q</span>${q}</div>`).join('');
       }
       if(scope==='q'||scope==='job'){
