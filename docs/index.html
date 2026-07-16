@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>헬로마이미 커피챗 · 인터랙티브 프로토타입</title>
+<style>
+  :root{
+    --ink:#1B2733; --ink-soft:#51606E; --muted:#94A1AE; --line:#EBEEF1; --line-soft:#F3F6F8;
+    --bg:#F5F8F9; --card:#FFFFFF;
+    --brand:#12B5A6; --brand-ink:#0C8578; --brand-deep:#0A6E63; --brand-soft:#E3F7F4; --brand-soft2:#EFFAF8;
+    --amber:#E9962E; --amber-soft:#FCF1DE;
+    --chip:#EEF1F3; --chip-ink:#54626F;
+    --shadow:0 1px 2px rgba(20,40,50,.05),0 10px 26px rgba(20,40,50,.07);
+    --font:"Pretendard","Apple SD Gothic Neo",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Malgun Gothic",sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  body{background:#DDE4E6;font-family:var(--font);color:var(--ink);-webkit-font-smoothing:antialiased;line-height:1.5;
+    min-height:100vh;display:flex;flex-direction:column;align-items:center;gap:14px;padding:26px 16px 60px}
+  .headline{text-align:center;max-width:420px}
+  .headline .k{display:inline-block;font-size:11px;font-weight:800;letter-spacing:.1em;color:var(--brand-ink);background:var(--brand-soft);padding:5px 11px;border-radius:999px}
+  .headline h1{font-size:19px;font-weight:800;margin:9px 0 4px;letter-spacing:-.02em}
+  .headline p{font-size:12.5px;color:var(--ink-soft)}
+
+  /* ===== 폰 ===== */
+  .phone{width:390px;background:#0E1418;border-radius:46px;padding:11px;box-shadow:0 30px 60px rgba(10,20,25,.28);position:relative}
+  .notch{position:absolute;top:22px;left:50%;transform:translateX(-50%);width:118px;height:26px;background:#0E1418;border-radius:999px;z-index:60}
+  .screenwrap{background:var(--bg);border-radius:36px;height:820px;overflow:hidden;position:relative}
+  .statusbar{height:46px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 26px 5px;font-size:13px;font-weight:700;position:relative;z-index:10;background:var(--bg)}
+  .statusbar.onbrand{background:#fff}
+
+  /* 스크린 라우팅 */
+  .screen{position:absolute;inset:0;top:46px;bottom:0;display:none;flex-direction:column;background:var(--bg)}
+  .screen.active{display:flex;animation:fade .22s ease}
+  @keyframes fade{from{opacity:0;transform:translateX(8px)}to{opacity:1;transform:none}}
+  .scroll{flex:1;overflow-y:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  .scroll::-webkit-scrollbar{display:none}
+
+  /* 상단바 */
+  .topbar{display:flex;align-items:center;gap:10px;padding:10px 18px 12px;background:#fff;border-bottom:1px solid var(--line-soft)}
+  .topbar .ic{width:34px;height:34px;border-radius:11px;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:17px;color:var(--ink-soft);cursor:pointer;border:none}
+  .topbar .ttl{font-size:17px;font-weight:800;letter-spacing:-.01em}
+  .topbar .sp{flex:1}
+  .coin{display:flex;align-items:center;gap:5px;font-size:12.5px;font-weight:800;color:var(--amber);background:var(--amber-soft);padding:6px 11px;border-radius:999px}
+
+  .pad{padding:16px 18px 26px}
+
+  /* 탐색/검색 */
+  .expl-input{flex:1;border:1.5px solid var(--line);background:var(--bg);border-radius:12px;padding:11px 14px;font-size:14px;font-family:var(--font);color:var(--ink)}
+  .expl-input:focus{outline:none;border-color:var(--brand);background:#fff}
+  .expl-input::placeholder{color:var(--muted)}
+  .expl-scopes{display:flex;gap:7px;padding:11px 18px;background:#fff;border-bottom:1px solid var(--line-soft)}
+  .escope{font-size:12.5px;font-weight:800;color:var(--ink-soft);background:var(--bg);padding:8px 14px;border-radius:999px;cursor:pointer;transition:.15s}
+  .escope.on{background:var(--brand);color:#fff}
+  .expl-sec{font-size:12.5px;font-weight:800;color:var(--ink-soft);margin:18px 2px 11px;letter-spacing:.01em}
+  .chipwrap{display:flex;flex-wrap:wrap}
+  .cchip{display:inline-flex;align-items:center;gap:7px;background:#fff;border:1px solid var(--line);border-radius:999px;padding:7px 13px 7px 8px;font-size:12.5px;font-weight:700;cursor:pointer;margin:0 7px 8px 0}
+  .cchip.plain{padding-left:13px}
+  .cchip .logo{height:18px;padding:0 6px;font-size:9.5px;margin:0}
+  .jchip{display:inline-flex;background:#fff;border:1px solid var(--line);border-radius:999px;padding:9px 14px;font-size:12.5px;font-weight:700;cursor:pointer;margin:0 7px 8px 0;color:var(--ink-soft)}
+  .rq{display:flex;gap:9px;padding:12px 14px;background:#fff;border:1px solid var(--line);border-radius:12px;margin-bottom:8px;font-size:13px;font-weight:600;cursor:pointer}
+  .rq .m{color:var(--brand);font-weight:800}
+  .empty{text-align:center;color:var(--muted);font-size:13px;padding:30px 0}
+  /* 실시간 인기 검색어(주제) 랭킹 */
+  .live{width:7px;height:7px;border-radius:50%;background:#E5556B;box-shadow:0 0 0 0 rgba(229,85,107,.5);animation:pulse 1.6s infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(229,85,107,.5)}70%{box-shadow:0 0 0 6px rgba(229,85,107,0)}100%{box-shadow:0 0 0 0 rgba(229,85,107,0)}}
+  .trend{background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:var(--shadow)}
+  .trend .row{display:flex;align-items:center;gap:13px;padding:12px 15px;border-top:1px solid var(--line-soft);cursor:pointer;font-size:13.5px;font-weight:600}
+  .trend .row:first-child{border-top:none}
+  .trend .rk{font-size:14px;font-weight:800;color:var(--muted);width:15px;text-align:center;font-variant-numeric:tabular-nums}
+  .trend .rk.top{color:var(--brand)}
+  .trend .tm{flex:1}
+  .dl{font-size:11px;font-weight:800}
+  .dl.up{color:#E5556B}.dl.down{color:#5B87E5}.dl.same{color:var(--muted)}
+  .dl.new{color:#fff;background:var(--amber);padding:2px 6px;border-radius:5px;font-size:9px}
+
+  /* 검색/가이드 */
+  .search{background:#fff;border:1.5px solid #E3E7EA;border-radius:15px;padding:14px 15px;display:flex;align-items:center;gap:10px;box-shadow:var(--shadow);cursor:text}
+  .search .i{color:var(--brand);font-size:16px}
+  .search .ph{color:var(--muted);font-size:13.5px}
+
+  .guide{display:flex;align-items:center;gap:11px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:13px 15px;cursor:pointer;box-shadow:var(--shadow)}
+  .guide .e{font-size:18px}
+  .guide .t{font-size:13.5px;font-weight:700;flex:1}
+  .guide .a{color:var(--muted)}
+
+  /* 필터 */
+  .filters{display:flex;gap:7px;overflow-x:auto;padding:12px 18px;scrollbar-width:none;background:var(--bg)}
+  .filters::-webkit-scrollbar{display:none}
+  .fp{flex:0 0 auto;font-size:12.5px;font-weight:700;color:var(--ink-soft);background:#fff;border:1px solid var(--line);padding:8px 13px;border-radius:999px;white-space:nowrap;cursor:pointer;transition:.15s;display:flex;align-items:center;gap:5px}
+  .fp.on{background:var(--brand-soft);border-color:#BFEAE3;color:var(--brand-ink)}
+  .fp .cnt{font-size:10px}
+
+  .sec-h{font-size:16px;font-weight:800;letter-spacing:-.02em;margin:22px 4px 4px;display:flex;justify-content:space-between;align-items:center}
+  .sec-h .more{font-size:12px;color:var(--muted);font-weight:700;cursor:pointer}
+  .sec-sub{font-size:12.5px;color:var(--ink-soft);margin:0 4px 14px}
+
+  /* 얼굴 */
+  .face{border-radius:50%;background:#EEF1F3;display:flex;align-items:center;justify-content:center;color:#B7C0C8;flex:0 0 auto}
+  .face svg{width:56%;height:56%}
+  .face.sm{width:30px;height:30px}.face.md{width:46px;height:46px}
+
+  .verify{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:800;color:var(--brand-ink);background:var(--brand-soft);padding:4px 9px;border-radius:999px}
+  .verify .ck{width:13px;height:13px;border-radius:50%;background:var(--brand);color:#fff;display:flex;align-items:center;justify-content:center;font-size:8px}
+
+  .tag{display:inline-flex;font-size:11.5px;font-weight:600;color:var(--chip-ink);background:var(--chip);padding:5px 10px;border-radius:8px}
+  .tag.b{color:var(--brand-ink);background:var(--brand-soft)}
+  .tags{display:flex;flex-wrap:wrap;gap:6px}
+
+  /* ===== 코치 카드 (재설계) ===== */
+  .ccard{background:#fff;border:1px solid var(--line);border-radius:20px;padding:17px;box-shadow:var(--shadow);margin-bottom:13px;cursor:pointer;transition:.15s;border-left:3px solid transparent}
+  .ccard:active{transform:scale(.99)}
+  .ccard .role{font-size:16.5px;font-weight:800;letter-spacing:-.02em;line-height:1.32;margin-top:10px}
+  .ccard .role .yr{color:var(--brand-ink)}
+  .role .co{color:var(--brand-ink);font-weight:800}
+  .role .logo{display:inline-flex;align-items:center;justify-content:center;height:19px;padding:0 6px;border-radius:6px;color:#fff;font-size:10px;font-weight:800;letter-spacing:.01em;vertical-align:2px;margin-right:6px}
+  .detail-hero .role .logo{height:24px;padding:0 8px;font-size:12px;vertical-align:2px;margin-right:7px}
+  .seg{display:flex;gap:4px;background:#EEF1F3;border-radius:12px;padding:4px;margin-bottom:14px}
+  .seg-b{flex:1;text-align:center;font-size:12.5px;font-weight:800;color:var(--ink-soft);padding:9px 6px;border-radius:9px;cursor:pointer;transition:.15s;display:flex;align-items:center;justify-content:center;gap:5px}
+  .seg-b.on{background:#fff;color:var(--brand-ink);box-shadow:0 1px 3px rgba(20,40,50,.12)}
+  .seg-b .hy{font-size:9px;font-weight:800;color:#fff;background:var(--amber);padding:2px 5px;border-radius:5px}
+  .ccard .meta{font-size:11.5px;color:var(--muted);font-weight:600;margin-top:4px}
+  .qbox{background:var(--brand-soft2);border:1px solid #D6EFEB;border-radius:13px;padding:11px 12px;margin-top:13px}
+  .qbox .l{font-size:10.5px;font-weight:800;color:var(--brand-ink);letter-spacing:.02em}
+  .qbox .q{font-size:13.5px;font-weight:700;margin-top:5px;line-height:1.45}
+  .qbox.intro .q{font-size:13px;font-weight:600;line-height:1.55;color:var(--ink)}
+  .metrics{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:12px;color:var(--ink-soft);font-weight:600;margin-top:12px}
+  .metrics .s{color:var(--brand-ink);font-weight:800}
+  .metrics .d{color:var(--line)}
+  .cfoot{display:flex;align-items:center;gap:8px;margin-top:13px;padding-top:12px;border-top:1px solid var(--line-soft)}
+  .cfoot .nm{font-size:12px;color:var(--muted);font-weight:600}
+  .cfoot .nm b{color:var(--ink-soft)}
+
+  /* 큐레이션 선반 카드 (순위 없음) */
+  .scard{flex:0 0 194px;background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:var(--shadow);cursor:pointer}
+  .scard:active{transform:scale(.99)}
+  .ctx{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:800;padding:4px 9px;border-radius:999px;margin-bottom:11px}
+  .ctx.fast{color:var(--brand-ink);background:var(--brand-soft)}
+  .ctx.help{color:#B26B12;background:var(--amber-soft)}
+  .scard .srole{font-size:13.5px;font-weight:800;line-height:1.32;letter-spacing:-.01em;display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+  .scard .srole .logo{height:17px;padding:0 5px;font-size:9px;margin:0;border-radius:5px}
+  .scard .syr{font-size:11.5px;color:var(--brand-ink);font-weight:700;margin-top:3px}
+  .scard .swho{display:flex;align-items:center;gap:6px;margin-top:12px;font-size:11px;color:var(--muted);font-weight:600}
+  .ctx.rec{color:#5566A8;background:#EEF0F8}
+  /* 인피드 추천 블록 (광고 아님 · 추천) */
+  .reco{background:var(--brand-soft2);border:1px solid #DDEBE7;border-radius:16px;margin:4px 0 13px;padding:14px 0 4px}
+  .reco-h{font-size:14px;font-weight:800;letter-spacing:-.01em;padding:0 15px 12px;display:flex;align-items:center;gap:7px}
+  .reco-h .reco-tag{margin-left:auto;font-size:9.5px;font-weight:800;color:var(--muted);background:#fff;border:1px solid var(--line);padding:2px 8px;border-radius:999px;letter-spacing:.02em}
+  .reco-row{padding:0 15px 8px}
+  .reco-row .scard{background:#fff}
+  .feed-end{text-align:center;font-size:12px;color:var(--muted);font-weight:600;padding:16px 0 8px}
+
+  /* 홈 가로 카드 */
+  .hrow{display:flex;gap:11px;overflow-x:auto;padding:2px 18px 4px;scrollbar-width:none}
+  .hrow::-webkit-scrollbar{display:none}
+  .hc{flex:0 0 236px;background:#fff;border:1px solid var(--line);border-radius:18px;padding:15px;box-shadow:var(--shadow);cursor:pointer}
+  .hc .role{font-size:14px;font-weight:800;line-height:1.35;margin-top:9px;letter-spacing:-.01em}
+  .hc .role .yr{color:var(--brand-ink)}
+  .hc .q{font-size:12px;color:var(--ink-soft);margin-top:9px;line-height:1.4;background:var(--brand-soft2);border-radius:10px;padding:9px 10px}
+  .hc .mini{font-size:11px;color:var(--ink-soft);font-weight:700;margin-top:9px}
+  .hc .mini .s{color:var(--brand-ink)}
+  .hc .who{display:flex;align-items:center;gap:6px;margin-top:10px}
+  .hc .who .n{font-size:11px;color:var(--muted);font-weight:600}
+
+  .promo{border-radius:18px;padding:18px;color:#fff;background:linear-gradient(135deg,#17BFAF,#0A6E63);box-shadow:var(--shadow);position:relative;overflow:hidden}
+  .promo .cc{font-size:11px;font-weight:800;letter-spacing:.08em;opacity:.85}
+  .promo .tt{font-size:19px;font-weight:800;margin:7px 0 3px}
+  .promo .dd{font-size:12px;opacity:.9}
+
+  .popq{background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:var(--shadow)}
+  .popq .row{padding:13px 15px;font-size:13px;font-weight:600;border-top:1px solid var(--line-soft);display:flex;gap:8px;cursor:pointer}
+  .popq .row:first-child{border-top:none}
+  .popq .row .qm{color:var(--brand);font-weight:800}
+
+  /* 하단 탭바 */
+  .tabbar{display:flex;background:#fff;border-top:1px solid var(--line);padding:9px 6px 12px}
+  .tb{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10.5px;font-weight:700;color:var(--muted);cursor:pointer}
+  .tb.on{color:var(--brand-ink)}
+  .tb svg{width:22px;height:22px}
+
+  /* ===== 코치 상세 ===== */
+  .detail-hero{background:#fff;padding:18px 18px 20px;border-bottom:1px solid var(--line-soft)}
+  .detail-hero .role{font-size:20px;font-weight:800;letter-spacing:-.02em;line-height:1.3;margin-top:11px}
+  .detail-hero .role .yr{color:var(--brand-ink)}
+  .detail-hero .meta{font-size:12px;color:var(--muted);font-weight:600;margin-top:5px}
+  .mission{background:var(--brand-soft2);border:1px solid #D6EFEB;border-radius:14px;padding:14px;margin:14px 0 0}
+  .mission .l{font-size:11px;font-weight:800;color:var(--brand-ink)}
+  .mission .t{font-size:13.5px;color:var(--brand-deep);font-weight:600;margin-top:6px;line-height:1.6}
+  .dsec{font-size:14.5px;font-weight:800;margin:22px 4px 10px;display:flex;align-items:center;gap:7px}
+  .dsec-tag{font-size:10px;font-weight:800;color:var(--brand-ink);background:var(--brand-soft);padding:3px 8px;border-radius:999px}
+  .about{font-size:13.5px;color:var(--ink-soft);line-height:1.7}
+  .trust{background:var(--brand-soft2);border:1px solid #D6EFEB;border-radius:14px;padding:14px 15px}
+  .trow{display:flex;align-items:center;gap:9px;font-size:13px;font-weight:700;color:var(--brand-deep);margin-bottom:8px}
+  .trow .tk{width:16px;height:16px;border-radius:50%;background:var(--brand);color:#fff;display:flex;align-items:center;justify-content:center;font-size:10px;flex:0 0 auto}
+  .tnote{font-size:12px;color:var(--ink-soft);line-height:1.6;margin-top:4px;padding-top:10px;border-top:1px solid #DCEBE6}
+  .multi{margin-top:10px;background:#fff;border:1px dashed #CFE2DA;border-radius:12px;padding:11px 13px;font-size:12.5px;color:var(--ink-soft);cursor:pointer}
+  .multi b{color:var(--brand-ink)}
+  .upsell{background:linear-gradient(135deg,#EFFAF8,#E3F7F4);border:1px solid #CFE9E3;border-radius:16px;padding:16px;cursor:pointer}
+  .upsell .ut{font-size:13.5px;color:var(--ink);line-height:1.6}
+  .upsell .ut b{color:var(--brand-ink)}
+  .upsell .ub{font-size:12.5px;font-weight:800;color:var(--brand-ink);margin-top:10px}
+  .bullets{list-style:none;margin:0;padding:0}
+  .bullets li{position:relative;padding:4px 0 4px 17px;font-size:13.5px;color:var(--ink-soft);line-height:1.55}
+  .bullets li::before{content:"";position:absolute;left:2px;top:11px;width:5px;height:5px;border-radius:50%;background:var(--brand)}
+  .career{background:#fff;border:1px solid var(--line);border-radius:14px;padding:6px 15px}
+  .crow{display:flex;align-items:center;gap:11px;padding:11px 0;border-top:1px solid var(--line-soft)}
+  .crow:first-child{border-top:none}
+  .crow .cdot{width:8px;height:8px;border-radius:50%;background:var(--brand-soft);border:2px solid var(--brand);flex:0 0 auto}
+  .crow .cmain{flex:1;font-size:13px;color:var(--ink)}
+  .crow .cper{font-size:11.5px;color:var(--muted);font-weight:600;font-variant-numeric:tabular-nums}
+  .qline{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 13px;font-size:13px;font-weight:600;margin-bottom:7px;display:flex;gap:8px}
+  .qline .m{color:var(--brand);font-weight:800}
+  .qline.hard{color:var(--ink-soft);background:var(--line-soft)}
+  .qline.hard .m{color:var(--muted)}
+  .statbox{background:#fff;border:1px solid var(--line);border-radius:14px;padding:15px;display:flex;justify-content:space-around;text-align:center}
+  .statbox .v{font-size:17px;font-weight:800;color:var(--brand-ink)}
+  .statbox .k{font-size:11px;color:var(--muted);font-weight:600;margin-top:3px}
+  .sample{background:#fff;border:1px solid var(--line);border-radius:14px;padding:15px}
+  .sample .q{font-size:11.5px;color:var(--muted);font-weight:700}
+  .sample .a{font-size:13px;margin-top:8px;line-height:1.6}
+  .review{background:#fff;border:1px solid var(--line);border-radius:14px;padding:15px;margin-bottom:9px}
+  .review .txt{font-size:13px;color:var(--ink-soft);line-height:1.55}
+  .review .by{font-size:11px;color:var(--muted);margin-top:8px}
+
+  /* 하단 고정 CTA */
+  .ctabar{padding:13px 18px calc(13px + env(safe-area-inset-bottom));background:#fff;border-top:1px solid var(--line)}
+  .cta{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;background:var(--brand);color:#fff;font-size:15.5px;font-weight:800;padding:15px;border-radius:15px;border:none;cursor:pointer;box-shadow:0 8px 18px rgba(18,181,166,.3);letter-spacing:-.01em}
+  .cta:active{transform:translateY(1px)}
+  .cta.ghost{background:#fff;color:var(--brand-ink);border:1.5px solid var(--brand-soft);box-shadow:none}
+  .cta.amber{background:linear-gradient(135deg,#EFA53E,#DE8620);box-shadow:0 8px 18px rgba(222,134,32,.3)}
+  .ctasub{text-align:center;font-size:11.5px;color:var(--muted);margin-top:8px}
+
+  /* 입력 */
+  .field{width:100%;background:#fff;border:1.5px solid var(--line);border-radius:13px;padding:14px;font-size:13.5px;font-family:var(--font);color:var(--ink)}
+  .field:focus{outline:none;border-color:var(--brand)}
+  .field::placeholder{color:var(--muted)}
+  textarea.field{min-height:100px;resize:none}
+  .guidebox{background:var(--brand-soft2);border:1px solid #D6EFEB;border-radius:14px;padding:14px}
+  .guidebox .l{font-size:12px;font-weight:800;color:var(--brand-ink)}
+  .steps{counter-reset:s;list-style:none;margin-top:9px}
+  .steps li{position:relative;padding:5px 0 5px 30px;font-size:12.5px;color:var(--brand-deep);font-weight:600}
+  .steps li::before{counter-increment:s;content:counter(s);position:absolute;left:0;top:4px;width:20px;height:20px;background:var(--brand);color:#fff;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800}
+  .seltag{display:inline-flex;font-size:12.5px;font-weight:600;color:var(--chip-ink);background:#fff;border:1.5px solid var(--line);padding:8px 13px;border-radius:999px;cursor:pointer}
+  .seltag.on{color:var(--brand-ink);background:var(--brand-soft);border-color:#BFEAE3}
+
+  /* 티켓 */
+  .ticket{background:linear-gradient(135deg,#17BFAF,#0A6E63);color:#fff;border-radius:20px;padding:22px;position:relative;overflow:hidden}
+  .ticket::before,.ticket::after{content:"";position:absolute;width:26px;height:26px;background:var(--bg);border-radius:50%;top:50%;transform:translateY(-50%)}
+  .ticket::before{left:-13px}.ticket::after{right:-13px}
+  .ticket .tp{font-size:12px;font-weight:800;opacity:.9;letter-spacing:.06em}
+  .ticket .pr{font-size:32px;font-weight:800;margin:8px 0 3px}
+  .ticket .ds{font-size:12.5px;opacity:.92;line-height:1.5}
+  .ticket .ln{border-top:1px dashed rgba(255,255,255,.35);margin:15px 0}
+  .safe{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px}
+  .safe .r{display:flex;gap:9px;font-size:12.5px;color:var(--ink-soft);line-height:1.5;margin-top:9px;align-items:flex-start}
+  .safe .r:first-child{margin-top:0}
+  .safe .r .c{color:var(--brand);font-weight:800}
+
+  /* 완료 */
+  .done-hero{text-align:center;padding:30px 18px 10px}
+  .done-hero .circle{width:74px;height:74px;border-radius:22px;background:var(--brand-soft);color:var(--brand);display:flex;align-items:center;justify-content:center;font-size:34px;margin:0 auto;animation:pop .4s ease}
+  @keyframes pop{0%{transform:scale(.6);opacity:0}60%{transform:scale(1.08)}100%{transform:scale(1)}}
+  .done-hero h2{font-size:20px;font-weight:800;margin-top:16px;letter-spacing:-.02em}
+  .done-hero p{font-size:13px;color:var(--ink-soft);margin-top:8px;line-height:1.55}
+  .timeline{position:relative;padding-left:26px}
+  .timeline::before{content:"";position:absolute;left:9px;top:8px;bottom:12px;width:2px;background:var(--line)}
+  .titem{position:relative;padding-bottom:20px}
+  .titem .nd{position:absolute;left:-24px;top:2px;width:18px;height:18px;border-radius:50%;background:#fff;border:2px solid var(--line)}
+  .titem.done .nd{background:var(--brand);border-color:var(--brand)}
+  .titem.now .nd{border-color:var(--brand);box-shadow:0 0 0 4px var(--brand-soft)}
+  .titem .t{font-size:13.5px;font-weight:700}
+  .titem .d{font-size:11.5px;color:var(--muted);margin-top:2px}
+
+  .toast{position:absolute;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);background:#1B2733;color:#fff;font-size:12.5px;font-weight:600;padding:11px 18px;border-radius:999px;opacity:0;transition:.28s;z-index:90;pointer-events:none;white-space:nowrap}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  .hint{max-width:390px;font-size:11.5px;color:#5b6b6e;text-align:center;line-height:1.6}
+  .hint b{color:#33484c}
+
+  /* 모바일: 폰 목업 제거하고 실제 앱처럼 전체화면 */
+  @media (max-width:440px){
+    body{padding:0;gap:0;background:var(--bg);display:block}
+    .headline,.hint{display:none}
+    .phone{width:100%;padding:0;border-radius:0;box-shadow:none;background:var(--bg)}
+    .notch{display:none}
+    .screenwrap{height:100vh;height:100dvh;border-radius:0}
+  }
+</style>
+</head>
+<body>
+  <div class="headline">
+    <span class="k">HELLO MYME · 인터랙티브 프로토타입</span>
+    <h1>커피챗 UI/UX — 클릭해서 체험하세요</h1>
+    <p>리스트 → 코치 상세 → 질문 작성 → 결제 → 완료까지 실제로 눌러볼 수 있어요.</p>
+  </div>
+
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="screenwrap">
+      <div class="statusbar onbrand"><span>9:41</span><span>5G ⏹ 🔋</span></div>
+
+      <!-- ==================== 1. 커피챗 리스트 ==================== -->
+      <section class="screen active" id="s-list">
+        <div class="topbar">
+          <div class="ttl">커피챗</div><div class="sp"></div>
+          <div class="coin">☕ 커피콩 1</div>
+        </div>
+        <div class="scroll" id="listScroll">
+          <div class="pad" style="padding-bottom:6px">
+            <div class="search" onclick="openExplore()"><span class="i">🔍</span><span class="ph">질문·직무·회사로 찾아보세요</span></div>
+            <div class="guide" style="margin-top:11px" onclick="toast('활용 가이드는 프로토타입에서 생략')"><span class="e">📄</span><span class="t">커피챗 활용 가이드</span><span class="a">›</span></div>
+          </div>
+          <div class="filters" id="filters"></div>
+
+          <div class="pad" style="padding-top:2px">
+            <div class="sec-h" style="margin-top:16px">현직자 커피챗</div>
+            <div class="sec-sub">헬로마이미가 직접 검증한 현직자예요. <b>내 질문에 맞는지</b> 먼저 보세요.</div>
+            <div id="feed"></div>
+            <div id="feedEnd" class="feed-end"></div>
+          </div>
+        </div>
+        <nav class="tabbar" id="tabbar1"></nav>
+      </section>
+
+      <!-- ==================== 1-b. 탐색/검색 ==================== -->
+      <section class="screen" id="s-explore">
+        <div class="topbar">
+          <button class="ic" onclick="go('list')">‹</button>
+          <input class="expl-input" id="explInput" placeholder="비전공자인데 데이터 분석가 될 수 있을까요?" oninput="exploreRender()" />
+        </div>
+        <div class="expl-scopes" id="explScopes"></div>
+        <div class="scroll"><div class="pad" id="exploreBody"></div></div>
+      </section>
+
+      <!-- ==================== 2. 홈 ==================== -->
+      <section class="screen" id="s-home">
+        <div class="topbar"><div class="ttl" style="color:var(--brand-ink)">hello, myme</div><div class="sp"></div><div class="topbar-ic ic">🔔</div></div>
+        <div class="scroll">
+          <div class="pad">
+            <div class="promo">
+              <div class="cc">CAREER COUNSELING</div>
+              <div class="tt">FACE 커리어 진로상담</div>
+              <div class="dd">나를 이해하고, 진로를 설계하다 · ~8/31</div>
+            </div>
+            <div class="sec-h" style="margin-top:24px">지금 물어볼 수 있는 파트너 <span class="more">더보기</span></div>
+            <div class="sec-sub">얼굴이 아니라 <b>질문 적합도</b>로 골라요.</div>
+          </div>
+          <div class="hrow" id="homerow"></div>
+          <div class="pad" style="padding-top:8px">
+            <div class="sec-h">지금 많이 묻는 질문</div>
+            <div class="popq">
+              <div class="row" onclick="go('write')"><span class="qm">Q</span> 스타트업 첫 커리어, 괜찮을까요?</div>
+              <div class="row" onclick="go('write')"><span class="qm">Q</span> 무스펙인데 지금 뭐부터 해야 하나요?</div>
+              <div class="row" onclick="go('write')"><span class="qm">Q</span> 대기업 vs 스타트업 어디가 맞을까요?</div>
+            </div>
+          </div>
+        </div>
+        <nav class="tabbar" id="tabbar2"></nav>
+      </section>
+
+      <!-- ==================== 3. 코치 상세 ==================== -->
+      <section class="screen" id="s-detail">
+        <div class="topbar"><button class="ic" onclick="go('list')">‹</button><div class="ttl">파트너</div><div class="sp"></div><button class="ic" onclick="toast('찜했어요')">♡</button></div>
+        <div class="scroll" id="detailscroll"></div>
+        <div class="ctabar">
+          <button class="cta" onclick="go('write')">☕ 커피콩으로 질문하기</button>
+          <div class="ctasub">커피콩 1개 · 990원 · 정중하게 질문 1개를 전달해요</div>
+        </div>
+      </section>
+
+      <!-- ==================== 4. 질문 작성 ==================== -->
+      <section class="screen" id="s-write">
+        <div class="topbar"><button class="ic" onclick="back()">‹</button><div class="ttl">질문 작성</div></div>
+        <div class="scroll">
+          <div class="pad">
+            <div class="guidebox">
+              <div class="l">좋은 질문 가이드</div>
+              <ol class="steps"><li>내 상황을 짧게 알려주세요.</li><li>궁금한 걸 한 가지로 좁혀주세요.</li><li>원하는 답변 방향을 말해주세요.</li></ol>
+            </div>
+            <div class="sec-h">묻고 싶은 질문 <span class="more" style="color:var(--brand-ink)">1개</span></div>
+            <textarea class="field" placeholder="예) 데이터 분석에 관심 있는 3학년 문과생인데, 코딩 경험이 거의 없습니다. 이번 방학에 무엇부터 준비하면 좋을까요?"></textarea>
+            <div class="sec-h">내 상황 <span class="more">파트너가 맥락을 이해해요</span></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px">
+              <input class="field" placeholder="학년 (예: 3학년)" style="grid-column:span 2">
+              <input class="field" placeholder="전공"><input class="field" placeholder="관심 직무">
+            </div>
+            <div class="sec-h">원하는 답변 방식</div>
+            <div class="tags" id="answermode"></div>
+          </div>
+        </div>
+        <div class="ctabar"><button class="cta" onclick="go('pay')">질문 미리보고 전달하기</button></div>
+      </section>
+
+      <!-- ==================== 5. 결제 ==================== -->
+      <section class="screen" id="s-pay">
+        <div class="topbar"><button class="ic" onclick="go('write')">‹</button><div class="ttl">커피콩으로 전달</div></div>
+        <div class="scroll">
+          <div class="pad">
+            <div class="ticket">
+              <div class="tp">☕ 커피콩 1개</div>
+              <div class="pr">990원</div>
+              <div class="ds">질문이 준비됐어요.<br>커피콩으로 정중하게 전달할까요?</div>
+              <div class="ln"></div>
+              <div style="font-size:12px;opacity:.92;line-height:1.55">무료 DM은 학생도 망설여지고, 현직자도 답하기 어렵습니다. 헬로마이미는 <b>부담 없이 묻고 정중하게 답하는 구조</b>를 만듭니다.</div>
+            </div>
+            <div class="sec-h">보내는 질문</div>
+            <div class="qbox"><div class="q" style="font-size:13px">“데이터 분석에 관심 있는 3학년 문과생인데, 코딩 경험 없이 방학에 뭐부터 준비하면 좋을까요?”</div>
+              <div class="cfoot" id="payto"></div>
+            </div>
+            <div class="safe" style="margin-top:13px">
+              <div class="r"><span class="c">✓</span><span>코치가 답하지 못하면 <b>커피콩을 돌려드려요</b>.</span></div>
+              <div class="r"><span class="c">✓</span><span>전송 전까지 질문을 <b>수정</b>할 수 있어요.</span></div>
+              <div class="r"><span class="c">✓</span><span>답변은 평균 <b>24시간 내</b> 도착해요.</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="ctabar">
+          <button class="cta amber" onclick="go('done')">☕ 커피콩으로 전달하기 · 990원</button>
+          <div class="ctasub">전달 즉시 파트너가 질문을 받아요</div>
+        </div>
+      </section>
+
+      <!-- ==================== 6. 완료 ==================== -->
+      <section class="screen" id="s-done">
+        <div class="scroll">
+          <div class="done-hero">
+            <div class="circle">✓</div>
+            <h2>커피콩과 함께 질문이<br>전달되었어요</h2>
+            <p>평균 24시간 내 답변을 받을 수 있어요.<br>도착하면 알림으로 알려드릴게요.</p>
+          </div>
+          <div class="pad">
+            <div class="safe" style="padding:18px">
+              <div class="timeline">
+                <div class="titem done"><div class="nd"></div><div class="t">질문 접수 완료</div><div class="d">방금 전</div></div>
+                <div class="titem now"><div class="nd"></div><div class="t">파트너에게 전달됨</div><div class="d">확인 대기 중</div></div>
+                <div class="titem"><div class="nd"></div><div class="t">답변 작성 중</div><div class="d">예상 ~내일 오전</div></div>
+                <div class="titem"><div class="nd"></div><div class="t">답변 도착 · 알림</div><div class="d"></div></div>
+              </div>
+            </div>
+            <div class="safe" style="margin-top:12px;padding:13px 15px"><div class="r"><span class="c">✎</span><span>파트너가 확인하기 전까지 질문을 <b>수정</b>할 수 있어요.</span></div></div>
+          </div>
+        </div>
+        <div class="ctabar"><button class="cta ghost" onclick="go('list')">다른 파트너 둘러보기</button></div>
+      </section>
+
+      <div class="toast" id="toast"></div>
+    </div>
+  </div>
+
+  <div class="hint">💡 <b>코치 카드를 탭</b>하면 상세로, <b>커피콩으로 질문하기</b>를 누르면 작성→미리보기→커피콩 전달→완료 흐름이 이어집니다. 하단 탭바에서 <b>홈</b>도 확인해 보세요.</div>
+
+<script>
+  /* ---------- 데이터 ---------- */
+  const faceSvg = '<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>';
+  const coaches = [
+    { id:'han', role:'데이터 분석 리더', yr:'17년차', meta:'데이터 분석 · 핀테크 · 비전공 출신',
+      company:'토스', companyType:'핀테크 유니콘', job:'데이터 분석', logo:{text:'toss', bg:'#3182F6'},
+      intro:'통계·코딩 전공이 아니어도 데이터 직무는 갈 수 있어요. 비전공자가 방학에 뭐부터 준비할지, 현실적인 로드맵을 같이 그려드려요.',
+      about:'안녕하세요. 데이터 분석 17년차, 한태용입니다.\n비전공으로 시작해 지금은 핀테크에서 데이터팀을 이끌고 있어요. 통계·코딩을 처음부터 다 알 필요 없어요. 뭐부터, 어떤 순서로 준비하면 되는지 안에서 본 시선으로 솔직하게 정리해드려요.',
+      recWho:['데이터 직무가 궁금한 비전공·문과생','코딩 경험이 거의 없어 막막한 분','방학에 뭘 준비할지 모르는 분'],
+      career:[{o:'토스',r:'데이터 분석 리더',p:'2019–현재'},{o:'카카오',r:'데이터 분석가',p:'2014–2019'},{o:'서강대',r:'통계학과',p:'졸업'}], school:'서강대', alsoAt:['카카오'],
+      q:'비전공자인데 데이터 분석가가 될 수 있을까요?', tags:['#비전공자','#데이터입문','#포트폴리오'],
+      help:94, cnt:31, time:'평균 12시간', name:'한태용', badge:true,
+      mission:'통계·코딩 전공이 아니어도 데이터 일은 가능해요. 전공자와 비전공자 모두의 로드맵을 함께 그려드릴게요.',
+      good:['비전공자인데 데이터 분석가가 될 수 있을까요?','포트폴리오는 뭐부터 만들어야 하나요?'],
+      hard:['특정 회사의 연봉·내부 처우 등 대외비','합격 보장·채용 추천 요청'],
+      rec:['#비전공이불안한','#데이터입문','#첫커리어고민'],
+      style:['현실적','구체적','단계별'],
+      sampleQ:'비전공자, 뭐부터 시작하죠?', sampleA:'“SQL부터 시작하세요. 코딩보다 데이터로 질문에 답하는 감각이 먼저예요. 비전공자도 2~3주면 감을 잡습니다…”',
+      reviewTags:['#현실적','#방향정리'], review:'“막연했던 데이터 직무가 구체적으로 그려졌어요. 뭐부터 할지 정해졌습니다.”', reviewBy:'문과 3학년 · 매우 도움이 됐어요' },
+    { id:'min', role:'사업개발(BD) 리더', yr:'15년차', meta:'BD · 사업개발 · 외국계/글로벌',
+      company:'존슨앤존슨', companyType:'글로벌 헬스케어', job:'사업개발(BD)', logo:{text:'J&J', bg:'#EB1700'},
+      intro:'막연한 "사업개발"이 실제로 뭘 하는 일인지, 외국계·스타트업·글로벌에서 어떻게 다른지 15년 경험으로 구체적으로 정리해드려요.',
+      about:'안녕하세요. 사업개발(BD) 15년차 민영호입니다.\n스타트업부터 글로벌 헬스케어까지 여러 회사에서 BD를 해왔어요. 회사마다 BD가 어떻게 다른지, 영업과는 뭐가 다른지, 신입은 뭘 준비하면 되는지 솔직하게 풀어드려요.',
+      recWho:['사업개발(BD)이 실제로 뭔지 궁금한 분','외국계·글로벌 커리어가 궁금한 분','영업과 BD 차이가 헷갈리는 분'],
+      career:[{o:'존슨앤존슨',r:'BD 디렉터',p:'2016–현재'},{o:'스타트업 3곳',r:'사업개발',p:'2009–2016'},{o:'연세대',r:'경영학과',p:'졸업'}], school:'연세대', alsoAt:[],
+      q:'외국계 BD, 신입은 어떻게 준비하나요?', tags:['#BD','#사업개발','#외국계'],
+      help:91, cnt:24, time:'평균 20시간', name:'민영호', badge:true,
+      mission:'외국계·스타트업·글로벌의 BD가 회사마다 어떻게 다른지, 15년간 겪은 걸 솔직하게 풀어드릴게요.',
+      good:['외국계 BD는 어떤 일을 하나요?','영어 실력은 어느 정도 필요한가요?'],
+      hard:['특정 회사 합격 가능성 평가','내부 조직도·연봉 정보'],
+      rec:['#외국계궁금','#사업개발관심','#영어커리어'],
+      style:['넓은 시야','사례 중심','솔직함'],
+      sampleQ:'BD는 영업이랑 뭐가 다른가요?', sampleA:'“영업이 계약을 닫는 일이라면, BD는 없던 판을 만드는 일이에요. 신입 때 가장 도움 된 건…”',
+      reviewTags:['#시야가넓어짐'], review:'“막연히 멋있어 보였던 BD의 실체를 알게 됐어요.”', reviewBy:'경영 4학년 · 도움이 됐어요' },
+    { id:'lee', role:'UX/UI 디자이너', yr:'주니어', meta:'UX/UI · IT 스타트업 · 학생과 가까운 연차',
+      company:'당근', companyType:'IT 스타트업', job:'UX/UI 디자인', logo:{text:'당근', bg:'#FF6F0F'},
+      intro:'학생과 가장 가까운 주니어 디자이너예요. 포트폴리오에 뭘 담아야 할지, 비전공도 될 수 있을지 편하게 같이 풀어봐요.',
+      about:'안녕하세요. 스타트업 UX/UI 디자이너 이민지예요.\n학생과 나이 차이가 크지 않아 더 편하게 물어볼 수 있어요. 첫 포트폴리오를 어떻게 시작할지, 비전공도 되는지, 취업 준비의 현실을 같이 풀어봐요.',
+      recWho:['첫 디자인 포트폴리오가 막막한 분','비전공인데 디자이너가 되고 싶은 분','나이 가까운 선배에게 편하게 묻고 싶은 분'],
+      career:[{o:'당근',r:'UX/UI 디자이너',p:'2022–현재'},{o:'디자인 에이전시',r:'인턴',p:'2021'},{o:'홍익대',r:'시각디자인과',p:'졸업'}], school:'홍익대', alsoAt:[],
+      q:'신입 디자이너 포트폴리오, 뭐가 중요해요?', tags:['#UXUI','#디자이너','#포트폴리오'],
+      help:96, cnt:18, time:'평균 6시간', name:'이민지', badge:true,
+      mission:'학생과 가장 가까운 신입 디자이너예요. 진로 고민, 같이 풀어봐요!',
+      good:['포트폴리오에 뭘 넣어야 하나요?','비전공자도 디자이너가 될 수 있나요?'],
+      hard:['특정 회사 디자인팀 내부 사정','합격 보장'],
+      rec:['#디자인입문','#포트폴리오고민','#첫취업'],
+      style:['따뜻함','공감','현실적'],
+      sampleQ:'포트폴리오, 프로젝트 몇 개가 적당해요?', sampleA:'“개수보다 ‘과정’이 보이는 프로젝트 2~3개가 나아요. 왜 그렇게 결정했는지가 핵심이에요…”',
+      reviewTags:['#따뜻한조언','#현실적'], review:'“나이 차이가 적어 더 편하게 물어볼 수 있었어요.”', reviewBy:'시디 2학년 · 매우 도움이 됐어요' },
+    { id:'kang', role:'마케팅 리더', yr:'12년차', meta:'마케팅 전략 · IT 플랫폼 · 브랜드/그로스',
+      company:'네이버', companyType:'IT 플랫폼', job:'마케팅', logo:{text:'NAVER', bg:'#03C75A'},
+      intro:'브랜드·퍼포먼스·그로스… 헷갈리는 마케팅 직무를 한 장으로 정리해드려요. 문과생이 뭐부터 시작할지 방향을 잡아드려요.',
+      about:'안녕하세요. 마케팅 12년차 강우연입니다.\nP&G 브랜드 매니저부터 IT 플랫폼 마케팅 리더까지, 마케팅의 여러 갈래를 두루 겪었어요. 브랜드·퍼포먼스·그로스가 어떻게 다른지, 문과생이 뭐부터 시작하면 되는지 한눈에 정리해드려요.',
+      recWho:['마케팅 직무가 너무 많아 헷갈리는 분','문과생이 마케터가 되려는 분','브랜드·퍼포먼스·그로스가 헷갈리는 분'],
+      career:[{o:'네이버',r:'마케팅 리더',p:'2018–현재'},{o:'P&G',r:'브랜드 매니저',p:'2012–2018'},{o:'고려대',r:'경영학과',p:'졸업'}], school:'홍익대', alsoAt:['P&G'],
+      q:'마케팅 직무가 이렇게 많은데 뭘 골라야 하죠?', tags:['#마케팅전략','#브랜드','#그로스'],
+      help:93, cnt:37, time:'평균 15시간', name:'강우연', badge:true,
+      mission:'브랜드·퍼포먼스·그로스·전략 등 마케팅 직무를 12년 시선으로 한눈에 정리해드릴게요.',
+      good:['브랜드 마케팅과 퍼포먼스 마케팅의 차이는?','문과생이 마케터가 되려면?'],
+      hard:['특정 회사 마케팅 예산·내부 지표','합격 보장'],
+      rec:['#마케팅이막연한','#문과생','#직무탐색'],
+      style:['구조적','명쾌함','사례 중심'],
+      sampleQ:'마케팅 직무가 너무 많아 헷갈려요.', sampleA:'“크게 브랜드/퍼포먼스/그로스 3축으로 보면 쉬워요. 각각 성향이 다른데…”',
+      reviewTags:['#정리가명쾌'], review:'“흩어져 있던 마케팅 직무가 한 장으로 정리됐어요.”', reviewBy:'문과 3학년 · 매우 도움이 됐어요' },
+  ];
+
+  const filters = [
+    {label:'추천순', drop:true, on:true},{label:'내 상황'},{label:'직무'},{label:'회사유형'},{label:'응답 빠른순'},{label:'도움 많은순'}
+  ];
+  const answerModes = ['현실적으로','단계별로','따뜻하게','짧고 핵심만'];
+
+  const tabs = [
+    {k:'home', label:'홈', path:'M4 11l8-7 8 7M6 10v9h12v-9'},
+    {k:'prog', label:'프로그램', path:'M6 3h9l3 3v15H6z M9 8h6 M9 12h6'},
+    {k:'list', label:'커피챗', path:'M4 8h13v5a4 4 0 01-4 4H8a4 4 0 01-4-4z M17 9h2a2 2 0 010 4h-2'},
+    {k:'job', label:'채용소식', path:'M3 7l9-4 9 4-9 4z M3 7v6l9 4 9-4V7'},
+    {k:'comm', label:'커뮤니티', path:'M4 5h16v10H9l-4 4z'},
+  ];
+
+  /* ---------- 렌더 ---------- */
+  let variant = 'company'; // 'role' | 'company'(가설)
+  function titleHTML(c){
+    return `<div class="role"><span class="logo" style="background:${c.logo.bg}">${c.logo.text}</span><span class="co">${c.company}</span> · ${c.job} <span class="yr">· ${c.yr}</span></div><div class="meta">${c.companyType}</div>`;
+  }
+  function coachCard(c){
+    return `<div class="ccard" onclick="openCoach('${c.id}')">
+      <span class="verify"><span class="ck">✓</span>헬로마이미 검증 파트너</span>
+      ${titleHTML(c)}
+      <div class="qbox intro"><div class="l">💬 이런 고민을 도와드려요</div><div class="q">${c.intro}</div></div>
+      <div class="tags" style="margin-top:11px">${c.tags.map(t=>`<span class="tag b">${t}</span>`).join('')}</div>
+      <div class="metrics"><span class="s">도움됐어요 ${c.help}%</span><span class="d">·</span><span>질문 ${c.cnt}개</span><span class="d">·</span><span>${c.time}</span></div>
+      <div class="cfoot"><div class="face sm">${faceSvg}</div><div class="nm"><b>${c.name}</b> 파트너</div></div>
+    </div>`;
+  }
+  function homeCard(c){
+    const mini = c.id==='lee' ? '<span class="s">학생과 가장 가까운 연차</span>' : `<span class="s">도움됐어요 ${c.help}%</span> · ${c.time}`;
+    const roleLine = variant==='company'
+      ? `<div class="role"><span class="logo" style="background:${c.logo.bg}">${c.logo.text}</span><span class="co">${c.company}</span> · ${c.job} <span class="yr">· ${c.yr}</span></div>`
+      : `<div class="role">${c.role} <span class="yr">· ${c.yr}</span></div>`;
+    return `<div class="hc" onclick="openCoach('${c.id}')">
+      <span class="verify"><span class="ck">✓</span>검증 파트너</span>
+      ${roleLine}
+      <div class="q">“${c.q}”</div>
+      <div class="mini">${mini}</div>
+      <div class="who"><div class="face sm">${faceSvg}</div><div class="n">${c.name} 파트너</div></div>
+    </div>`;
+  }
+  // 선반 카드 — 순위 번호 없음(코치 명예 보호), 맥락 칩으로만 묶음
+  function shelfCard(c, ctx){
+    return `<div class="scard" onclick="openCoach('${c.id}')">
+      <span class="ctx ${ctx.cls}">${ctx.text}</span>
+      <div class="srole"><span class="logo" style="background:${c.logo.bg}">${c.logo.text}</span>${c.company} · ${c.job}</div>
+      <div class="syr">${c.yr}</div>
+      <div class="swho"><div class="face sm">${faceSvg}</div><span>${c.name} 파트너</span></div>
+    </div>`;
+  }
+  const num = t => parseInt(String(t).replace(/[^0-9]/g,'')) || 999;
+  function renderCards(){
+    document.getElementById('homerow').innerHTML = coaches.map(homeCard).join('');
+  }
+
+  /* ---------- 인피드 추천 + 무한 스크롤 ---------- */
+  // 코치가 돈 내서 오르는 '광고'가 아니라 알고리즘 '추천' 블록 (명예 보호)
+  const MY_SCHOOL = '홍익대'; // 로그인하면 학생 학교로 개인화
+  const recoDefs = [
+    { icon:'⚡', title:'이번 주 응답이 빨랐던 파트너',
+      pick:()=>[...coaches].sort((a,b)=>num(a.time)-num(b.time)),
+      ctx:c=>({cls:'fast', text:`⚡ ${c.time.replace('평균 ','')} 내 답변`}) },
+    { icon:'💚', title:'이번 주 많은 도움을 준 파트너',
+      pick:()=>[...coaches].sort((a,b)=>b.help-a.help),
+      ctx:c=>({cls:'help', text:`💚 도움됐어요 ${c.help}%`}) },
+    { icon:'🎯', title:'비전공·문과생에게 추천',
+      pick:()=>coaches.filter(c=>c.rec.some(r=>/비전공|문과|입문/.test(r))).concat(coaches),
+      ctx:c=>({cls:'rec', text:`🎯 ${c.rec[0]}`}) },
+    { icon:'🌏', title:'외국계·글로벌이 궁금하다면',
+      pick:()=>coaches.filter(c=>/외국계|글로벌/.test(c.companyType+c.meta)).concat(coaches),
+      ctx:c=>({cls:'rec', text:`🌏 ${c.companyType}`}) },
+    { icon:'🎓', title:`나와 같은 ${MY_SCHOOL} 선배`,
+      pick:()=>coaches.filter(c=>c.school===MY_SCHOOL).concat(coaches),
+      ctx:c=>({cls:'rec', text:`🎓 ${c.school} 선배`}) },
+  ];
+  function shuffled(arr){ const a=[...arr]; for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
+  function recoBlock(def){
+    const list = def.pick().filter((c,i,self)=>self.findIndex(x=>x.id===c.id)===i).slice(0,4);
+    return `<div class="reco">
+      <div class="reco-h"><span>${def.icon}</span>${def.title}<span class="reco-tag">추천</span></div>
+      <div class="hrow reco-row">${list.map(c=>shelfCard(c,def.ctx(c))).join('')}</div>
+    </div>`;
+  }
+  let feedCount=0, recoQueue=[], MAXFEED=20;
+  function nextReco(){ if(!recoQueue.length) recoQueue=shuffled(recoDefs); return recoQueue.shift(); }
+  function appendBatch(){
+    if(feedCount>=MAXFEED){ document.getElementById('feedEnd').innerHTML='검증된 파트너를 모두 둘러봤어요 ☕'; return; }
+    let html='';
+    const pool = shuffled(coaches);
+    for(let i=0;i<3 && feedCount<MAXFEED;i++){ html += coachCard(pool[i%pool.length]); feedCount++; }
+    html += recoBlock(nextReco());   // 3장마다 추천 블록 삽입
+    document.getElementById('feed').insertAdjacentHTML('beforeend', html);
+  }
+  function buildFeed(){ feedCount=0; recoQueue=[]; document.getElementById('feed').innerHTML=''; document.getElementById('feedEnd').innerHTML='불러오는 중…'; appendBatch(); appendBatch(); }
+  document.getElementById('listScroll').addEventListener('scroll', e=>{
+    const el=e.target;
+    if(el.scrollTop+el.clientHeight >= el.scrollHeight-320) appendBatch();
+  });
+  function setVariant(v){
+    variant = v;
+    document.querySelectorAll('.seg-b').forEach(b=>b.classList.toggle('on', b.dataset.v===v));
+    renderCards();
+  }
+  renderCards();
+  buildFeed();
+  document.getElementById('filters').innerHTML = filters.map((f,i)=>`<div class="fp ${f.on?'on':''}" onclick="toggleFilter(this)">${f.label}${f.drop?' ▾':''}</div>`).join('');
+  document.getElementById('answermode').innerHTML = answerModes.map(m=>`<div class="seltag" onclick="this.classList.toggle('on')">${m}</div>`).join('');
+  [1,2].forEach(n=>{
+    document.getElementById('tabbar'+n).innerHTML = tabs.map(t=>`<div class="tb ${((n==1&&t.k=='list')||(n==2&&t.k=='home'))?'on':''}" onclick="tabGo('${t.k}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="${t.path}"/></svg>${t.label}</div>`).join('');
+  });
+
+  /* ---------- 탐색/검색 (하이브리드: 질문·직무·회사) ---------- */
+  let scope = 'q'; // 'q' | 'job' | 'company'
+  const scopes = [{k:'q',label:'질문으로'},{k:'job',label:'직무로'},{k:'company',label:'회사로'}];
+  const placeholders = {q:'비전공자인데 데이터 분석가 될 수 있을까요?', job:'예: 마케팅, 데이터, UX/UI', company:'예: 토스, 네이버, 외국계'};
+  const popCompanies = [
+    {name:'토스', logo:{text:'toss',bg:'#3182F6'}},{name:'네이버', logo:{text:'NAVER',bg:'#03C75A'}},
+    {name:'당근', logo:{text:'당근',bg:'#FF6F0F'}},{name:'존슨앤존슨', logo:{text:'J&J',bg:'#EB1700'}},
+    {name:'외국계', logo:null},{name:'스타트업', logo:null},{name:'대기업', logo:null},
+  ];
+  const popJobs = ['마케팅/브랜드','데이터/AI','UX/UI','PM/기획','BD/사업개발','영업','콘텐츠/미디어','HR','금융/전략'];
+  const recentQs = ['비전공자인데 데이터 분석가 될 수 있을까요?','스타트업 첫 커리어, 괜찮을까요?','브랜드 마케터는 무슨 일을 하나요?'];
+  function openExplore(){ scope='q'; document.getElementById('explInput').value=''; renderScopes(); exploreRender(); go('explore'); }
+  function setScope(k){ scope=k; document.getElementById('explInput').placeholder=placeholders[k]; renderScopes(); exploreRender(); }
+  function renderScopes(){
+    document.getElementById('explScopes').innerHTML = scopes.map(s=>`<div class="escope ${s.k===scope?'on':''}" onclick="setScope('${s.k}')">${s.label}</div>`).join('');
+  }
+  function logoChip(name, logo){
+    const lg = logo ? `<span class="logo" style="background:${logo.bg}">${logo.text}</span>` : '';
+    return `<div class="cchip ${logo?'':'plain'}" onclick="searchFor('${name}')">${lg}${name}</div>`;
+  }
+  // 실시간 인기 '검색어(주제)' 랭킹 — 사람이 아닌 주제를 줄세움 (코치 명예 보호)
+  const trending = [
+    {t:'비전공 데이터 분석', d:'up'},{t:'스타트업 첫 커리어', d:'up'},{t:'외국계 마케팅', d:'new'},
+    {t:'포트폴리오 준비', d:'up'},{t:'UX/UI 디자이너', d:'same'},{t:'PM 직무', d:'down'},
+  ];
+  function trendMark(d){
+    if(d==='up') return `<span class="dl up">▲</span>`;
+    if(d==='down') return `<span class="dl down">▼</span>`;
+    if(d==='new') return `<span class="dl new">NEW</span>`;
+    return `<span class="dl same">–</span>`;
+  }
+  function renderTrending(){
+    return `<div class="expl-sec" style="display:flex;align-items:center;gap:6px"><span class="live"></span>지금 많이 찾는 검색어</div>`
+      + `<div class="trend">` + trending.map((r,i)=>
+        `<div class="row" onclick="searchFor('${r.t}')"><span class="rk ${i<3?'top':''}">${i+1}</span><span class="tm">${r.t}</span>${trendMark(r.d)}</div>`
+      ).join('') + `</div>`;
+  }
+  function exploreRender(){
+    const qv = (document.getElementById('explInput').value||'').trim().toLowerCase();
+    const body = document.getElementById('exploreBody');
+    if(!qv){
+      let html='';
+      if(scope==='q'){
+        html += renderTrending();
+        html += `<div class="expl-sec">이렇게 물어보세요</div>` + recentQs.map(q=>`<div class="rq" onclick="searchFor('${q}')"><span class="m">Q</span>${q}</div>`).join('');
+      }
+      if(scope==='q'||scope==='job'){
+        html += `<div class="expl-sec">직무로 찾기</div><div class="chipwrap">` + popJobs.map(j=>`<div class="jchip" onclick="searchFor('${j}')">${j}</div>`).join('') + `</div>`;
+      }
+      if(scope==='q'||scope==='company'){
+        html += `<div class="expl-sec">회사로 찾기</div><div class="chipwrap">` + popCompanies.map(c=>logoChip(c.name,c.logo)).join('') + `</div>`;
+      }
+      body.innerHTML = html;
+      return;
+    }
+    // 매칭: 회사·직무·역할·태그·질문 전체 대상 (의도/엔티티 하이브리드)
+    const hits = coaches.filter(c=>{
+      const hay = [c.company,c.companyType,c.job,c.role,c.meta,c.q,...(c.tags||[]),...(c.rec||[])].join(' ').toLowerCase();
+      return qv.split(/\s+/).some(w=>hay.includes(w));
+    });
+    body.innerHTML = `<div class="expl-sec">‘${document.getElementById('explInput').value.trim()}’ 결과 ${hits.length}명</div>`
+      + (hits.length ? hits.map(coachCard).join('') : `<div class="empty">일치하는 파트너가 없어요.<br>다른 키워드로 찾아보세요.</div>`);
+  }
+  function searchFor(t){ const el=document.getElementById('explInput'); el.value=t; exploreRender(); }
+
+  /* ---------- 코치 상세 ---------- */
+  function openCoach(id){
+    const c = coaches.find(x=>x.id===id);
+    document.getElementById('detailscroll').innerHTML = `
+      <div class="detail-hero">
+        <span class="verify"><span class="ck">✓</span>헬로마이미 검증 파트너</span>
+        ${titleHTML(c)}
+        <div class="mission"><div class="l">💬 이런 고민을 도와드려요</div><div class="t">${c.intro}</div></div>
+      </div>
+      <div class="pad">
+        <div class="dsec">신뢰 정보</div>
+        <div class="trust">
+          <div class="trow"><span class="tk">✓</span>재직·경력 인증 완료</div>
+          <div class="trow"><span class="tk">✓</span>실명 인증 (프로필엔 비공개)</div>
+          <div class="tnote">실명·얼굴은 파트너 선택으로 비공개예요. 헬로마이미가 신원과 경력을 <b>직접 확인</b>했으니 안심하고 질문하세요.</div>
+        </div>
+        ${c.alsoAt&&c.alsoAt.length?`<div class="multi">💼 <b>${c.alsoAt.join('·')}</b> 경력도 있어요 · 이 회사 궁금하면 그 프로필도 보기 ›</div>`:''}
+
+        <div class="dsec">어떤 파트너예요</div>
+        <div class="about">${c.about.replace(/\n/g,'<br>')}</div>
+
+        <div class="dsec">이런 분에게 추천해요</div>
+        <ul class="bullets">${c.recWho.map(s=>`<li>${s}</li>`).join('')}</ul>
+
+        <div class="dsec">이런 질문에 잘 답해요</div>
+        ${c.good.map(q=>`<div class="qline"><span class="m">Q</span>${q}</div>`).join('')}
+        <div class="dsec">이런 질문은 조금 어려워요</div>
+        ${c.hard.map(q=>`<div class="qline hard"><span class="m">–</span>${q}</div>`).join('')}
+
+        <div class="dsec">경력 <span class="dsec-tag">헬로마이미 검증 완료</span></div>
+        <div class="career">${c.career.map(e=>`<div class="crow"><div class="cdot"></div><div class="cmain"><b>${e.o}</b> · ${e.r}</div><div class="cper">${e.p}</div></div>`).join('')}</div>
+
+        <div class="dsec">답변 스타일</div>
+        <div class="tags">${c.style.map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+        <div class="dsec">도움 지표</div>
+        <div class="statbox">
+          <div><div class="v">${c.help}%</div><div class="k">도움됐어요</div></div>
+          <div><div class="v">${c.cnt}개</div><div class="k">받은 질문</div></div>
+          <div><div class="v">${c.time.replace('평균 ','')}</div><div class="k">평균 응답</div></div>
+        </div>
+        <div class="dsec">답변 샘플</div>
+        <div class="sample"><div class="q">Q. ${c.sampleQ}</div><div class="a">${c.sampleA} <span style="color:var(--muted)">(미리보기)</span></div></div>
+        <div class="dsec">도움 후기</div>
+        <div class="review"><div class="tags" style="margin-bottom:8px">${c.reviewTags.map(t=>`<span class="tag b">${t}</span>`).join('')}</div><div class="txt">${c.review}</div><div class="by">${c.reviewBy}</div></div>
+
+        <div class="dsec">더 깊게 이야기하고 싶다면</div>
+        <div class="upsell" onclick="toast('비대면 상담은 다음 단계에서 연결돼요')">
+          <div class="ut"><b>커피콩 질문</b>으로 시작해, 더 깊은 고민은<br><b>비대면 상담(30분)</b>으로 이어갈 수 있어요</div>
+          <div class="ub">비대면 상담 알아보기 ›</div>
+        </div>
+      </div>`;
+    document.getElementById('payto').innerHTML = `<div class="face sm">${faceSvg}</div><div class="nm"><b>${c.role} · ${c.yr}</b><br>${c.name} 파트너</div>`;
+    go('detail');
+  }
+
+  /* ---------- 네비게이션 ---------- */
+  const stack = ['list'];
+  function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); document.getElementById('s-'+id).classList.add('active'); document.querySelectorAll('.scroll').forEach(s=>s.scrollTop=0); }
+  function go(id){ stack.push(id); show(id); }
+  function back(){ stack.pop(); show(stack[stack.length-1]||'list'); }
+  function tabGo(k){ const map={home:'home',list:'list'}; if(map[k]){ stack.length=0; stack.push(map[k]); show(map[k]); } else toast('프로토타입에서는 홈/커피챗만 열려요'); }
+  function toggleFilter(el){ if(el.textContent.includes('▾'))return; el.classList.toggle('on'); }
+
+  let tmr;
+  function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(tmr); tmr=setTimeout(()=>t.classList.remove('show'),1600); }
+</script>
+</body>
+</html>
