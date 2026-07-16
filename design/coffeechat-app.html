@@ -276,6 +276,15 @@
 
   .hint{max-width:390px;font-size:11.5px;color:#5b6b6e;text-align:center;line-height:1.6}
   .hint b{color:#33484c}
+
+  /* 모바일: 폰 목업 제거하고 실제 앱처럼 전체화면 */
+  @media (max-width:440px){
+    body{padding:0;gap:0;background:var(--bg);display:block}
+    .headline,.hint{display:none}
+    .phone{width:100%;padding:0;border-radius:0;box-shadow:none;background:var(--bg)}
+    .notch{display:none}
+    .screenwrap{height:100vh;height:100dvh;border-radius:0}
+  }
 </style>
 </head>
 <body>
