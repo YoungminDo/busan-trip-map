@@ -148,6 +148,9 @@
   .pf-note{font-size:12px;color:var(--ink-soft);line-height:1.55;margin-top:9px;padding:0 2px}
   .pf-note b{color:var(--ink)}
   .role .logo{display:inline-flex;align-items:center;justify-content:center;height:24px;padding:0 9px;border-radius:8px;color:#fff;font-size:12px;font-weight:800;letter-spacing:.01em;vertical-align:middle;margin-right:8px;box-shadow:0 2px 6px rgba(20,40,50,.18)}
+  .logo{position:relative;overflow:hidden}
+  .logo .lg-img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;padding:2px;border-radius:inherit;opacity:0;transition:opacity .2s}
+  .logo .lg-img.ok{opacity:1;background:#fff}
   .detail-hero .role .logo{height:30px;padding:0 11px;font-size:14px;margin-right:9px}
   .seg{display:flex;gap:4px;background:#EEF1F3;border-radius:12px;padding:4px;margin-bottom:14px}
   .seg-b{flex:1;text-align:center;font-size:12.5px;font-weight:800;color:var(--ink-soft);padding:9px 6px;border-radius:9px;cursor:pointer;transition:.15s;display:flex;align-items:center;justify-content:center;gap:5px}
@@ -615,9 +618,38 @@
     if(s==='past') return `<span class="stbadge past">전직</span>`;
     return '';
   }
+  // 회사 도메인 (companies.json 시드와 동일) — 로고 API 조회 키
+  const COMPANY_DOMAIN = {
+    'SK하이닉스':'skhynix.com','삼성전자':'samsung.com','CJ ENM':'cjenm.com','CJ제일제당':'cj.co.kr',
+    '현대자동차':'hyundai.com','LG전자':'lge.co.kr','삼성바이오로직스':'samsungbiologics.com','아모레퍼시픽':'apgroup.com',
+    '오뚜기':'ottogi.co.kr','대한항공':'koreanair.com','네이버':'navercorp.com','카카오':'kakaocorp.com',
+    '라인':'linecorp.com','쿠팡':'coupang.com','배달의민족':'woowahan.com','토스':'toss.im','당근':'daangn.com',
+    '야놀자':'yanolja.com','무신사':'musinsa.com','크래프톤':'krafton.com','엔씨소프트':'ncsoft.com','넥슨':'nexon.com',
+    '넷마블':'netmarble.com','신한은행':'shinhan.com','KB국민은행':'kbstar.com','카카오뱅크':'kakaobank.com',
+    '구글':'google.com','애플':'apple.com','P&G':'pg.com','로레알':'loreal.com','존슨앤존슨':'jnj.com',
+    '펩시코':'pepsico.com','니베아':'beiersdorf.com',
+  };
+  // 실제 로고(도메인) 렌더 + 실패 시 모노그램 자동 폴백
+  //  1) logo.clearbit.com  → 2) google 파비콘  → 3) img 제거(모노그램 노출)
+  function logoHTML(logo){
+    if(!logo) return '';
+    const style = `background:${logo.bg}${logo.fg?';color:'+logo.fg:''}`;
+    let img='';
+    if(logo.domain){
+      const fav=`https://www.google.com/s2/favicons?domain=${logo.domain}&sz=64`;
+      img=`<img class="lg-img" loading="lazy" src="https://logo.clearbit.com/${logo.domain}" onload="this.classList.add('ok')" onerror="if(!this.dataset.f){this.dataset.f=1;this.src='${fav}'}else{this.remove()}">`;
+    }
+    return `<span class="logo" style="${style}">${img}${logo.text}</span>`;
+  }
+  function attachDomains(){
+    popCompanies.forEach(c=>{ if(c.logo && COMPANY_DOMAIN[c.name]) c.logo.domain=COMPANY_DOMAIN[c.name]; });
+    coaches.forEach(c=>{ if(c.logo && COMPANY_DOMAIN[c.company]) c.logo.domain=COMPANY_DOMAIN[c.company];
+      (c.profiles||[]).forEach(p=>{ if(p.logo && COMPANY_DOMAIN[p.company]) p.logo.domain=COMPANY_DOMAIN[p.company]; }); });
+  }
+
   function titleHTML(c, pf){
     const v=viewOf(c,pf); const yr=c.totalYr||c.yr; const role=v.roleName||v.job;
-    return `<div class="role"><span class="logo" style="background:${v.logo.bg}">${v.logo.text}</span><span class="co">${v.company}</span> · ${role} <span class="yr">· ${yr}</span> ${statusBadge(v.status)}</div><div class="meta">${v.job} · ${v.companyType}</div>`;
+    return `<div class="role">${logoHTML(v.logo)}<span class="co">${v.company}</span> · ${role} <span class="yr">· ${yr}</span> ${statusBadge(v.status)}</div><div class="meta">${v.job} · ${v.companyType}</div>`;
   }
   function coachCard(c, pf, scoreInfo){
     const multi = c.profiles && c.profiles.length>1;
@@ -729,7 +761,7 @@
   function homeCard(c){
     const mini = c.id==='lee' ? '<span class="s">학생과 가장 가까운 연차</span>' : `<span class="s">도움됐어요 ${c.help}%</span> · ${c.time}`;
     const roleLine = variant==='company'
-      ? `<div class="role"><span class="logo" style="background:${c.logo.bg}">${c.logo.text}</span><span class="co">${c.company}</span> · ${c.job} <span class="yr">· ${c.yr}</span></div>`
+      ? `<div class="role">${logoHTML(c.logo)}<span class="co">${c.company}</span> · ${c.job} <span class="yr">· ${c.yr}</span></div>`
       : `<div class="role">${c.role} <span class="yr">· ${c.yr}</span></div>`;
     return `<div class="hc" onclick="openCoach('${c.id}')">
       <span class="verify"><span class="ck">✓</span>검증 파트너</span>
@@ -743,7 +775,7 @@
   function shelfCard(c, ctx){
     return `<div class="scard" onclick="openCoach('${c.id}')">
       <span class="ctx ${ctx.cls}">${ctx.text}</span>
-      <div class="srole"><span class="logo" style="background:${c.logo.bg}">${c.logo.text}</span>${c.company} · ${c.job}</div>
+      <div class="srole">${logoHTML(c.logo)}${c.company} · ${c.job}</div>
       <div class="syr">${c.yr}</div>
       <div class="swho"><div class="face sm">${faceSvg}</div><span>${c.name} 파트너</span></div>
     </div>`;
@@ -860,7 +892,7 @@
     document.getElementById('explScopes').innerHTML = scopes.map(s=>`<div class="escope ${s.k===scope?'on':''}" onclick="setScope('${s.k}')">${s.label}</div>`).join('');
   }
   function logoChip(name, logo){
-    const lg = logo ? `<span class="logo" style="background:${logo.bg}${logo.fg?';color:'+logo.fg:''}">${logo.text}</span>` : '';
+    const lg = logoHTML(logo);
     return `<div class="cchip ${logo?'':'plain'}" onclick="searchFor('${name}')">${lg}${name}</div>`;
   }
   // 실시간 인기 '검색어(주제)' 랭킹 — 사람이 아닌 주제를 줄세움 (코치 명예 보호)
@@ -954,7 +986,7 @@
           <div class="tnote">실명·얼굴은 파트너 선택으로 비공개예요. 헬로마이미가 신원과 경력을 <b>직접 확인</b>했으니 안심하고 질문하세요.</div>
         </div>
         ${c.profiles ? `<div class="dsec">노출 프로필 <span class="dsec-tag">${c.profiles.length}개 회사</span></div>
-          <div class="proflist">${c.profiles.map(pf=>`<div class="profrow"><span class="logo" style="background:${pf.logo.bg}">${pf.logo.text}</span><div class="pf-main"><b>${pf.company}</b> · ${pf.roleName||pf.job}</div>${statusBadge(pf.status)}</div>`).join('')}</div>
+          <div class="proflist">${c.profiles.map(pf=>`<div class="profrow">${logoHTML(pf.logo)}<div class="pf-main"><b>${pf.company}</b> · ${pf.roleName||pf.job}</div>${statusBadge(pf.status)}</div>`).join('')}</div>
           <div class="pf-note">한 파트너의 여러 회사 경력이 <b>각각 검색에 노출</b>돼요. 이력·후기·검증은 공유됩니다.</div>`
         : (c.alsoAt&&c.alsoAt.length?`<div class="multi">💼 <b>${c.alsoAt.join('·')}</b> 경력도 있어요 · 이 회사 궁금하면 그 프로필도 보기 ›</div>`:'')}
 
@@ -1044,6 +1076,11 @@
 
   let tmr;
   function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(tmr); tmr=setTimeout(()=>t.classList.remove('show'),1600); }
+
+  // 모든 데이터 정의 후: 회사 도메인 부여 → 로고 반영해 재렌더
+  attachDomains();
+  renderCards();
+  applyFeed();
 </script>
 </body>
 </html>
