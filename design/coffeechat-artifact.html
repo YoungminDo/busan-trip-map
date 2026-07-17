@@ -621,7 +621,7 @@
       <div class="hrow reco-row">${list.map(c=>shelfCard(c,def.ctx(c))).join('')}</div>
     </div>`;
   }
-  let feedCount=0, recoQueue=[], batchNo=0, MAXFEED=20;
+  let feedCount=0, recoQueue=[], batchNo=0;
   function nextReco(){ if(!recoQueue.length) recoQueue=shuffled(recoDefs); return recoQueue.shift(); }
   function requestCard(){
     return `<div class="reqcard" onclick="reqToast()">
@@ -632,16 +632,15 @@
   }
   function appendBatch(){
     if(filtering) return;
-    if(feedCount>=MAXFEED){ document.getElementById('feedEnd').innerHTML='검증된 파트너를 모두 둘러봤어요 ☕'; return; }
     let html='';
     const pool = shuffled(coaches);
-    for(let i=0;i<3 && feedCount<MAXFEED;i++){ html += coachCard(pool[i%pool.length]); feedCount++; }
+    for(let i=0;i<3;i++){ html += coachCard(pool[i%pool.length]); feedCount++; }   // 무한: 순환하며 계속 추가
     html += recoBlock(nextReco());   // 3장마다 추천 블록
     batchNo++;
     if(batchNo%2===1) html += requestCard();   // 첫 묶음 직후부터 요청 카드 삽입
     document.getElementById('feed').insertAdjacentHTML('beforeend', html);
   }
-  function buildFeed(){ feedCount=0; recoQueue=[]; batchNo=0; document.getElementById('feed').innerHTML=''; document.getElementById('feedEnd').innerHTML='불러오는 중…'; appendBatch(); appendBatch(); }
+  function buildFeed(){ feedCount=0; recoQueue=[]; batchNo=0; document.getElementById('feed').innerHTML=''; document.getElementById('feedEnd').innerHTML='<span class="loading">파트너 더 불러오는 중…</span>'; appendBatch(); appendBatch(); }
   document.getElementById('listScroll').addEventListener('scroll', e=>{
     if(filtering) return;
     const el=e.target;
