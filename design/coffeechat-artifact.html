@@ -415,6 +415,61 @@
   .coachcard.on .cc-btn{background:#fff;color:var(--brand-ink);border:1.5px solid var(--brand)}
   .demo-tip{font-size:10.5px;color:#9AA6A9;text-align:center;padding:14px 24px 24px;line-height:1.6}
 
+  /* ===== 코치 온보딩 ===== */
+  .ob-steps{display:flex;gap:6px;padding:14px 16px 4px}
+  .ob-steps .dot{flex:1;height:4px;border-radius:999px;background:var(--line)}
+  .ob-steps .dot.on{background:var(--brand)}
+  .ob-pad{padding:18px 18px 24px}
+  .ob-kick{font-size:11.5px;font-weight:800;color:var(--brand-ink);letter-spacing:.02em}
+  .ob-h{font-size:21px;font-weight:800;color:var(--ink);line-height:1.35;margin:9px 0 8px}
+  .ob-sub{font-size:13px;color:var(--muted);line-height:1.65}
+  .ob-illus{margin:22px 0;background:var(--brand-soft2);border:1px solid #DDEFEC;border-radius:18px;padding:24px 18px;text-align:center}
+  .ob-illus .big{font-size:40px}
+  .ob-illus .cap{font-size:12px;color:var(--brand-ink);font-weight:700;margin-top:10px;line-height:1.6}
+  .ob-src{display:flex;flex-direction:column;gap:10px;margin-top:22px}
+  .ob-srcbtn{display:flex;align-items:center;gap:12px;border:1.5px solid var(--line);border-radius:14px;padding:15px;cursor:pointer;background:#fff;transition:.15s}
+  .ob-srcbtn:active{border-color:var(--brand);background:var(--brand-soft2)}
+  .ob-srcbtn .ic2{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:19px;color:#fff;flex:0 0 38px}
+  .ob-srcbtn .st{flex:1}
+  .ob-srcbtn .s1{font-size:14px;font-weight:800;color:var(--ink)}
+  .ob-srcbtn .s2{font-size:11.5px;color:var(--muted);margin-top:2px}
+  .ob-check{display:flex;gap:9px;align-items:flex-start;font-size:12.5px;color:var(--ink);line-height:1.55;margin-top:12px}
+  .ob-check .k{color:var(--brand);font-weight:800;flex:0 0 auto}
+  .ai-scan{text-align:center;padding:36px 18px}
+  .ai-scan .spin{width:46px;height:46px;border:4px solid var(--brand-soft);border-top-color:var(--brand);border-radius:50%;margin:0 auto 16px;animation:spin 1s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .ai-scan .st2{font-size:13.5px;font-weight:700;color:var(--ink)}
+  .ai-scan .st3{font-size:11.5px;color:var(--muted);margin-top:6px}
+
+  /* ===== 프로필 관리 (자동 생성 결과 · 수정) ===== */
+  .genbar{background:var(--brand-soft);border:1px solid #CBEBE5;border-radius:14px;padding:12px 14px;margin:14px 16px 4px;font-size:12px;color:var(--brand-ink);line-height:1.6}
+  .genbar b{font-weight:800}
+  .pmlist{padding:8px 16px 16px}
+  .pmcard{border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:12px;background:#fff}
+  .pmcard.off{opacity:.55;background:var(--bg)}
+  .pm-top{display:flex;gap:11px;align-items:center}
+  .pm-face{width:40px;height:40px;border-radius:12px;flex:0 0 40px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:11px;overflow:hidden;position:relative}
+  .pm-main{flex:1;min-width:0}
+  .pm-co{font-size:14px;font-weight:800;color:var(--ink)}
+  .pm-role{font-size:12px;color:var(--muted);margin-top:2px}
+  .pm-brand{font-size:11px;color:var(--brand-ink);font-weight:700;margin-top:3px}
+  /* 토글 스위치 */
+  .sw{width:42px;height:24px;border-radius:999px;background:#D3DADD;position:relative;cursor:pointer;flex:0 0 42px;transition:.18s}
+  .sw.on{background:var(--brand)}
+  .sw .kn{position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:50%;background:#fff;transition:.18s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+  .sw.on .kn{left:20px}
+  .pm-foot{display:flex;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
+  .pm-foot .lbtn{flex:1;text-align:center;font-size:12px;font-weight:700;color:var(--brand-ink);background:var(--brand-soft);border:none;border-radius:10px;padding:9px;cursor:pointer}
+  .pm-foot .lbtn.mut{color:var(--muted);background:var(--bg)}
+  .pm-add{width:100%;border:1.5px dashed var(--line);border-radius:14px;padding:14px;font-size:13px;font-weight:700;color:var(--muted);background:#fff;cursor:pointer}
+  .pm-edit{display:flex;flex-direction:column;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
+  .pm-edit label{font-size:10.5px;font-weight:800;color:var(--muted)}
+  .pm-edit input{border:1px solid var(--line);border-radius:9px;padding:9px 11px;font:inherit;font-size:13px;background:var(--bg)}
+  .pm-edit input:focus{outline:none;border-color:var(--brand)}
+  .pm-edit .erow{display:flex;gap:8px;justify-content:flex-end;margin-top:2px}
+  .pm-edit .esave{background:var(--brand);color:#fff;border:none;border-radius:9px;padding:8px 16px;font-size:12px;font-weight:800;cursor:pointer}
+  .pm-edit .ecancel{background:var(--bg);color:var(--muted);border:none;border-radius:9px;padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer}
+
   /* 모바일: 폰 목업 제거하고 실제 앱처럼 전체화면 */
   @media (max-width:440px){
     body{padding:0;gap:0;background:var(--bg);display:block}
@@ -604,7 +659,7 @@
 
       <!-- ==================== 8. 코치 인박스 (받은 질문) ==================== -->
       <section class="screen" id="s-coach">
-        <div class="topbar"><div class="ttl">받은 커피챗</div><div class="sp"></div><div class="hdr-actions"><div class="coin" style="background:var(--brand-soft);color:var(--brand-ink)">🧑‍💼 도영민 코치</div><div class="profic" onclick="openMy()">👤</div></div></div>
+        <div class="topbar"><div class="ttl">받은 커피챗</div><div class="sp"></div><div class="hdr-actions"><div class="profic" onclick="openProfiles()">📋</div><div class="profic" onclick="openMy()">👤</div></div></div>
         <div class="inbox-note">학생들이 커피콩과 함께 보낸 질문이에요. <b>대기 중</b>부터 확인하고 답해주세요. 답변은 무료예요.</div>
         <div class="scroll"><div class="inbox" id="coachInbox"></div></div>
         <nav class="tabbar" id="tabbar4"></nav>
@@ -622,6 +677,20 @@
         <div class="topbar"><button class="ic" onclick="back()">‹</button><div class="ttl">마이페이지</div></div>
         <div class="scroll"><div id="myBody"></div></div>
         <nav class="tabbar" id="tabbar5"></nav>
+      </section>
+
+      <!-- ==================== 11. 코치 온보딩 ==================== -->
+      <section class="screen" id="s-onboard">
+        <div class="topbar"><button class="ic" onclick="obBack()">‹</button><div class="ttl">코치 시작하기</div></div>
+        <div class="ob-steps" id="obSteps"></div>
+        <div class="scroll"><div id="obBody"></div></div>
+        <div class="ctabar" id="obCta"></div>
+      </section>
+
+      <!-- ==================== 12. 프로필 관리 (멀티프로필 수정) ==================== -->
+      <section class="screen" id="s-profiles">
+        <div class="topbar"><button class="ic" onclick="back()">‹</button><div class="ttl">프로필 관리</div><div class="sp"></div><div class="profic" onclick="openCoachHome()">💬</div></div>
+        <div class="scroll"><div id="pmBody"></div></div>
       </section>
 
       <div class="toast" id="toast"></div>
@@ -783,7 +852,7 @@
   // 코치들을 프로필 카드로 펼치기 (멀티프로필 = 회사 수만큼)
   function profileViews(){
     const out=[];
-    coaches.forEach(c=>{ if(c.profiles) c.profiles.forEach(pf=>out.push([c,pf])); else out.push([c,null]); });
+    coaches.forEach(c=>{ if(c.profiles) c.profiles.forEach(pf=>{ if(!pf.hidden) out.push([c,pf]); }); else out.push([c,null]); });
     return out;
   }
 
@@ -1158,7 +1227,7 @@
   /* ================= 채팅 · 커피콩 지갑 · 코치 뷰 ================= */
   const CURRENT_COACH = 'do';        // 코치 데모 = 도영민 본인
   const ME = { label:'나 · 홍익대 3학년' };
-  const APP = { role:'student', beans:3, activeCoachId:null, activeThreadId:null };
+  const APP = { role:'student', beans:3, activeCoachId:null, activeThreadId:null, coachOnboarded:false, obStep:0 };
   let threads = [
     { id:'ts1', coachId:'do', mine:true, student:ME, status:'answered', msgs:[
       {f:'s',k:'q',t:'마케팅 직무가 브랜드·퍼포먼스·그로스로 나뉜다는데, 문과 3학년이 뭐부터 시작하면 좋을까요? 인턴 경험이 없어요.', at:'어제 21:14'},
@@ -1190,12 +1259,138 @@
 
   function switchRole(role){
     APP.role = role;
-    if(role==='coach'){ toast('🧑‍💼 코치 모드로 전환했어요'); openCoachHome(); }
+    if(role==='coach'){
+      if(!APP.coachOnboarded){ openCoachOnboard(); }   // 최초 1회: 프로필 생성 온보딩
+      else { toast('🧑‍💼 코치 모드로 전환했어요'); openCoachHome(); }
+    }
     else { toast('🎓 학생 모드로 돌아왔어요'); stack.length=0; stack.push('list'); show('list'); }
     renderInboxBadge();
   }
   function openInbox(){ renderStudentInbox(); go('chatlist'); }
   function openCoachHome(){ renderCoachInbox(); stack.length=0; stack.push('coach'); show('coach'); }
+
+  /* ===== 코치 온보딩: 검증 → 경력 가져오기 → AI 멀티프로필 자동 생성 → 검토 ===== */
+  const OB_TOTAL = 3;
+  function openCoachOnboard(){ APP.obStep=0; renderOnboard(); stack.length=0; stack.push('onboard'); show('onboard'); }
+  function obBack(){ if(APP.obStep>0){ APP.obStep--; renderOnboard(); } else { switchRole('student'); } }
+  function obNext(){ if(APP.obStep<OB_TOTAL-1){ APP.obStep++; renderOnboard(); } }
+  function obFinish(){ APP.coachOnboarded=true; toast('🎉 코치 프로필이 등록됐어요'); openCoachHome(); }
+
+  function renderOnboard(){
+    const step = APP.obStep;
+    document.getElementById('obSteps').innerHTML = Array.from({length:OB_TOTAL},(_,i)=>`<div class="dot ${i<=step?'on':''}"></div>`).join('');
+    const body = document.getElementById('obBody');
+    const cta  = document.getElementById('obCta');
+    const me = coaches.find(x=>x.id===CURRENT_COACH);
+    if(step===0){
+      body.innerHTML = `<div class="ob-pad">
+        <div class="ob-kick">STEP 1 · 검증</div>
+        <div class="ob-h">헬로마이미가 검증한<br>현직자로 답해주세요</div>
+        <div class="ob-sub">학생들은 검증된 현직자에게만 커피콩으로 질문해요. 실명·재직·경력을 확인하고, 프로필엔 실명·얼굴을 <b>비공개</b>로 둘 수 있어요.</div>
+        <div class="ob-illus"><div class="big">🪪</div><div class="cap">실명 인증 · 재직 인증 · 경력 인증<br>3가지를 헬로마이미가 직접 확인해요</div></div>
+        <div class="ob-check"><span class="k">✓</span><span>실명·얼굴은 <b>비공개</b>로 활동할 수 있어요 (회사·직무 중심).</span></div>
+        <div class="ob-check"><span class="k">✓</span><span>답변은 <b>무료</b>. 코치는 시간만 쓰고, 학생 커피콩은 코치를 존중하는 표시예요.</span></div>
+      </div>`;
+      cta.innerHTML = `<button class="cta" onclick="obNext()">인증하고 시작하기</button>`;
+    }
+    else if(step===1){
+      body.innerHTML = `<div class="ob-pad">
+        <div class="ob-kick">STEP 2 · 경력 가져오기</div>
+        <div class="ob-h">경력만 연결하면<br>프로필은 AI가 만들어요</div>
+        <div class="ob-sub">이력서나 링크드인을 연결하면, 경력을 읽고 <b>회사별 프로필과 소개 문구 초안</b>까지 자동으로 만들어드려요. 직접 다 쓰지 않아도 돼요.</div>
+        <div class="ob-src">
+          <div class="ob-srcbtn" onclick="obScan('linkedin')"><div class="ic2" style="background:#0A66C2">in</div><div class="st"><div class="s1">링크드인 연결</div><div class="s2">경력·직함을 그대로 불러와요</div></div><span class="ma" style="color:#C2CBCE">›</span></div>
+          <div class="ob-srcbtn" onclick="obScan('resume')"><div class="ic2" style="background:var(--brand)">📄</div><div class="st"><div class="s1">이력서 업로드</div><div class="s2">PDF·이미지에서 경력을 읽어요</div></div><span class="ma" style="color:#C2CBCE">›</span></div>
+          <div class="ob-srcbtn" onclick="obScan('manual')"><div class="ic2" style="background:#8A94A6">✍️</div><div class="st"><div class="s1">직접 입력</div><div class="s2">경력을 하나씩 추가할게요</div></div><span class="ma" style="color:#C2CBCE">›</span></div>
+        </div>
+      </div>`;
+      cta.innerHTML = `<div class="ctasub" style="text-align:center">연결하면 다음 단계에서 <b>자동 생성 결과</b>를 확인·수정해요</div>`;
+    }
+    else if(step===2){
+      // AI 자동 생성 결과 = 도영민 경력 → 회사별 멀티프로필
+      const profs = me.profiles;
+      body.innerHTML = `<div class="ob-pad" style="padding-bottom:8px">
+        <div class="ob-kick">STEP 3 · 자동 생성 결과</div>
+        <div class="ob-h">AI가 경력에서<br>프로필 ${profs.length}개를 만들었어요</div>
+        <div class="ob-sub">회사·브랜드·직함을 <b>3계층으로 분리</b>했어요. 노출할 프로필을 켜고, 필요하면 수정하세요. 후기·검증·응답시간은 <b>모든 프로필이 공유</b>해요.</div>
+      </div>
+      <div class="genbar">🤖 <b>“이런 고민을 도와드려요” 초안</b><br>${me.intro}</div>
+      <div id="obProfiles"></div>`;
+      renderPmList('obProfiles', true);
+      cta.innerHTML = `<button class="cta" onclick="obFinish()">이 프로필로 코치 시작하기</button>`;
+    }
+    document.querySelector('#s-onboard .scroll').scrollTop=0;
+  }
+  let obTarget='linkedin';
+  function obScan(src){
+    obTarget=src;
+    const body=document.getElementById('obBody');
+    const label = src==='linkedin'?'링크드인에서 경력을 읽고 있어요':src==='resume'?'이력서를 분석하고 있어요':'경력을 정리하고 있어요';
+    body.innerHTML = `<div class="ai-scan"><div class="spin"></div><div class="st2">${label}…</div><div class="st3">회사·브랜드·직함을 3계층으로 분리하고<br>소개 문구 초안을 만드는 중</div></div>`;
+    document.getElementById('obCta').innerHTML='';
+    setTimeout(()=>{ APP.obStep=2; renderOnboard(); }, 1400);
+  }
+
+  /* ===== 멀티프로필 관리 (생성 결과 검토 · 수정 · 노출 토글) ===== */
+  let pmCid='pmInner', pmCompact=false, pmEditIdx=-1;
+  const statusText = s => s==='current'?'재직중':s==='past'?'전직':'';
+  function openProfiles(){
+    pmEditIdx=-1;
+    document.getElementById('pmBody').innerHTML = `<div class="genbar">🤖 회사·브랜드·직함을 <b>3계층</b>으로 관리해요. 노출을 끄면 학생 피드·검색에서 사라지고, 후기·검증·응답시간은 모든 프로필이 공유해요.</div><div id="pmInner"></div>`;
+    renderPmList('pmInner', false);
+    go('profiles');
+  }
+  function renderPmList(cid, compact){
+    pmCid=cid; pmCompact=compact;
+    const me=coaches.find(x=>x.id===CURRENT_COACH);
+    document.getElementById(cid).innerHTML = `<div class="pmlist">`
+      + me.profiles.map((pf,i)=>pmCard(pf,i)).join('')
+      + (compact?'':`<button class="pm-add" onclick="pmAdd()">＋ 회사 경력 프로필 추가</button>`)
+      + `</div>`;
+  }
+  function pmCard(pf,i){
+    const on=!pf.hidden, editing=pmEditIdx===i;
+    return `<div class="pmcard ${on?'':'off'}">
+      <div class="pm-top">
+        <div class="pm-face" style="${avStyle(pf.logo)}">${avatarInner(pf.logo)}</div>
+        <div class="pm-main">
+          <div class="pm-co">${pf.company}</div>
+          <div class="pm-role">${pf.roleName||pf.job} · ${statusText(pf.status)}</div>
+          ${pf.brand?`<div class="pm-brand">담당 브랜드 · ${pf.brand}</div>`:''}
+        </div>
+        <div class="sw ${on?'on':''}" onclick="pmToggle(${i})"><div class="kn"></div></div>
+      </div>
+      ${editing ? pmEditForm(pf,i)
+        : `<div class="pm-foot"><button class="lbtn" onclick="pmEdit(${i})">✏️ 수정</button><button class="lbtn mut" onclick="pmToggle(${i})">${on?'노출 끄기':'노출 켜기'}</button></div>`}
+    </div>`;
+  }
+  function pmEditForm(pf,i){
+    const esc = s => (s||'').replace(/"/g,'&quot;');
+    return `<div class="pm-edit">
+      <label>직함 (직무명)</label>
+      <input id="pmRole${i}" value="${esc(pf.roleName)}" placeholder="예: 니베아 브랜드 매니저">
+      <label>담당 브랜드 (선택 · 회사≠브랜드일 때)</label>
+      <input id="pmBrand${i}" value="${esc(pf.brand)}" placeholder="예: 니베아">
+      <div class="erow"><button class="ecancel" onclick="pmCancel()">취소</button><button class="esave" onclick="pmSave(${i})">저장</button></div>
+    </div>`;
+  }
+  function pmEdit(i){ pmEditIdx=i; renderPmList(pmCid,pmCompact); }
+  function pmCancel(){ pmEditIdx=-1; renderPmList(pmCid,pmCompact); }
+  function pmSave(i){
+    const me=coaches.find(x=>x.id===CURRENT_COACH);
+    me.profiles[i].roleName = document.getElementById('pmRole'+i).value.trim() || me.profiles[i].job;
+    const br = document.getElementById('pmBrand'+i).value.trim();
+    me.profiles[i].brand = br || undefined;
+    pmEditIdx=-1; renderPmList(pmCid,pmCompact); refreshFeeds(); toast('프로필을 수정했어요');
+  }
+  function pmToggle(i){
+    const me=coaches.find(x=>x.id===CURRENT_COACH);
+    const vis = me.profiles.filter(p=>!p.hidden).length;
+    if(!me.profiles[i].hidden && vis<=1){ toast('최소 1개 프로필은 노출해야 해요'); return; }
+    me.profiles[i].hidden=!me.profiles[i].hidden; renderPmList(pmCid,pmCompact); refreshFeeds();
+  }
+  function pmAdd(){ toast('데모: 자동 생성 프로필의 노출·수정까지 시연해요'); }
+  function refreshFeeds(){ renderCards(); if(!filtering) buildFeed(); }
 
   // 마이페이지 — 제품 안에서의 진짜 역할 전환 지점 (인스타 프로페셔널·당근 비즈니스 패턴)
   function openMy(){ renderMy(); go('my'); }
@@ -1225,6 +1420,7 @@
       ${coachBlock}
       <div class="mysec">내 활동</div>
       <div class="myrow" onclick="${isCoach?"openCoachHome()":"openInbox()"}"><span class="mi">💬</span><span class="mt">${isCoach?'받은 커피챗':'내 커피챗'}</span><span class="ma">›</span></div>
+      ${isCoach?`<div class="myrow" onclick="openProfiles()"><span class="mi">📋</span><span class="mt">코치 프로필 관리</span><span class="mv">${coaches.find(x=>x.id===CURRENT_COACH).profiles.filter(p=>!p.hidden).length}개 노출</span><span class="ma">›</span></div>`:''}
       <div class="myrow" onclick="chargeBeans()"><span class="mi">☕</span><span class="mt">커피콩 충전</span><span class="mv">보유 <span id="myBeans">${APP.beans}</span>개</span><span class="ma">›</span></div>
       <div class="myrow" onclick="toast('프로토타입에서는 생략')"><span class="mi">🔔</span><span class="mt">알림 설정</span><span class="ma">›</span></div>
       <div class="mysec">계정</div>
