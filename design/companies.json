@@ -1,0 +1,41 @@
+{
+  "_note": "인기 회사 시드 DB. 대학생 취업 선호(2025 인크루트 대기업 TOP + 네카라쿠배 + 게임 + 금융 + 외국계) 기준. logoUrl 은 온보딩/배치 시 domain 으로 로고 API(logo.dev 등) 해석 후 우리 CDN 경로로 채운다. 실패 시 brandColor 모노그램 폴백. aliases 는 회사명 정규화(검색 매칭)용.",
+  "_schema": { "id": "string", "name": "표준 회사명", "aliases": "string[]", "domain": "로고/식별 키", "category": "대기업|IT플랫폼|게임|금융|외국계", "brandColor": "폴백 모노그램 배경", "logoText": "폴백 모노그램 글자", "logoFg": "밝은 배경일 때 글자색(선택)", "logoUrl": "우리 CDN 로고(초기 null)" },
+  "companies": [
+    { "id": "skhynix",        "name": "SK하이닉스",     "aliases": ["하이닉스", "SK Hynix"],                 "domain": "skhynix.com",          "category": "대기업",    "brandColor": "#EA002C", "logoText": "SK",     "logoUrl": null },
+    { "id": "samsung-elec",   "name": "삼성전자",       "aliases": ["삼성", "Samsung", "SEC"],               "domain": "samsung.com",          "category": "대기업",    "brandColor": "#1428A0", "logoText": "삼성",   "logoUrl": null },
+    { "id": "cj-enm",         "name": "CJ ENM",         "aliases": ["씨제이이엔엠", "CJENM"],                 "domain": "cjenm.com",            "category": "대기업",    "brandColor": "#E2231A", "logoText": "CJ",     "logoUrl": null },
+    { "id": "cj-cheiljedang", "name": "CJ제일제당",     "aliases": ["제일제당", "CJ CheilJedang"],           "domain": "cj.co.kr",             "category": "대기업",    "brandColor": "#E2231A", "logoText": "CJ",     "logoUrl": null },
+    { "id": "hyundai-motor",  "name": "현대자동차",     "aliases": ["현대차", "Hyundai", "HMC"],             "domain": "hyundai.com",          "category": "대기업",    "brandColor": "#002C5F", "logoText": "현대",   "logoUrl": null },
+    { "id": "lg-elec",        "name": "LG전자",         "aliases": ["엘지전자", "LG Electronics"],           "domain": "lge.co.kr",            "category": "대기업",    "brandColor": "#A50034", "logoText": "LG",     "logoUrl": null },
+    { "id": "samsung-bio",    "name": "삼성바이오로직스", "aliases": ["삼바", "Samsung Biologics"],           "domain": "samsungbiologics.com", "category": "대기업",    "brandColor": "#1428A0", "logoText": "삼성",   "logoUrl": null },
+    { "id": "amorepacific",   "name": "아모레퍼시픽",   "aliases": ["아모레", "AmorePacific"],               "domain": "apgroup.com",          "category": "대기업",    "brandColor": "#1A1A1A", "logoText": "아모레", "logoUrl": null },
+    { "id": "ottogi",         "name": "오뚜기",         "aliases": ["Ottogi"],                               "domain": "ottogi.co.kr",         "category": "대기업",    "brandColor": "#E4002B", "logoText": "오뚜기", "logoUrl": null },
+    { "id": "korean-air",     "name": "대한항공",       "aliases": ["Korean Air", "KAL"],                    "domain": "koreanair.com",        "category": "대기업",    "brandColor": "#00256C", "logoText": "KAL",    "logoUrl": null },
+
+    { "id": "naver",          "name": "네이버",         "aliases": ["NAVER", "네이버클라우드"],              "domain": "navercorp.com",        "category": "IT플랫폼",  "brandColor": "#03C75A", "logoText": "NAVER",  "logoUrl": null },
+    { "id": "kakao",          "name": "카카오",         "aliases": ["Kakao", "카카오엔터"],                  "domain": "kakaocorp.com",        "category": "IT플랫폼",  "brandColor": "#FEE500", "logoText": "kakao",  "logoFg": "#3A1D1D", "logoUrl": null },
+    { "id": "line",           "name": "라인",           "aliases": ["LINE", "라인플러스"],                   "domain": "linecorp.com",         "category": "IT플랫폼",  "brandColor": "#06C755", "logoText": "LINE",   "logoUrl": null },
+    { "id": "coupang",        "name": "쿠팡",           "aliases": ["Coupang"],                              "domain": "coupang.com",          "category": "IT플랫폼",  "brandColor": "#E01931", "logoText": "쿠팡",   "logoUrl": null },
+    { "id": "woowahan",       "name": "배달의민족",     "aliases": ["배민", "우아한형제들", "Woowa"],        "domain": "woowahan.com",         "category": "IT플랫폼",  "brandColor": "#2AC1BC", "logoText": "배민",   "logoUrl": null },
+    { "id": "toss",           "name": "토스",           "aliases": ["Toss", "비바리퍼블리카", "토스뱅크"],  "domain": "toss.im",              "category": "IT플랫폼",  "brandColor": "#3182F6", "logoText": "toss",   "logoUrl": null },
+    { "id": "daangn",         "name": "당근",           "aliases": ["당근마켓", "Karrot", "Daangn"],         "domain": "daangn.com",           "category": "IT플랫폼",  "brandColor": "#FF6F0F", "logoText": "당근",   "logoUrl": null },
+    { "id": "yanolja",        "name": "야놀자",         "aliases": ["Yanolja"],                              "domain": "yanolja.com",          "category": "IT플랫폼",  "brandColor": "#FF3478", "logoText": "야놀자", "logoUrl": null },
+    { "id": "musinsa",        "name": "무신사",         "aliases": ["MUSINSA"],                              "domain": "musinsa.com",          "category": "IT플랫폼",  "brandColor": "#111111", "logoText": "무신사", "logoUrl": null },
+
+    { "id": "krafton",        "name": "크래프톤",       "aliases": ["KRAFTON", "펍지", "PUBG"],              "domain": "krafton.com",          "category": "게임",      "brandColor": "#000000", "logoText": "크래프톤", "logoUrl": null },
+    { "id": "ncsoft",         "name": "엔씨소프트",     "aliases": ["NC", "NCSOFT", "엔씨"],                 "domain": "ncsoft.com",           "category": "게임",      "brandColor": "#111111", "logoText": "NC",     "logoUrl": null },
+    { "id": "nexon",          "name": "넥슨",           "aliases": ["NEXON"],                                "domain": "nexon.com",            "category": "게임",      "brandColor": "#000000", "logoText": "넥슨",   "logoUrl": null },
+    { "id": "netmarble",      "name": "넷마블",         "aliases": ["Netmarble"],                            "domain": "netmarble.com",        "category": "게임",      "brandColor": "#3D5AFE", "logoText": "넷마블", "logoUrl": null },
+
+    { "id": "shinhan-bank",   "name": "신한은행",       "aliases": ["신한", "Shinhan"],                      "domain": "shinhan.com",          "category": "금융",      "brandColor": "#003C88", "logoText": "신한",   "logoUrl": null },
+    { "id": "kb-bank",        "name": "KB국민은행",     "aliases": ["KB", "국민은행", "KB Kookmin"],         "domain": "kbstar.com",           "category": "금융",      "brandColor": "#FFB800", "logoText": "KB",     "logoFg": "#3A2D00", "logoUrl": null },
+    { "id": "kakaobank",      "name": "카카오뱅크",     "aliases": ["카뱅", "KakaoBank"],                    "domain": "kakaobank.com",        "category": "금융",      "brandColor": "#FEE500", "logoText": "kakao",  "logoFg": "#3A1D1D", "logoUrl": null },
+
+    { "id": "google",         "name": "구글",           "aliases": ["Google", "구글코리아"],                 "domain": "google.com",           "category": "외국계",    "brandColor": "#4285F4", "logoText": "G",      "logoUrl": null },
+    { "id": "apple",          "name": "애플",           "aliases": ["Apple", "애플코리아"],                  "domain": "apple.com",            "category": "외국계",    "brandColor": "#111111", "logoText": "애플",   "logoUrl": null },
+    { "id": "pg",             "name": "P&G",            "aliases": ["프록터앤갬블", "Procter & Gamble"],     "domain": "pg.com",               "category": "외국계",    "brandColor": "#004B93", "logoText": "P&G",    "logoUrl": null },
+    { "id": "loreal",         "name": "로레알",         "aliases": ["L'Oréal", "LOreal"],                    "domain": "loreal.com",           "category": "외국계",    "brandColor": "#1A1A1A", "logoText": "로레알", "logoUrl": null },
+    { "id": "jnj",            "name": "존슨앤존슨",     "aliases": ["J&J", "Johnson & Johnson"],             "domain": "jnj.com",              "category": "외국계",    "brandColor": "#EB1700", "logoText": "J&J",    "logoUrl": null }
+  ]
+}

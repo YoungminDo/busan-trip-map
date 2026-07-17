@@ -383,8 +383,27 @@ Company {
 
 회사명→도메인 자동완성: Brandfetch/Clearbit autocomplete 또는 자체 사전.
 
+### 시드 DB & 로고 해석 (인기 회사부터)
+세상 모든 회사를 채우지 않는다. **인기 회사 상위 N개만 먼저** 채우면 수요 대부분을 커버(파워로우).
+초기 시드: **`design/companies.json`** (대학생 선호 기업 ~30개 · id·name·aliases·domain·category·brandColor).
+
+```js
+// 로고 해석: domain → 로고 API → 우리 CDN 캐시 → 실패 시 모노그램
+async function resolveLogo(company) {
+  if (company.logoUrl) return company.logoUrl;                 // 이미 우리 CDN에 있음
+  try {
+    const src = `https://img.logo.dev/${company.domain}?format=png`; // 또는 Brandfetch
+    const cdnUrl = await downloadAndCache(src, company.id);    // 우리 스토리지에 저장 (핫링크 X)
+    return cdnUrl;
+  } catch {
+    return null;                                                // → 모노그램 폴백(brandColor+logoText)
+  }
+}
+```
+정규화: 검색·입력은 `aliases` 로 표준 회사 엔티티에 매핑(비바리퍼블리카→토스 등).
+
 ### 단계별 도입
-- **Phase 0 (MVP·현재):** 이니셜 모노그램 폴백만. 로고 없이도 앱 동작.
+- **Phase 0 (MVP·현재):** 이니셜 모노그램 폴백만. 로고 없이도 앱 동작. (`companies.json` 시드만 존재)
 - **Phase 1:** 온보딩 때 logo.dev/Brandfetch로 해석 + 우리 CDN 저장. 상위 수백 개 회사만 커버해도 대부분 충족.
 - **Phase 2:** 회사 엔티티 정규화 사전 + 관리자 로고 검수 + 코치의 로고 교체 요청.
 
