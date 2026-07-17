@@ -130,6 +130,17 @@
   .ccard .role{font-size:16.5px;font-weight:800;letter-spacing:-.02em;line-height:1.32;margin-top:10px}
   .ccard .role .yr{color:var(--brand-ink)}
   .role .co{color:var(--brand-ink);font-weight:800}
+  .stbadge{display:inline-flex;align-items:center;font-size:10px;font-weight:800;padding:2px 7px;border-radius:6px;vertical-align:middle;margin-left:2px}
+  .stbadge.cur{color:#0C8578;background:var(--brand-soft)}
+  .stbadge.past{color:#6B7683;background:#EEF1F3}
+  .multichip{color:var(--brand-ink);font-weight:700}
+  .proflist{background:#fff;border:1px solid var(--line);border-radius:14px;padding:6px 15px}
+  .profrow{display:flex;align-items:center;gap:10px;padding:11px 0;border-top:1px solid var(--line-soft)}
+  .profrow:first-child{border-top:none}
+  .profrow .logo{height:22px;padding:0 8px;font-size:11px;margin:0;box-shadow:0 1px 3px rgba(20,40,50,.14)}
+  .profrow .pf-main{flex:1;font-size:13px;color:var(--ink)}
+  .pf-note{font-size:12px;color:var(--ink-soft);line-height:1.55;margin-top:9px;padding:0 2px}
+  .pf-note b{color:var(--ink)}
   .role .logo{display:inline-flex;align-items:center;justify-content:center;height:24px;padding:0 9px;border-radius:8px;color:#fff;font-size:12px;font-weight:800;letter-spacing:.01em;vertical-align:middle;margin-right:8px;box-shadow:0 2px 6px rgba(20,40,50,.18)}
   .detail-hero .role .logo{height:30px;padding:0 11px;font-size:14px;margin-right:9px}
   .seg{display:flex;gap:4px;background:#EEF1F3;border-radius:12px;padding:4px;margin-bottom:14px}
@@ -518,6 +529,12 @@
       reviewTags:['#따뜻한조언','#현실적'], review:'“나이 차이가 적어 더 편하게 물어볼 수 있었어요.”', reviewBy:'시디 2학년 · 매우 도움이 됐어요' },
     { id:'kang', role:'마케팅 리더', yr:'12년차', meta:'마케팅 전략 · IT 플랫폼 · 브랜드/그로스',
       company:'네이버', companyType:'IT 플랫폼', job:'마케팅', logo:{text:'NAVER', bg:'#03C75A'},
+      totalYr:'16년차',
+      profiles:[
+        {company:'네이버', companyType:'IT 플랫폼', job:'마케팅', logo:{text:'NAVER',bg:'#03C75A'}, status:'current'},
+        {company:'펩시코', companyType:'글로벌 FMCG', job:'브랜드 마케팅', logo:{text:'PEPSI',bg:'#004B93'}, status:'past'},
+        {company:'니베아', companyType:'글로벌 FMCG', job:'브랜드 마케팅', logo:{text:'NIVEA',bg:'#003087'}, status:'past'},
+      ],
       intro:'브랜드·퍼포먼스·그로스… 헷갈리는 마케팅 직무를 한 장으로 정리해드려요. 문과생이 뭐부터 시작할지 방향을 잡아드려요.',
       about:'안녕하세요. 마케팅 12년차 강우연입니다.\nP&G 브랜드 매니저부터 IT 플랫폼 마케팅 리더까지, 마케팅의 여러 갈래를 두루 겪었어요. 브랜드·퍼포먼스·그로스가 어떻게 다른지, 문과생이 뭐부터 시작하면 되는지 한눈에 정리해드려요.',
       recWho:['마케팅 직무가 너무 많아 헷갈리는 분','문과생이 마케터가 되려는 분','브랜드·퍼포먼스·그로스가 헷갈리는 분'],
@@ -553,18 +570,36 @@
 
   /* ---------- 렌더 ---------- */
   let variant = 'company'; // 'role' | 'company'(가설)
-  function titleHTML(c){
-    return `<div class="role"><span class="logo" style="background:${c.logo.bg}">${c.logo.text}</span><span class="co">${c.company}</span> · ${c.job} <span class="yr">· ${c.yr}</span></div><div class="meta">${c.companyType}</div>`;
+  // 프로필 뷰 = (코치, 특정 회사 프로필). 멀티프로필이면 회사 수만큼 카드.
+  function viewOf(c, pf){
+    return pf ? {company:pf.company, job:pf.job, logo:pf.logo, companyType:pf.companyType, status:pf.status}
+              : {company:c.company, job:c.job, logo:c.logo, companyType:c.companyType, status:null};
   }
-  function coachCard(c){
+  function statusBadge(s){
+    if(s==='current') return `<span class="stbadge cur">재직중</span>`;
+    if(s==='past') return `<span class="stbadge past">전직</span>`;
+    return '';
+  }
+  function titleHTML(c, pf){
+    const v=viewOf(c,pf); const yr=c.totalYr||c.yr;
+    return `<div class="role"><span class="logo" style="background:${v.logo.bg}">${v.logo.text}</span><span class="co">${v.company}</span> · ${v.job} <span class="yr">· ${yr}</span> ${statusBadge(v.status)}</div><div class="meta">${v.companyType}</div>`;
+  }
+  function coachCard(c, pf){
+    const multi = c.profiles && c.profiles.length>1;
     return `<div class="ccard" onclick="openCoach('${c.id}')">
       <span class="verify"><span class="ck">✓</span>헬로마이미 검증 파트너</span>
-      ${titleHTML(c)}
+      ${titleHTML(c, pf)}
       <div class="qbox intro"><div class="l">💬 이런 고민을 도와드려요</div><div class="q">${c.intro}</div></div>
       <div class="tags" style="margin-top:11px">${c.tags.map(t=>`<span class="tag b">${t}</span>`).join('')}</div>
       <div class="metrics"><span class="s">도움됐어요 ${c.help}%</span><span class="d">·</span><span>질문 ${c.cnt}개</span><span class="d">·</span><span>${c.time}</span></div>
-      <div class="cfoot"><div class="face sm">${faceSvg}</div><div class="nm"><b>${c.name}</b> 파트너</div></div>
+      <div class="cfoot"><div class="face sm">${faceSvg}</div><div class="nm"><b>${c.name}</b> 파트너${multi?` · <span class="multichip">🔗 ${c.profiles.length}개 회사 경력</span>`:''}</div></div>
     </div>`;
+  }
+  // 코치들을 프로필 카드로 펼치기 (멀티프로필 = 회사 수만큼)
+  function profileViews(){
+    const out=[];
+    coaches.forEach(c=>{ if(c.profiles) c.profiles.forEach(pf=>out.push([c,pf])); else out.push([c,null]); });
+    return out;
   }
   function homeCard(c){
     const mini = c.id==='lee' ? '<span class="s">학생과 가장 가까운 연차</span>' : `<span class="s">도움됐어요 ${c.help}%</span> · ${c.time}`;
@@ -633,8 +668,8 @@
   function appendBatch(){
     if(filtering) return;
     let html='';
-    const pool = shuffled(coaches);
-    for(let i=0;i<3;i++){ html += coachCard(pool[i%pool.length]); feedCount++; }   // 무한: 순환하며 계속 추가
+    const pool = shuffled(profileViews());   // 멀티프로필 = 회사별 카드로 펼쳐서 노출
+    for(let i=0;i<3;i++){ const [c,pf]=pool[i%pool.length]; html += coachCard(c,pf); feedCount++; }
     html += recoBlock(nextReco());   // 3장마다 추천 블록
     batchNo++;
     if(batchNo%2===1) html += requestCard();   // 첫 묶음 직후부터 요청 카드 삽입
@@ -741,12 +776,14 @@
       body.innerHTML = html;
       return;
     }
-    const hits = coaches.filter(c=>{
-      const hay = [c.company,c.companyType,c.job,c.role,c.meta,c.q,...(c.tags||[]),...(c.rec||[])].join(' ').toLowerCase();
+    // 프로필 뷰로 검색 → "펩시코"처럼 특정 회사 프로필도 찾아짐 (멀티프로필 커버리지)
+    const hits = profileViews().filter(([c,pf])=>{
+      const v = viewOf(c,pf);
+      const hay = [v.company,v.companyType,v.job,c.role,c.meta,c.q,...(c.tags||[]),...(c.rec||[])].join(' ').toLowerCase();
       return qv.split(/\s+/).some(w=>hay.includes(w));
     });
-    body.innerHTML = `<div class="expl-sec">‘${document.getElementById('explInput').value.trim()}’ 결과 ${hits.length}명</div>`
-      + (hits.length ? hits.map(coachCard).join('')
+    body.innerHTML = `<div class="expl-sec">‘${document.getElementById('explInput').value.trim()}’ 결과 ${hits.length}개 프로필</div>`
+      + (hits.length ? hits.map(([c,pf])=>coachCard(c,pf)).join('')
         : `<div class="noresult"><div class="nr-t">일치하는 파트너가 아직 없어요</div><div class="nr-req" onclick="reqToast()">🙋 이 회사·직무 현직자를 찾아달라고 요청하기</div></div>`);
   }
   function searchFor(t){ const el=document.getElementById('explInput'); el.value=t; idxSel=null; exploreRender(); }
@@ -767,7 +804,10 @@
           <div class="trow"><span class="tk">✓</span>실명 인증 (프로필엔 비공개)</div>
           <div class="tnote">실명·얼굴은 파트너 선택으로 비공개예요. 헬로마이미가 신원과 경력을 <b>직접 확인</b>했으니 안심하고 질문하세요.</div>
         </div>
-        ${c.alsoAt&&c.alsoAt.length?`<div class="multi">💼 <b>${c.alsoAt.join('·')}</b> 경력도 있어요 · 이 회사 궁금하면 그 프로필도 보기 ›</div>`:''}
+        ${c.profiles ? `<div class="dsec">노출 프로필 <span class="dsec-tag">${c.profiles.length}개 회사</span></div>
+          <div class="proflist">${c.profiles.map(pf=>`<div class="profrow"><span class="logo" style="background:${pf.logo.bg}">${pf.logo.text}</span><div class="pf-main"><b>${pf.company}</b> · ${pf.job}</div>${statusBadge(pf.status)}</div>`).join('')}</div>
+          <div class="pf-note">한 파트너의 여러 회사 경력이 <b>각각 검색에 노출</b>돼요. 이력·후기·검증은 공유됩니다.</div>`
+        : (c.alsoAt&&c.alsoAt.length?`<div class="multi">💼 <b>${c.alsoAt.join('·')}</b> 경력도 있어요 · 이 회사 궁금하면 그 프로필도 보기 ›</div>`:'')}
 
         <div class="dsec">어떤 파트너예요</div>
         <div class="about">${c.about.replace(/\n/g,'<br>')}</div>
