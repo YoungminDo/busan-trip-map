@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>헬로마이미 · 커피챗 UI 시안 (디자이너 커뮤니케이션용)</title>
+<style>
+  /* =========================================================
+     헬로마이미 커피챗 · 디자인 토큰
+     톤: 대학생에게 친근하지만 신뢰감 있는 커리어 서비스
+     피할 것: 소개팅앱(얼굴/점수 중심), 배달앱(가격/속도 경쟁), 멘토판매(구매/인기순위)
+     ========================================================= */
+  :root{
+    /* 색 - 성장/신뢰를 상징하는 딥 그린 + 따뜻한 종이 배경 */
+    --ink:#20262E;          /* 기본 텍스트 (거의 검정, 살짝 따뜻) */
+    --ink-soft:#4C5563;     /* 보조 텍스트 */
+    --muted:#8B93A1;        /* 가장 약한 텍스트 (이름/얼굴 등 보조정보) */
+    --line:#EBECEF;         /* 구분선 */
+    --line-soft:#F2F3F5;
+    --bg:#F6F5F1;           /* 따뜻한 종이색 배경 */
+    --card:#FFFFFF;
+    --brand:#2C6B5B;        /* 브랜드 딥그린 = 커리어 성장/신뢰 */
+    --brand-ink:#1E4F42;
+    --brand-soft:#E7F0EC;   /* 브랜드 연한 배경 */
+    --brand-soft2:#F0F6F3;
+    --accent:#C9832B;       /* 질문 티켓 앰버 (희소하게만 사용) */
+    --accent-soft:#FBF1DE;
+    --chip:#F1F2F4;         /* 태그 칩 배경 */
+    --chip-ink:#5A6270;
+    --ok:#2C6B5B;
+    --shadow:0 1px 2px rgba(20,30,40,.04), 0 6px 20px rgba(20,30,40,.06);
+    --shadow-lg:0 8px 30px rgba(20,30,40,.10);
+    --r-lg:22px; --r-md:16px; --r-sm:11px;
+    --font:"Pretendard","Apple SD Gothic Neo",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue","Malgun Gothic",sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:#E9E8E3;font-family:var(--font);color:var(--ink);-webkit-font-smoothing:antialiased;line-height:1.5}
+  body{padding:32px 16px 80px}
+
+  /* ---------- 페이지 헤더 ---------- */
+  .doc-head{max-width:1180px;margin:0 auto 26px;padding:0 6px}
+  .doc-head .kicker{display:inline-block;font-size:12px;font-weight:700;letter-spacing:.12em;color:var(--brand);background:var(--brand-soft);padding:5px 11px;border-radius:999px;text-transform:uppercase}
+  .doc-head h1{font-size:26px;font-weight:800;margin:12px 0 6px;letter-spacing:-.02em;color:var(--ink)}
+  .doc-head p{color:var(--ink-soft);font-size:14.5px;max-width:760px}
+  .doc-head .note{margin-top:12px;font-size:12.5px;color:var(--muted);background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 14px;max-width:820px}
+
+  /* ---------- 탭 네비 ---------- */
+  .tabs{position:sticky;top:0;z-index:50;max-width:1180px;margin:0 auto 26px;display:flex;gap:6px;flex-wrap:wrap;background:rgba(233,232,227,.86);backdrop-filter:blur(8px);padding:12px 6px}
+  .tab{font-size:13px;font-weight:600;color:var(--ink-soft);background:#fff;border:1px solid var(--line);padding:8px 14px;border-radius:999px;cursor:pointer;transition:.15s;user-select:none}
+  .tab:hover{border-color:#d7d9de}
+  .tab.active{background:var(--brand);border-color:var(--brand);color:#fff;box-shadow:var(--shadow)}
+
+  /* ---------- 화면 섹션 ---------- */
+  .screen-block{display:none}
+  .screen-block.active{display:block}
+  .stage{max-width:1180px;margin:0 auto;display:flex;gap:34px;align-items:flex-start;flex-wrap:wrap}
+  .stage.center{justify-content:center}
+
+  /* ---------- 폰 프레임 ---------- */
+  .phone{width:390px;flex:0 0 390px;background:#fff;border-radius:44px;padding:12px;box-shadow:var(--shadow-lg);border:1px solid #e2e3e6;position:relative}
+  .phone .notch{position:absolute;top:20px;left:50%;transform:translateX(-50%);width:120px;height:26px;background:#20262E;border-radius:999px;z-index:20}
+  .viewport{background:var(--bg);border-radius:34px;height:800px;overflow-y:auto;position:relative;scrollbar-width:none}
+  .viewport::-webkit-scrollbar{display:none}
+  .status-bar{height:44px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 24px 4px;font-size:13px;font-weight:600;color:var(--ink)}
+  .pad{padding:16px 18px 40px}
+
+  /* 앱 헤더 */
+  .app-bar{display:flex;align-items:center;gap:10px;padding:6px 18px 12px}
+  .app-bar .back{width:34px;height:34px;border-radius:10px;background:#fff;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--ink-soft)}
+  .app-bar .title{font-size:16px;font-weight:700}
+  .app-bar .spacer{flex:1}
+
+  /* ---------- 재사용 요소 ---------- */
+  .h-eyebrow{font-size:12px;font-weight:700;color:var(--brand);letter-spacing:.02em;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+  .h1{font-size:22px;font-weight:800;letter-spacing:-.02em;line-height:1.32}
+  .h1 em{font-style:normal;color:var(--brand)}
+  .sub{font-size:13.5px;color:var(--ink-soft);margin-top:8px}
+  .section-title{font-size:15.5px;font-weight:800;letter-spacing:-.01em;margin:26px 4px 12px;display:flex;align-items:center;justify-content:space-between}
+  .section-title .more{font-size:12.5px;color:var(--muted);font-weight:600}
+
+  .tag{display:inline-flex;align-items:center;font-size:12px;font-weight:600;color:var(--chip-ink);background:var(--chip);padding:5px 10px;border-radius:999px}
+  .tag.brand{color:var(--brand-ink);background:var(--brand-soft)}
+  .tags{display:flex;flex-wrap:wrap;gap:6px}
+
+  .badge{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:700;color:var(--accent);background:var(--accent-soft);padding:4px 9px;border-radius:999px}
+  .badge .dot{width:5px;height:5px;border-radius:50%;background:var(--accent)}
+
+  /* 신뢰 지표 라인 */
+  .metrics{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12.5px;color:var(--ink-soft);font-weight:600}
+  .metrics .strong{color:var(--brand);font-weight:800}
+  .metrics .sep{color:var(--line);font-weight:400}
+
+  /* 질문 인용 박스 */
+  .q-quote{background:var(--brand-soft2);border:1px solid #E2ECE7;border-radius:var(--r-md);padding:11px 13px;font-size:13.5px;font-weight:600;color:var(--brand-ink);line-height:1.5}
+  .q-quote .lbl{display:block;font-size:11.5px;font-weight:700;color:var(--brand);margin-bottom:4px;letter-spacing:.01em}
+  .q-quote.quiet{background:#fff;border-color:var(--line);color:var(--ink)}
+
+  /* 코치 아바타 (얼굴은 보조 · 일러스트 이니셜) */
+  .ava{width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,#E7F0EC,#DCE8E2);color:var(--brand-ink);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;flex:0 0 38px}
+  .ava.sm{width:30px;height:30px;font-size:12px;border-radius:9px;flex:0 0 30px}
+
+  /* 입력창 */
+  .input{width:100%;background:#fff;border:1.5px solid var(--line);border-radius:var(--r-md);padding:15px 15px;font-size:14px;color:var(--ink);font-family:var(--font)}
+  .input.big{padding:16px;min-height:104px}
+  .input::placeholder{color:var(--muted)}
+  .search-hero{background:#fff;border:1.5px solid #E4E5E9;border-radius:18px;padding:15px 16px;box-shadow:var(--shadow);display:flex;align-items:center;gap:10px}
+  .search-hero .ico{color:var(--brand);font-size:17px}
+  .search-hero .ph{color:var(--muted);font-size:14px;font-weight:500}
+  .rotator{font-size:12px;color:var(--ink-soft);margin-top:9px;padding-left:4px}
+  .rotator b{color:var(--brand)}
+
+  /* CTA */
+  .cta{display:block;width:100%;text-align:center;background:var(--brand);color:#fff;font-size:15.5px;font-weight:800;padding:16px;border-radius:16px;border:none;cursor:pointer;box-shadow:0 6px 18px rgba(44,107,91,.28);letter-spacing:-.01em}
+  .cta.ghost{background:#fff;color:var(--brand);border:1.5px solid var(--brand-soft);box-shadow:none}
+  .cta-sub{text-align:center;font-size:12px;color:var(--muted);margin-top:9px}
+
+  /* 하단 고정 바 */
+  .sticky-cta{position:sticky;bottom:0;background:linear-gradient(180deg,rgba(246,245,241,0),var(--bg) 34%);padding:16px 18px 20px;margin-top:8px}
+
+  /* 카드 공통 */
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);padding:16px;box-shadow:var(--shadow)}
+
+  /* 카테고리 그리드 */
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .cat-card{background:#fff;border:1px solid var(--line);border-radius:var(--r-md);padding:14px 13px;cursor:pointer;transition:.15s}
+  .cat-card:hover{border-color:var(--brand);transform:translateY(-1px)}
+  .cat-card .emo{font-size:20px}
+  .cat-card .t{font-size:14px;font-weight:800;margin-top:9px;letter-spacing:-.01em}
+  .cat-card .d{font-size:11.5px;color:var(--ink-soft);margin-top:4px;line-height:1.45}
+  .chip-row{display:flex;gap:7px;overflow-x:auto;padding:2px 0 4px;scrollbar-width:none}
+  .chip-row::-webkit-scrollbar{display:none}
+  .chip{flex:0 0 auto;font-size:12.5px;font-weight:600;color:var(--chip-ink);background:#fff;border:1px solid var(--line);padding:8px 13px;border-radius:999px;cursor:pointer;white-space:nowrap}
+  .chip.on{background:var(--brand);border-color:var(--brand);color:#fff}
+
+  /* 필터바 */
+  .filterbar{display:flex;gap:7px;overflow-x:auto;padding:10px 18px;position:sticky;top:0;background:var(--bg);z-index:5;scrollbar-width:none;border-bottom:1px solid var(--line-soft)}
+  .filterbar::-webkit-scrollbar{display:none}
+  .fpill{flex:0 0 auto;font-size:12.5px;font-weight:600;color:var(--ink-soft);background:#fff;border:1px solid var(--line);padding:7px 12px;border-radius:999px;white-space:nowrap;display:flex;align-items:center;gap:5px}
+  .fpill.on{background:var(--brand-soft);border-color:#CFE2DA;color:var(--brand-ink)}
+
+  /* 코치 카드 - 리스트용 */
+  .coach{background:#fff;border:1px solid var(--line);border-radius:var(--r-lg);padding:16px;box-shadow:var(--shadow);margin-bottom:12px}
+  .coach .role{font-size:16px;font-weight:800;letter-spacing:-.02em;line-height:1.35;color:var(--ink)}
+  .coach .role .yr{color:var(--brand)}
+  .coach .meta-line{font-size:12px;color:var(--muted);font-weight:600;margin-top:3px}
+  .coach .foot{display:flex;align-items:center;gap:9px;margin-top:14px;padding-top:13px;border-top:1px solid var(--line-soft)}
+  .coach .foot .name{font-size:12.5px;color:var(--muted);font-weight:600}
+  .coach .foot .name b{color:var(--ink-soft);font-weight:700}
+
+  /* 주석(빨간펜) 스타일 - 디자이너 커뮤니케이션용 */
+  .annot{max-width:340px;flex:0 0 340px;padding-top:10px}
+  .annot h3{font-size:16px;font-weight:800;color:var(--ink);margin-bottom:4px}
+  .annot .type-badge{display:inline-block;font-size:11px;font-weight:800;letter-spacing:.08em;color:#fff;background:var(--brand);padding:4px 10px;border-radius:999px;margin-bottom:12px}
+  .annot dl{margin:0}
+  .annot dt{font-size:12.5px;font-weight:800;color:var(--brand-ink);margin-top:14px;display:flex;align-items:center;gap:6px}
+  .annot dd{font-size:13px;color:var(--ink-soft);margin-top:5px;line-height:1.55}
+  .annot ul{margin:6px 0 0;padding-left:2px;list-style:none}
+  .annot li{font-size:12.5px;color:var(--ink-soft);line-height:1.5;padding-left:18px;position:relative;margin-top:5px}
+  .annot li.pro::before{content:"＋";position:absolute;left:0;color:var(--brand);font-weight:800}
+  .annot li.con::before{content:"－";position:absolute;left:0;color:#C25B4E;font-weight:800}
+  .annot .verdict{margin-top:16px;background:var(--brand-soft);border:1px solid #CFE2DA;border-radius:14px;padding:12px 14px;font-size:12.5px;color:var(--brand-ink);line-height:1.55}
+  .annot .verdict b{font-weight:800}
+
+  .callout{max-width:1180px;margin:0 auto 22px;background:#fff;border:1px solid var(--line);border-left:4px solid var(--brand);border-radius:14px;padding:16px 18px;font-size:13.5px;color:var(--ink-soft);line-height:1.6}
+  .callout b{color:var(--ink)}
+
+  .phone-label{text-align:center;font-size:12px;font-weight:700;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.02em}
+  .col{display:flex;flex-direction:column;align-items:center}
+
+  /* 결제 티켓 */
+  .ticket{background:linear-gradient(135deg,#2C6B5B,#1E4F42);color:#fff;border-radius:var(--r-lg);padding:20px;position:relative;overflow:hidden}
+  .ticket::before,.ticket::after{content:"";position:absolute;width:24px;height:24px;background:var(--bg);border-radius:50%;top:50%;transform:translateY(-50%)}
+  .ticket::before{left:-12px}.ticket::after{right:-12px}
+  .ticket .tk-top{font-size:12px;font-weight:700;opacity:.85;letter-spacing:.08em}
+  .ticket .tk-price{font-size:30px;font-weight:800;margin:8px 0 2px;letter-spacing:-.02em}
+  .ticket .tk-desc{font-size:12.5px;opacity:.9;line-height:1.5}
+  .ticket .tk-line{border-top:1px dashed rgba(255,255,255,.3);margin:14px 0}
+
+  /* 답변 구조 */
+  .ans-block{background:#fff;border:1px solid var(--line);border-radius:var(--r-md);padding:14px;margin-bottom:10px}
+  .ans-block .lbl{font-size:11.5px;font-weight:800;color:var(--brand);letter-spacing:.02em;display:flex;align-items:center;gap:6px}
+  .ans-block .txt{font-size:13.5px;color:var(--ink);margin-top:7px;line-height:1.6}
+  .steps{counter-reset:s;list-style:none}
+  .steps li{position:relative;padding:12px 12px 12px 44px;background:#fff;border:1px solid var(--line);border-radius:12px;margin-bottom:8px;font-size:13px;color:var(--ink-soft);line-height:1.5}
+  .steps li::before{counter-increment:s;content:counter(s);position:absolute;left:12px;top:12px;width:22px;height:22px;background:var(--brand-soft);color:var(--brand-ink);border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px}
+
+  /* 리뷰 선택지 */
+  .rev-opt{display:flex;align-items:center;gap:12px;background:#fff;border:1.5px solid var(--line);border-radius:14px;padding:15px;margin-bottom:9px;cursor:pointer;transition:.15s}
+  .rev-opt:hover{border-color:var(--brand)}
+  .rev-opt.on{border-color:var(--brand);background:var(--brand-soft2)}
+  .rev-opt .emo{font-size:20px}
+  .rev-opt .t{font-size:14px;font-weight:700}
+
+  .safe-row{display:flex;gap:8px;align-items:flex-start;font-size:12.5px;color:var(--ink-soft);line-height:1.5;margin-top:10px}
+  .safe-row .ic{color:var(--brand);flus:0 0 auto;font-weight:800}
+
+  .timeline{position:relative;padding-left:26px}
+  .timeline::before{content:"";position:absolute;left:9px;top:6px;bottom:6px;width:2px;background:var(--line)}
+  .tl-item{position:relative;padding-bottom:20px}
+  .tl-item .node{position:absolute;left:-24px;top:2px;width:18px;height:18px;border-radius:50%;background:#fff;border:2px solid var(--line)}
+  .tl-item.done .node{background:var(--brand);border-color:var(--brand)}
+  .tl-item.now .node{border-color:var(--brand);box-shadow:0 0 0 4px var(--brand-soft)}
+  .tl-item .t{font-size:14px;font-weight:700}
+  .tl-item .d{font-size:12px;color:var(--muted);margin-top:2px}
+
+  @media(max-width:900px){.annot{flex-basis:100%;max-width:390px}}
+</style>
+</head>
+<body>
+
+<div class="doc-head">
+  <span class="kicker">Hello My Me · 커피챗</span>
+  <h1>텍스트 커피챗 UI 시안 — 디자이너 커뮤니케이션용</h1>
+  <p>“학생은 <b>고민</b>으로 들어오고, <b>질문</b>으로 좁히고, <b>신뢰 지표</b>로 확신하고, <b>질문 티켓</b>으로 정중하게 연결된다.” 코치 카드는 <b>이름·얼굴이 아니라 ‘질문 적합도’ 중심</b>으로 설계했습니다.</p>
+  <div class="note">📌 이 파일은 브라우저에서 바로 열리는 클릭형 시안입니다. 상단 탭으로 화면을 전환하세요. 각 화면 옆의 초록 주석은 <b>정보 우선순위와 노출 이유</b>를 디자이너에게 설명하는 메모입니다. 실제 텍스트/수치는 모두 예시입니다.</div>
+</div>
+
+<div class="tabs" id="tabs"></div>
+
+<!-- =========================================================
+     0. 코치 카드 3종 비교 (핵심)
+     ========================================================= -->
+<div class="screen-block active" data-screen="cards">
+  <div class="callout">
+    <b>왜 이름·얼굴이 메인이 아닌가?</b> 학생은 “이 사람이 누구인가”보다 “<b>이 사람이 내 질문에 답해줄 수 있는가</b>”를 먼저 봅니다. 얼굴을 크게 쓰면 서비스가 소개팅앱처럼 보이고, 코치를 외모/호감으로 평가하게 됩니다. 그래서 <b>메인 타이틀 = 역할(직무+회사유형+연차)</b>, 이름은 하단에 작게, 얼굴은 이니셜 일러스트로만 처리합니다.
+  </div>
+
+  <div class="stage">
+    <!-- 카드 A : 역할 중심형 -->
+    <div class="col">
+      <div class="phone-label">TYPE A · 역할 중심형</div>
+      <div class="phone"><div class="notch"></div><div class="viewport"><div class="status-bar"><span>9:41</span><span>●●● 🔋</span></div>
+        <div class="pad">
+          <div class="coach" style="margin:0">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px">
+              <div class="role">외국계 소비재 브랜드 마케터 <span class="yr">· 15년차</span></div>
+              <span class="badge"><span class="dot"></span>Founding Partner</span>
+            </div>
+            <div class="meta-line">브랜드 마케팅 · 외국계 · FMCG</div>
+
+            <div class="q-quote" style="margin-top:14px">
+              <span class="lbl">이런 질문에 잘 답해요</span>
+              “브랜드 마케터는 실제로 하루에 무슨 일을 하나요?”
+            </div>
+
+            <div class="tags" style="margin-top:12px">
+              <span class="tag brand">#문과생</span><span class="tag brand">#마케팅입문</span>
+              <span class="tag brand">#외국계궁금</span><span class="tag brand">#브랜드직무</span>
+            </div>
+
+            <div style="margin-top:12px;font-size:12px;color:var(--muted);font-weight:700">답변 스타일</div>
+            <div class="tags" style="margin-top:6px">
+              <span class="tag">현실적</span><span class="tag">구체적</span><span class="tag">사례 중심</span>
+            </div>
+
+            <div class="metrics" style="margin-top:14px">
+              <span><span class="strong">도움됐어요 96%</span></span><span class="sep">·</span>
+              <span>질문 42개</span><span class="sep">·</span><span>평균 18시간 내 답변</span>
+            </div>
+
+            <div class="foot">
+              <div class="ava">윤</div>
+              <div class="name"><b>윤재현</b> 파트너 · Founding Career Partner</div>
+            </div>
+          </div>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="annot">
+      <span class="type-badge">TYPE A</span>
+      <h3>역할 중심형</h3>
+      <dl>
+        <dt>▸ 정보 구조</dt>
+        <dd>① 역할 타이틀(직무+회사유형+연차) → ② 산업 요약 → ③ 잘 답하는 질문 → ④ 추천 학생 태그 → ⑤ 답변 스타일 → ⑥ 신뢰 지표 → ⑦ 이름·배지(하단 보조)</dd>
+        <dt>▸ 장점</dt>
+        <ul>
+          <li class="pro">“어떤 사람인지”가 3초 안에 파악됨 — 스캔이 가장 빠름</li>
+          <li class="pro">직무로 찾는 학생에게 매칭이 직관적</li>
+          <li class="pro">카드 간 비교가 균일해 리스트에 적합</li>
+        </ul>
+        <dt>▸ 단점</dt>
+        <ul>
+          <li class="con">아직 직무명을 모르는 ‘완전 초심자’에겐 여전히 용어 장벽</li>
+          <li class="con">‘나에게 맞는가’보다 ‘무슨 직무인가’가 앞섬</li>
+        </ul>
+        <dt>▸ 적합한 상황</dt>
+        <dd>직무별 리스트 화면, 추천 파트너 캐러셀 등 <b>다수를 나란히 비교</b>하는 맥락. 헬로마이미의 기본 카드.</dd>
+      </dl>
+    </div>
+  </div>
+
+  <div class="stage" style="margin-top:40px">
+    <!-- 카드 B : 질문 중심형 -->
+    <div class="col">
+      <div class="phone-label">TYPE B · 질문 중심형</div>
+      <div class="phone"><div class="notch"></div><div class="viewport"><div class="status-bar"><span>9:41</span><span>●●● 🔋</span></div>
+        <div class="pad">
+          <div class="coach" style="margin:0">
+            <div class="q-quote" style="font-size:15px">
+              <span class="lbl">이 질문, 물어보고 싶었다면</span>
+              “비전공자인데 데이터 분석가가 될 수 있을까요?”
+            </div>
+            <div style="font-size:12px;color:var(--brand);font-weight:800;margin-top:14px">이 질문에 잘 답하는 파트너</div>
+            <div class="role" style="margin-top:6px">IT 플랫폼 데이터 분석가 <span class="yr">· 7년차</span></div>
+            <div class="meta-line">데이터 분석 · 플랫폼 기업 · B2C</div>
+
+            <div class="tags" style="margin-top:12px">
+              <span class="tag brand">#비전공자</span><span class="tag brand">#데이터입문</span><span class="tag brand">#포트폴리오</span>
+            </div>
+
+            <div class="metrics" style="margin-top:14px">
+              <span><span class="strong">도움됐어요 94%</span></span><span class="sep">·</span>
+              <span>질문 31개</span><span class="sep">·</span><span>평균 12시간 내 답변</span>
+            </div>
+            <div class="foot">
+              <div class="ava">한</div>
+              <div class="name"><b>한태용</b> 파트너 · Career Partner</div>
+            </div>
+          </div>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="annot">
+      <span class="type-badge">TYPE B</span>
+      <h3>질문 중심형</h3>
+      <dl>
+        <dt>▸ 정보 구조</dt>
+        <dd>① 학생의 질문(공감 후킹) → ② “이 질문에 잘 답하는 파트너” → ③ 역할 → ④ 태그 → ⑤ 신뢰 지표 → ⑥ 이름</dd>
+        <dt>▸ 장점</dt>
+        <ul>
+          <li class="pro">“이건 내 얘긴데?” 공감으로 심리 장벽을 가장 크게 낮춤</li>
+          <li class="pro">직무명을 몰라도 <b>질문 문장</b>으로 진입 가능 (인덱싱 철학과 정합)</li>
+          <li class="pro">고민→질문→파트너의 흐름을 카드 하나가 그대로 재현</li>
+        </ul>
+        <dt>▸ 단점</dt>
+        <ul>
+          <li class="con">질문 1개에 묶여 파트너의 넓은 역량이 안 보임</li>
+          <li class="con">리스트에서 여러 개 나열 시 질문끼리 시각적으로 경쟁</li>
+          <li class="con">파트너 1인이 여러 질문에 매핑되면 중복 노출 위험</li>
+        </ul>
+        <dt>▸ 적합한 상황</dt>
+        <dd>메인/검색 결과 상단의 <b>“인기 질문 → 파트너” 추천</b>, 고민 선택 직후의 결과 첫 카드.</dd>
+      </dl>
+    </div>
+  </div>
+
+  <div class="stage" style="margin-top:40px">
+    <!-- 카드 C : 추천 학생 중심형 -->
+    <div class="col">
+      <div class="phone-label">TYPE C · 추천 학생 중심형</div>
+      <div class="phone"><div class="notch"></div><div class="viewport"><div class="status-bar"><span>9:41</span><span>●●● 🔋</span></div>
+        <div class="pad">
+          <div class="coach" style="margin:0">
+            <div style="font-size:12px;color:var(--brand);font-weight:800">이런 학생에게 추천</div>
+            <div style="font-size:17px;font-weight:800;letter-spacing:-.02em;line-height:1.4;margin-top:6px;color:var(--ink)">
+              “마케팅 직무가 막연한 문과생”
+            </div>
+            <div style="height:1px;background:var(--line-soft);margin:14px 0"></div>
+            <div class="role">외국계 소비재 브랜드 마케터 <span class="yr">· 15년차</span></div>
+            <div style="margin-top:12px;font-size:12px;color:var(--muted);font-weight:700">잘 답하는 질문</div>
+            <div class="txt" style="font-size:13px;color:var(--ink-soft);margin-top:5px;line-height:1.55">
+              브랜드 마케팅의 실제 업무 · 외국계 준비 · 첫 커리어 선택
+            </div>
+            <div class="tags" style="margin-top:12px">
+              <span class="tag brand">#문과생</span><span class="tag brand">#브랜드마케팅</span><span class="tag brand">#외국계</span>
+            </div>
+            <div class="metrics" style="margin-top:14px">
+              <span><span class="strong">도움됐어요 96%</span></span><span class="sep">·</span><span>질문 42개</span>
+            </div>
+            <div class="foot">
+              <div class="ava">윤</div>
+              <div class="name"><b>윤재현</b> 파트너</div>
+            </div>
+          </div>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="annot">
+      <span class="type-badge">TYPE C</span>
+      <h3>추천 학생 중심형</h3>
+      <dl>
+        <dt>▸ 정보 구조</dt>
+        <dd>① “이런 학생에게 추천” + 학생 상황 문장 → ② 역할 → ③ 잘 답하는 질문 → ④ 태그 → ⑤ 지표 → ⑥ 이름</dd>
+        <dt>▸ 장점</dt>
+        <ul>
+          <li class="pro">“나 같은 사람도 물어봐도 되는구나”라는 안정감이 최상</li>
+          <li class="pro">무스펙·비전공 등 <b>불안한 학생</b>을 정확히 끌어안음</li>
+          <li class="pro">‘내 상황으로 찾기’ 필터와 완벽히 정합</li>
+        </ul>
+        <dt>▸ 단점</dt>
+        <ul>
+          <li class="con">추천 대상이 아닌 학생은 “난 아닌가?” 배제감을 느낄 수 있음</li>
+          <li class="con">역할·직무 정보가 한 단계 뒤로 밀려 스캔 속도 저하</li>
+          <li class="con">학생 유형 라벨링을 과하게 하면 편가르기처럼 보임</li>
+        </ul>
+        <dt>▸ 적합한 상황</dt>
+        <dd>‘내 상황으로 찾기(비전공/문과/무스펙)’ 결과, 온보딩 직후 맞춤 추천 섹션.</dd>
+      </dl>
+    </div>
+  </div>
+
+  <div class="callout" style="margin-top:36px;border-left-color:var(--accent)">
+    <b>최종 추천 — “A를 기본, B·C는 문맥 카드로.”</b><br>
+    헬로마이미의 <b>리스트 표준 카드는 TYPE A(역할 중심형)</b>가 맞습니다. 비교 스캔이 가장 빠르고 균일하며, 코치의 품격(직무·연차 우선)도 지켜지기 때문입니다.
+    단, <b>진입 지점에서는 B/C를 얹습니다.</b> — 메인의 ‘인기 질문’ 섹션과 검색 결과 최상단엔 <b>TYPE B(질문 중심형)</b>로 공감 후킹, ‘내 상황으로 찾기’ 결과 상단엔 <b>TYPE C(추천 학생형)</b>로 안정감을 줍니다.
+    즉 <b>하나를 고르는 게 아니라, 같은 데이터로 3가지 얼굴을 문맥에 맞게 렌더링</b>하는 컴포넌트 설계를 권합니다. (아래 ‘코치 리스트’ 탭이 A 기준입니다.)
+  </div>
+</div>
+
+<!-- =========================================================
+     1. 메인
+     ========================================================= -->
+<div class="screen-block" data-screen="main">
+  <div class="stage">
+    <div class="col">
+      <div class="phone-label">커피챗 메인</div>
+      <div class="phone"><div class="notch"></div><div class="viewport"><div class="status-bar"><span>9:41</span><span>●●● 🔋</span></div>
+        <div class="pad">
+          <div class="h-eyebrow">☕ 텍스트 커피챗</div>
+          <div class="h1">현직자에게 묻고 싶었지만<br><em>망설였던 질문</em> 있나요?</div>
+          <div class="sub">검증된 커리어 파트너가 현장의 언어로 답해드려요. 질문 티켓 한 장으로 정중하게.</div>
+
+          <div class="search-hero" style="margin-top:16px">
+            <span class="ico">✎</span>
+            <span class="ph">어떤 커리어 고민이 있나요?</span>
+          </div>
+          <div class="rotator">예: <b>비전공자인데 데이터 분석가가 될 수 있을까요?</b></div>
+
+          <div class="section-title">고민으로 찾기 <span class="more">전체</span></div>
+          <div class="chip-row">
+            <span class="chip on">직무가 궁금해요</span>
+            <span class="chip">회사 선택이 고민</span>
+            <span class="chip">준비 방법이 궁금</span>
+            <span class="chip">내 상황이 불안</span>
+            <span class="chip">진로가 막막</span>
+          </div>
+
+          <div class="section-title">직무로 찾기 <span class="more">전체</span></div>
+          <div class="chip-row">
+            <span class="chip">마케팅/브랜드</span><span class="chip">데이터/AI</span>
+            <span class="chip">UX/UI</span><span class="chip">PM/기획</span><span class="chip">BD/사업개발</span>
+          </div>
+
+          <div class="section-title">추천 커리어 파트너 <span class="more">더보기</span></div>
+          <div class="coach" style="margin:0">
+            <div style="display:flex;justify-content:space-between;gap:8px">
+              <div class="role" style="font-size:15px">외국계 소비재 브랜드 마케터 <span class="yr">· 15년차</span></div>
+              <span class="badge"><span class="dot"></span>Founding</span>
+            </div>
+            <div class="q-quote" style="margin-top:11px;font-size:13px">
+              <span class="lbl">이런 질문에 잘 답해요</span>“브랜드 마케터는 실제로 무슨 일을 하나요?”
+            </div>
+            <div class="metrics" style="margin-top:11px">
+              <span class="strong">도움됐어요 96%</span><span class="sep">·</span><span>평균 18시간</span>
+            </div>
+          </div>
+
+          <div class="section-title">지금 많이 묻는 질문</div>
+          <div class="card" style="padding:6px 0">
+            <div style="padding:11px 14px;font-size:13px;font-weight:600;border-bottom:1px solid var(--line-soft)">Q. 스타트업 첫 커리어, 괜찮을까요?</div>
+            <div style="padding:11px 14px;font-size:13px;font-weight:600;border-bottom:1px solid var(--line-soft)">Q. 무스펙인데 지금 뭐부터 해야 하나요?</div>
+            <div style="padding:11px 14px;font-size:13px;font-weight:600">Q. 대기업 vs 스타트업 어디가 맞을까요?</div>
+          </div>
+
+          <div class="card" style="margin-top:20px;background:var(--brand-soft2);border-color:#DCE8E2;display:flex;gap:12px;align-items:center">
+            <div style="font-size:24px">🎫</div>
+            <div>
+              <div style="font-size:13.5px;font-weight:800;color:var(--brand-ink)">질문 티켓 990원</div>
+              <div style="font-size:12px;color:var(--ink-soft);margin-top:2px;line-height:1.45">현직자의 시간을 존중하며 정중하게 질문 1개를 남기는 명분이에요.</div>
+            </div>
+          </div>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="annot">
+      <span class="type-badge">SCREEN 1</span>
+      <h3>커피챗 메인</h3>
+      <dl>
+        <dt>▸ 정보 우선순위 & 노출 이유</dt>
+        <dd><b>1. 공감형 헤드라인</b> — “망설였던 질문”으로 심리 장벽을 먼저 언어화. 학생이 자기 상태를 인식(흐름 1단계).</dd>
+        <dd><b>2. 질문 입력창(검색창 아님)</b> — placeholder를 회전시켜 ‘질문을 적는 곳’으로 느끼게. 직무명을 몰라도 진입 가능.</dd>
+        <dd><b>3. 고민→직무→상황 순의 카테고리</b> — 용어를 모르는 학생을 위해 ‘고민’을 가장 위에. 검색보다 인덱싱.</dd>
+        <dd><b>4. 추천 파트너 = TYPE A 축약</b>, <b>인기 질문</b>으로 남의 질문을 보며 “나도 물어도 되네” 안심.</dd>
+        <dd><b>5. 티켓 안내는 하단</b> — 가격이 아니라 ‘명분’ 카피로. 결코 최상단 배너로 팔지 않음.</dd>
+        <dt>▸ 피한 것</dt>
+        <ul><li class="con">‘인기 코치 1위’ 랭킹 배너 (멘토판매처럼 보임)</li><li class="con">얼굴 그리드 (소개팅앱)</li></ul>
+      </dl>
+    </div>
+  </div>
+</div>
+
+<!-- =========================================================
+     2. 고민 선택
+     ========================================================= -->
+<div class="screen-block" data-screen="concern">
+  <div class="stage">
+    <div class="col">
+      <div class="phone-label">고민 선택</div>
+      <div class="phone"><div class="notch"></div><div class="viewport"><div class="status-bar"><span>9:41</span><span>●●● 🔋</span></div>
+        <div class="app-bar"><div class="back">‹</div><div class="title">어떤 고민인가요?</div></div>
+        <div class="pad" style="padding-top:4px">
+          <div class="sub" style="margin-bottom:16px">직무명을 몰라도 괜찮아요. 지금 마음에 가까운 걸 골라주세요.</div>
+          <div class="grid2">
+            <div class="cat-card"><div class="emo">🧭</div><div class="t">직무가 궁금해요</div><div class="d">마케팅, PM, 데이터… 실제로 무슨 일을 하는지 알고 싶다면</div></div>
+            <div class="cat-card"><div class="emo">🏢</div><div class="t">회사 선택이 고민</div><div class="d">대기업, 스타트업, 외국계 중 어디가 나와 맞을지 고민된다면</div></div>
+            <div class="cat-card"><div class="emo">📚</div><div class="t">준비 방법이 궁금</div><div class="d">뭐부터, 어떻게 준비해야 할지 막막하다면</div></div>
+            <div class="cat-card"><div class="emo">😟</div><div class="t">내 상황이 불안</div><div class="d">비전공·무스펙이라 시작해도 될지 걱정된다면</div></div>
+            <div class="cat-card"><div class="emo">🌫️</div><div class="t">진로가 막막해요</div><div class="d">어느 방향으로 가야 할지 감이 안 잡힌다면</div></div>
+            <div class="cat-card"><div class="emo">💬</div><div class="t">현실 이야기가 듣고 싶어요</div><div class="d">포장 없이 진짜 현장 이야기를 듣고 싶다면</div></div>
+          </div>
+        </div>
+      </div></div>
+    </div>
+    <div class="annot">
+      <span class="type-badge">SCREEN 2</span>
+      <h3>고민 선택</h3>
+      <dl>
+        <dt>▸ 노출 이유</dt>
+        <dd>직무 용어를 모르는 학생을 위한 <b>감정 기반 진입점</b>. 각 카드에 짧은 설명을 붙여 “이게 내 얘기”라고 클릭하게 만듦.</dd>
+        <dt>▸ 정보 우선순위</dt>
+        <dd>제목(감정/상황) → 한 줄 설명. 아이콘은 부드러운 이모지로 무게를 낮추되 유치하지 않게.</dd>
+        <dt>▸ 다음 흐름</dt>
+        <dd>선택 시 → 관련 질문 예시 + TYPE B/C 카드가 섞인 결과로 연결.</dd>
+      </dl>
+    </div>
+  </div>
+</div>
+
+<!-- =========================================================
+     3. 코치 리스트
+     ========================================================= -->
+<div class="screen-block" data-screen="list">
+  <div class="stage">
+    <div class="col">
+      <div class="phone-label">코치(파트너) 리스트 · TYPE A 기준</div>
+      <div class="phone"><div class="notch"></div><div class="viewport"><div class="status-bar"><span>9:41</span><span>●●● 🔋</span></div>
+        <div class="app-bar"><div class="back">‹</div><div class="title">마케팅/브랜드 파트너</div></div>
+        <div class="filterbar">
+          <span class="fpill on">추천순 ▾</span>
+          <span class="fpill">회사유형</span>
+          <span class="fpill">내 상황</span>
+          <span class="fpill">질문 목적</span>
+          <span class="fpill">응답 빠른순</span>
+          <span class="fpill">도움 많은순</span>
+        </div>
+        <div class="pad" style="padding-top:12px">
+          <!-- coach 1 -->
+          <div class="coach">
+            <div style="display:flex;justify-content:space-between;gap:8px">
+              <div class="role">외국계 소비재 브랜드 마케터 <span class="yr">· 15년차</span></div>
+              <span class="badge"><span class="dot"></span>Founding</span>
+            </div>
+            <div class="meta-line">브랜드 마케팅 · 외국계 · FMCG</div>
+            <div class="q-quote" style="margin-top:11px;font-size:13px"><span class="lbl">이런 질문에 잘 답해요</span>“브랜드 마케터는 실제로 무슨 일을 하나요?”</div>
+            <div class="tags" style="margin-top:10px"><span class="tag brand">#문과생</span><span class="tag brand">#마케팅입문</span><span class="tag brand">#외국계궁금</span></div>
+            <div class="metrics" style="margin-top:12px"><span class="strong">도움됐어요 96%</span><span class="sep">·</span><span>질문 42개</span><span class="sep">·</span><span>평균 18시간</span></div>
+            <div class="foot"><div class="ava">윤</div><div class="name"><b>윤재현</b> 파트너 · Founding Career Partner</div></div>
+          </div>
+          <!-- coach 2 -->
+          <div class="coach">
+            <div style="display:flex;justify-content:space-between;gap:8px">
+              <div class="role">콘텐츠 플랫폼 마케터 <span class="yr">· 8년차</span></div>
+            </div>
+            <div class="meta-line">퍼포먼스·콘텐츠 마케팅 · 플랫폼 기업</div>
+            <div class="q-quote" style="margin-top:11px;font-size:13px"><span class="lbl">이런 질문에 잘 답해요</span>“마케팅 인턴, 뭘 배워가야 하나요?”</div>
+            <div class="tags" style="margin-top:10px"><span class="tag brand">#인턴준비</span><span class="tag brand">#퍼포먼스마케팅</span><span class="tag brand">#포트폴리오</span></div>
+            <div class="metrics" style="margin-top:12px"><span class="strong">도움됐어요 92%</span><span class="sep">·</span><span>질문 27개</span><span class="sep">·</span><span>평균 9시간</span></div>
+            <div class="foot"><div class="ava">서</div><div class="name"><b>서지우</b> 파트너 · Career Partner</div></div>
+          </div>
+          <!-- coach 3 -->
+          <div class="coach">
+            <div class="role">스타트업 브랜드 매니저 <span class="yr">· 6년차</span></div>
+            <div class="meta-line">브랜딩·그로스 · 스타트업 · D2C</div>
+            <div class="q-quote" style="margin-top:11px;font-size:13px"><span class="lbl">이런 질문에 잘 답해요</span>“작은 회사에서 브랜딩을 배울 수 있을까요?”</div>
+            <div class="tags" style="margin-top:10px"><span class="tag brand">#스타트업</span><span class="tag brand">#첫커리어</span><span class="tag brand">#브랜딩</span></div>
+            <div class="metrics" style="margin-top:12px"><span class="strong">도움됐어요 90%</span><span class="sep">·</span><span>질문 19개</span><span class="sep">·</span><span>평균 6시간</span></div>
+            <div class="foot"><div class="ava">임</div><div class="name"><b>임하늘</b> 파트너</div></div>
+          </div>
+        </div>
+      </div></div>
+    </div>
+    <div class="annot">
+      <span class="type-badge">SCREEN 3</span>
+      <h3>코치 리스트</h3>
+      <dl>
+        <dt>▸ 정보 우선순위</dt>
+        <dd>역할 타이틀 → 산업 → 잘 답하는 질문 → 학생 태그 → 신뢰 지표 → (하단) 이름·배지. 얼굴은 38px 이니셜.</dd>
+        <dt>▸ 필터 설계</dt>
+        <dd>‘추천순’ 기본. 정렬을 <b>응답 빠른순·도움 많은순</b>으로 열되, ‘인기순/랭킹’은 배제(경쟁·판매 인상). 필터는 학생의 언어(고민·내 상황·질문 목적).</dd>
+        <dt>▸ 비교 가능성</dt>
+        <dd>모든 카드가 같은 순서·같은 지표 위치 → 균일 스캔. TYPE A가 리스트 표준인 이유.</dd>
+        <dt>▸ 코치 보호</dt>
+        <dd>별점 미노출, ‘도움됐어요 %’만. 응답시간은 있지만 ‘가장 빠른 1위’ 식 강조는 안 함.</dd>
+      </dl>
+    </div>
+  </div>
+</div>
+
+<!-- =========================================================
+     4. 코치 상세
+     ========================================================= -->
+<div class="screen-block" data-screen="detail">
+  <div class="stage">
+    <div class="col">
+      <div class="phone-label">코치(파트너) 상세</div>
+      <div class="phone"><div class="notch"></div><div class="viewport"><div class="status-bar"><span>9:41</span><span>●●● 🔋</span></div>
+        <div class="app-bar"><div class="back">‹</div><div class="title">파트너</div><div class="spacer"></div><div class="back">♡</div></div>
+        <div class="pad" style="padding-top:4px;padding-bottom:120px">
+          <span class="badge" style="font-size:12px"><span class="dot"></span>Founding Career Partner</span>
+          <div class="h1" style="margin-top:12px;font-size:21px">외국계 소비재 브랜드 마케터 <span style="color:var(--brand)">· 15년차</span></div>
+          <div class="meta-line" style="font-size:12.5px">브랜드 마케팅 · 외국계 FMCG · 글로벌 브랜드 3곳</div>
+
+          <div class="card" style="margin-top:14px;background:var(--brand-soft2);border-color:#DCE8E2">
+            <div style="font-size:12px;font-weight:800;color:var(--brand)">파트너 미션</div>
+            <div style="font-size:14px;color:var(--brand-ink);margin-top:7px;line-height:1.6;font-weight:600">
+              “현장에서 겪은 진짜 이야기를 나눠, 다음 세대가 더 나은 커리어 선택을 할 수 있도록 돕고 있어요.”
+            </div>
+          </div>
+
+          <div class="section-title" style="margin-top:22px">이런 질문에 잘 답해요</div>
+          <div class="q-quote">“브랜드 마케터는 실제로 하루에 무슨 일을 하나요?”</div>
+          <div class="q-quote" style="margin-top:8px">“외국계 마케팅, 신입은 어떻게 준비하나요?”</div>
+
+          <div class="section-title">이런 질문은 조금 어려워요</div>
+          <div class="q-quote quiet" style="color:var(--ink-soft)">특정 회사의 내부 처우·연봉 등 대외비 정보, 합격 보장/추천 요청</div>
+
+          <div class="section-title">특히 이런 학생에게 추천해요</div>
+          <div class="tags"><span class="tag brand">#마케팅이막연한문과생</span><span class="tag brand">#외국계궁금</span><span class="tag brand">#첫커리어고민</span></div>
+
+          <div class="section-title">답변 스타일</div>
+          <div class="tags"><span class="tag">현실적</span><span class="tag">구체적</span><span class="tag">사례 중심</span><span class="tag">따뜻함</span></div>
+
+          <div class="section-title">학생들이 남긴 강점</div>
+          <div class="tags"><span class="tag brand">#현실적인조언</span><span class="tag brand">#구체적인답변</span><span class="tag brand">#방향이정리됨</span></div>
+
+          <div class="section-title">도움 지표</div>
+          <div class="card">
+            <div class="metrics" style="font-size:13.5px"><span class="strong">도움됐어요 96%</span><span class="sep">·</span><span>질문 42개</span><span class="sep">·</span><span>평균 18시간 내 답변</span></div>
+          </div>
+
+          <div class="section-title">답변 샘플</div>
+          <div class="card">
+            <div style="font-size:12px;color:var(--muted);font-weight:700">Q. 브랜드 마케터는 하루에 무슨 일을 하나요?</div>
+            <div style="font-size:13px;color:var(--ink);margin-top:8px;line-height:1.6">
+              “하루의 절반은 회의가 아니라 ‘숫자 읽기’예요. 지난주 캠페인 성과를 보고, 다음 분기 브랜드 방향을 정리하죠. 신입 때 가장 도움 된 건…” <span style="color:var(--muted)">(미리보기)</span>
+            </div>
+          </div>
+
+          <div class="section-title">도움 후기</div>
+          <div class="card" style="margin-bottom:8px">
+            <div class="tags" style="margin-bottom:8px"><span class="tag brand">#현실적</span><span class="tag brand">#방향정리</span></div>
+            <div style="font-size:13px;color:var(--ink-soft);line-height:1.55">“막연했던 마케팅 직무가 구체적으로 그려졌어요. 뭐부터 할지 정해졌습니다.”</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:8px">문과 3학년 학생 · 도움이 됐어요</div>
+          </div>
+        </div>
+
+        <div class="sticky-cta">
+          <button class="cta">🎫 질문 티켓으로 물어보기</button>
+          <div class="cta-sub">990원 · 정중하게 질문 1개를 남길 수 있어요</div>
+        </div>
+      </div></div>
+    </div>
+    <div class="annot">
+      <span class="type-badge">SCREEN 4</span>
+      <h3>코치 상세</h3>
+      <dl>
+        <dt>▸ 목적</dt>
+        <dd>결제 전 불안을 낮추고 “이 사람에게 물어보면 되겠다”는 확신을 주기.</dd>
+        <dt>▸ 정보 우선순위</dt>
+        <dd>정체성 → 미션 문장(품격) → 잘 답하는 질문 → <b>어려운 질문(경계 명시)</b> → 추천 학생 → 스타일 → 강점 태그 → 지표 → 답변 샘플 → 후기 → CTA.</dd>
+        <dt>▸ 불안 완화 장치</dt>
+        <ul>
+          <li class="pro">‘이런 질문은 어려워요’로 <b>기대치를 미리 정렬</b> → 실망·환불 방지</li>
+          <li class="pro">답변 샘플로 결과물을 미리 체감</li>
+          <li class="pro">평균 응답시간으로 ‘언제 오나’ 불확실성 제거</li>
+        </ul>
+        <dt>▸ 코치 명예</dt>
+        <dd>미션 문장을 상단에 두어 ‘답변 노동자’가 아닌 ‘기여자’로 프레이밍. 이름·얼굴은 여전히 보조.</dd>
+      </dl>
+    </div>
+  </div>
+</div>
+
+<!-- =========================================================
+     5. 질문 작성
+     ========================================================= -->
+<div class="screen-block" data-screen="write">
+  <div class="stage">
+    <div class="col">
+      <div class="phone-label">질문 작성</div>
+      <div class="phone"><div class="notch"></div><div class="viewport"><div class="status-bar"><span>9:41</span><span>●●● 🔋</span></div>
+        <div class="app-bar"><div class="back">‹</div><div class="title">질문 작성</div></div>
+        <div class="pad" style="padding-top:4px;padding-bottom:120px">
+          <div class="card" style="background:var(--brand-soft2);border-color:#DCE8E2;padding:13px 15px">
+            <div style="font-size:12px;font-weight:800;color:var(--brand)">좋은 질문 가이드</div>
+            <ol class="steps" style="margin-top:10px">
+              <li>내 상황을 짧게 알려주세요.</li>
+              <li>궁금한 것을 한 가지로 좁혀주세요.</li>
+              <li>원하는 답변 방향을 말해주세요.</li>
+            </ol>
+          </div>
+
+          <div class="section-title">묻고 싶은 질문 <span class="more">1개</span></div>
+          <textarea class="input big" placeholder="묻고 싶은 질문을 한 가지로 적어주세요.&#10;예) 데이터 분석 직무에 관심 있는데, 코딩 경험이 거의 없습니다. 방학에 무엇부터 준비하면 좋을까요?"></textarea>
+
+          <div class="section-title">내 상황 <span class="more">파트너가 맥락을 이해해요</span></div>
+          <div class="grid2">
+            <input class="input" placeholder="학년 (예: 3학년)" style="grid-column:span 2">
+            <input class="input" placeholder="전공">
+            <input class="input" placeholder="관심 직무">
+          </div>
+          <textarea class="input" placeholder="지금 가장 큰 고민 / 해본 경험이 있다면" style="margin-top:10px;min-height:70px"></textarea>
+
+          <div class="section-title">원하는 답변 방식</div>
+          <div class="tags">
+            <span class="tag">현실적으로</span><span class="tag">단계별로</span><span class="tag">따뜻하게</span><span class="tag">짧고 핵심만</span>
+          </div>
+
+          <div class="card" style="margin-top:18px;padding:12px 14px">
+            <div style="font-size:12px;font-weight:800;color:var(--ink)">💡 좋은 질문 예시</div>
+            <div style="font-size:12.5px;color:var(--ink-soft);margin-top:7px;line-height:1.55">“3학년 문과생이고 데이터 분석에 관심 있어요. 코딩 경험은 거의 없는데 이번 방학에 무엇부터 준비하면 좋을까요?”</div>
+          </div>
+        </div>
+        <div class="sticky-cta"><button class="cta">질문 미리보고 티켓 사용하기</button></div>
+      </div></div>
+    </div>
+    <div class="annot">
+      <span class="type-badge">SCREEN 5</span>
+      <h3>질문 작성</h3>
+      <dl>
+        <dt>▸ 목적</dt>
+        <dd>학생이 좋은 질문을 쓰도록 돕고, 코치가 답하기 좋은 맥락을 확보.</dd>
+        <dt>▸ 우선순위</dt>
+        <dd>가이드(3단계)를 <b>입력창 위</b>에 → 질문은 1개로 제한(한 가지로 좁히기) → 상황 입력은 가벼운 필드 → 답변 방식 태그로 기대 정렬.</dd>
+        <dt>▸ 불안 완화</dt>
+        <ul><li class="pro">예시 문장 상시 노출 → “이 정도면 되는구나”</li><li class="pro">질문 1개 제한으로 “너무 많이 물어 실례”라는 부담 제거</li></ul>
+      </dl>
+    </div>
+  </div>
+</div>
+
+<!-- =========================================================
+     6. 결제
+     ========================================================= -->
+<div class="screen-block" data-screen="pay">
+  <div class="stage">
+    <div class="col">
+      <div class="phone-label">결제 (질문 티켓)</div>
+      <div class="phone"><div class="notch"></div><div class="viewport"><div class="status-bar"><span>9:41</span><span>●●● 🔋</span></div>
+        <div class="app-bar"><div class="back">‹</div><div class="title">질문 티켓</div></div>
+        <div class="pad" style="padding-top:8px;padding-bottom:120px">
+          <div class="ticket">
+            <div class="tk-top">🎫 질문 티켓 1장</div>
+            <div class="tk-price">990원</div>
+            <div class="tk-desc">현직자의 시간을 존중하며,<br>정중하게 질문 1개를 남길 수 있어요.</div>
+            <div class="tk-line"></div>
+            <div style="font-size:12px;opacity:.92;line-height:1.55">
+              무료 DM은 학생도 망설여지고, 현직자도 답하기 어렵습니다. 헬로마이미는 <b>부담 없이 묻고 정중하게 답하는 구조</b>를 만듭니다.
+            </div>
+          </div>
+
+          <div class="card" style="margin-top:16px">
+            <div style="font-size:12px;font-weight:800;color:var(--ink);margin-bottom:10px">보내는 질문</div>
+            <div class="q-quote">“데이터 분석에 관심 있는 3학년 문과생인데, 코딩 경험 없이 방학에 뭐부터 준비하면 좋을까요?”</div>
+            <div style="display:flex;align-items:center;gap:9px;margin-top:12px;padding-top:12px;border-top:1px solid var(--line-soft)">
+              <div class="ava sm">한</div>
+              <div style="font-size:12.5px;color:var(--ink-soft)"><b style="color:var(--ink)">IT 플랫폼 데이터 분석가 · 7년차</b><br><span style="color:var(--muted)">한태용 파트너</span></div>
+            </div>
+          </div>
+
+          <div class="card" style="margin-top:12px;padding:14px">
+            <div class="safe-row"><span class="ic">✓</span><span>답변이 없으면 티켓은 <b>자동 복구</b>돼요.</span></div>
+            <div class="safe-row"><span class="ic">✓</span><span>전송 전까지 질문을 <b>수정</b>할 수 있어요.</span></div>
+            <div class="safe-row"><span class="ic">✓</span><span>답변은 평균 <b>24시간 내</b> 도착해요.</span></div>
+          </div>
+        </div>
+        <div class="sticky-cta">
+          <button class="cta">🎫 질문 티켓 사용하기</button>
+          <div class="cta-sub">결제 즉시 파트너에게 정중하게 전달돼요</div>
+        </div>
+      </div></div>
+    </div>
+    <div class="annot">
+      <span class="type-badge">SCREEN 6</span>
+      <h3>결제</h3>
+      <dl>
+        <dt>▸ 핵심</dt>
+        <dd>990원을 <b>가격이 아니라 ‘명분’</b>으로 인식시키기. 티켓 메타포(초록 티켓)로 ‘상담 구매’ 느낌을 지움.</dd>
+        <dt>▸ 카피</dt>
+        <dd>“구매하기/상담/저렴한 멘토링” 금지. “질문 티켓 사용하기”로.</dd>
+        <dt>▸ 결제 전 불안 완화</dt>
+        <ul><li class="pro">무응답 시 티켓 자동 복구(핵심 안전장치)</li><li class="pro">전송 전 수정 가능</li><li class="pro">예상 응답시간 명시</li><li class="pro">보내는 질문·대상 재확인</li></ul>
+      </dl>
+    </div>
+  </div>
+</div>
+
+<!-- =========================================================
+     7 & 8. 답변 대기 / 수신
+     ========================================================= -->
+<div class="screen-block" data-screen="answer">
+  <div class="stage">
+    <!-- 대기 -->
+    <div class="col">
+      <div class="phone-label">답변 대기</div>
+      <div class="phone"><div class="notch"></div><div class="viewport"><div class="status-bar"><span>9:41</span><span>●●● 🔋</span></div>
+        <div class="pad" style="padding-top:40px">
+          <div style="text-align:center">
+            <div style="width:64px;height:64px;border-radius:20px;background:var(--brand-soft);color:var(--brand);display:flex;align-items:center;justify-content:center;font-size:30px;margin:0 auto">✓</div>
+            <div class="h1" style="margin-top:16px;font-size:20px">질문이 파트너에게<br>전달되었어요</div>
+            <div class="sub">평균 24시간 내 답변을 받을 수 있어요.<br>도착하면 알림으로 알려드릴게요.</div>
+          </div>
+
+          <div class="card" style="margin-top:24px">
+            <div class="timeline">
+              <div class="tl-item done"><div class="node"></div><div class="t">질문 접수 완료</div><div class="d">방금 전</div></div>
+              <div class="tl-item now"><div class="node"></div><div class="t">파트너에게 전달됨</div><div class="d">한태용 파트너 · 확인 대기 중</div></div>
+              <div class="tl-item"><div class="node"></div><div class="t">답변 작성 중</div><div class="d">예상 ~내일 오전</div></div>
+              <div class="tl-item"><div class="node"></div><div class="t">답변 도착 · 알림</div><div class="d"></div></div>
+            </div>
+          </div>
+
+          <div class="card" style="margin-top:12px;padding:13px 15px">
+            <div class="safe-row"><span class="ic">✎</span><span>파트너가 확인하기 전까지 질문을 <b>수정</b>할 수 있어요.</span></div>
+          </div>
+          <button class="cta ghost" style="margin-top:16px">다른 파트너 둘러보기</button>
+        </div>
+      </div></div>
+    </div>
+
+    <!-- 수신 -->
+    <div class="col">
+      <div class="phone-label">답변 수신</div>
+      <div class="phone"><div class="notch"></div><div class="viewport"><div class="status-bar"><span>9:41</span><span>●●● 🔋</span></div>
+        <div class="app-bar"><div class="back">‹</div><div class="title">답변이 도착했어요</div></div>
+        <div class="pad" style="padding-top:4px">
+          <div style="display:flex;align-items:center;gap:9px;margin-bottom:14px">
+            <div class="ava">한</div>
+            <div style="font-size:12.5px"><b>IT 플랫폼 데이터 분석가 · 7년차</b><br><span style="color:var(--muted)">한태용 파트너</span></div>
+          </div>
+
+          <div class="ans-block" style="background:var(--brand-soft2);border-color:#DCE8E2">
+            <div class="lbl">질문 요약</div>
+            <div class="txt">비전공·코딩 무경험, 방학에 데이터 분석 준비를 어디서 시작할지</div>
+          </div>
+          <div class="ans-block"><div class="lbl">◆ 핵심 답변</div><div class="txt">SQL부터 시작하세요. 코딩보다 ‘데이터로 질문에 답하는 감각’이 먼저입니다.</div></div>
+          <div class="ans-block"><div class="lbl">◆ 이유</div><div class="txt">실무의 70%는 SQL로 데이터를 뽑고 해석하는 일이에요. 비전공자도 2~3주면 감을 잡습니다.</div></div>
+          <div class="ans-block"><div class="lbl">◆ 지금 할 수 있는 것</div><div class="txt">무료 SQL 강의 1개 완주 → 공공데이터로 ‘내가 궁금한 질문 3개’ 답 찾아보기.</div></div>
+          <div class="ans-block"><div class="lbl">◆ 주의할 점</div><div class="txt">파이썬·머신러닝부터 파면 지쳐요. 도구보다 ‘질문 설계’가 핵심입니다.</div></div>
+          <div class="ans-block"><div class="lbl">◆ 추천 다음 단계</div><div class="txt">작은 분석 프로젝트 1개를 포트폴리오로. 그다음 파이썬.</div></div>
+
+          <div class="section-title">이 답변, 도움이 됐나요?</div>
+          <button class="cta">도움 후기 남기기</button>
+
+          <div class="section-title">이어서</div>
+          <div class="grid2" style="gap:8px">
+            <div class="cat-card" style="padding:12px"><div class="t" style="font-size:13px;margin-top:0">같은 직무 다른 파트너</div></div>
+            <div class="cat-card" style="padding:12px"><div class="t" style="font-size:13px;margin-top:0">관련 프로그램 보기</div></div>
+            <div class="cat-card" style="padding:12px"><div class="t" style="font-size:13px;margin-top:0">관련 커뮤니티</div></div>
+            <div class="cat-card" style="padding:12px"><div class="t" style="font-size:13px;margin-top:0">FACE 진단으로<br>방향 찾기</div></div>
+          </div>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="annot">
+      <span class="type-badge">SCREEN 7 · 8</span>
+      <h3>답변 대기 / 수신</h3>
+      <dl>
+        <dt>▸ 대기 화면</dt>
+        <dd>접수→전달→작성→도착 <b>타임라인</b>으로 ‘잘 갔다’는 안심. 수정 가능 안내로 통제감. ‘둘러보기’로 대기 시간을 다른 탐색으로.</dd>
+        <dt>▸ 수신 화면</dt>
+        <dd>답변을 <b>요약·핵심·이유·할 것·주의·다음단계</b> 6블록으로 구조화 → 긴 글도 소화 가능. 코치가 이 틀에 맞춰 쓰면 품질도 균질화.</dd>
+        <dt>▸ 다음 행동</dt>
+        <dd>후기 → 다른 파트너·프로그램·커뮤니티·FACE 진단으로 <b>리텐션 루프</b> 연결(흐름 6단계).</dd>
+      </dl>
+    </div>
+  </div>
+</div>
+
+<!-- =========================================================
+     9. 리뷰 / 도움 평가
+     ========================================================= -->
+<div class="screen-block" data-screen="review">
+  <div class="stage">
+    <div class="col">
+      <div class="phone-label">도움 평가</div>
+      <div class="phone"><div class="notch"></div><div class="viewport"><div class="status-bar"><span>9:41</span><span>●●● 🔋</span></div>
+        <div class="app-bar"><div class="back">‹</div><div class="title">도움 평가</div></div>
+        <div class="pad" style="padding-top:4px">
+          <div class="h1" style="font-size:19px">답변이 도움이 되었나요?</div>
+          <div class="sub">솔직한 평가는 다른 학생에게 큰 도움이 돼요.</div>
+
+          <div style="margin-top:18px">
+            <div class="rev-opt on"><span class="emo">💚</span><span class="t">매우 도움이 됐어요</span></div>
+            <div class="rev-opt"><span class="emo">🙂</span><span class="t">도움이 됐어요</span></div>
+            <div class="rev-opt"><span class="emo">😐</span><span class="t">기대와 달랐어요</span></div>
+          </div>
+
+          <div class="section-title">어떤 점이 좋았나요? <span class="more">복수 선택</span></div>
+          <div class="tags">
+            <span class="tag brand">현실적이에요</span><span class="tag">구체적이에요</span><span class="tag brand">따뜻해요</span>
+            <span class="tag">이해하기 쉬워요</span><span class="tag brand">방향이 정리됐어요</span><span class="tag">준비 방법을 알게 됐어요</span>
+            <span class="tag">답변이 빨라요</span><span class="tag">다시 질문하고 싶어요</span>
+          </div>
+
+          <div class="section-title">도움 후기</div>
+          <textarea class="input big" placeholder="다른 학생들에게 도움이 될 후기를 남겨주세요."></textarea>
+
+          <div class="card" style="margin-top:14px;padding:12px 14px;background:var(--brand-soft2);border-color:#DCE8E2">
+            <div class="safe-row"><span class="ic">🛡</span><span style="color:var(--brand-ink)">별점은 공개되지 않아요. 후기는 <b>다른 학생에게 도움되는 내용</b> 중심으로만 노출돼요.</span></div>
+          </div>
+          <button class="cta" style="margin-top:16px">후기 남기기</button>
+        </div>
+      </div></div>
+    </div>
+    <div class="annot">
+      <span class="type-badge">SCREEN 9</span>
+      <h3>리뷰 / 도움 평가</h3>
+      <dl>
+        <dt>▸ 별점 비노출</dt>
+        <dd>별점은 <b>내부 품질관리용</b>으로만. 외부엔 ‘도움됐어요 %·강점 태그·도움 후기’만. 코치를 점수화하지 않음.</dd>
+        <dt>▸ 3단 선택</dt>
+        <dd>부정도 “기대와 달랐어요”처럼 완곡하게 → 솔직함은 얻되 코치 명예는 보호.</dd>
+        <dt>▸ 코치 보호 원칙(운영)</dt>
+        <ul>
+          <li class="pro">인신공격성 후기 비노출</li>
+          <li class="pro">‘내부정보 안 알려줌’ 이유의 부정평가 미반영</li>
+          <li class="pro">질문 범위 밖 불만은 운영팀 검토 후 처리</li>
+        </ul>
+      </dl>
+    </div>
+  </div>
+</div>
+
+<script>
+  const screens = [
+    ["cards","⭐ 코치 카드 3종"],
+    ["main","1. 메인"],
+    ["concern","2. 고민 선택"],
+    ["list","3. 코치 리스트"],
+    ["detail","4. 코치 상세"],
+    ["write","5. 질문 작성"],
+    ["pay","6. 결제"],
+    ["answer","7·8. 답변 대기/수신"],
+    ["review","9. 도움 평가"],
+  ];
+  const tabsEl = document.getElementById("tabs");
+  screens.forEach(([id,label],i)=>{
+    const b=document.createElement("div");
+    b.className="tab"+(i===0?" active":"");
+    b.textContent=label; b.dataset.target=id;
+    b.onclick=()=>{
+      document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+      document.querySelectorAll(".screen-block").forEach(s=>s.classList.remove("active"));
+      b.classList.add("active");
+      document.querySelector('[data-screen="'+id+'"]').classList.add("active");
+      window.scrollTo({top:0,behavior:"smooth"});
+    };
+    tabsEl.appendChild(b);
+  });
+</script>
+</body>
+</html>

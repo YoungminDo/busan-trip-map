@@ -1,0 +1,5 @@
+{
+  "type": "module",
+  "name": "coffeechat-rec-engine",
+  "description": "헬로마이미 커피챗 추천 엔진 (config-driven, pluggable features)"
+}

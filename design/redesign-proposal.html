@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>헬로마이미 커피챗 · 정보 우선순위 재설계 (Before / After)</title>
+<style>
+  :root{
+    --ink:#1B2733; --ink-soft:#51606E; --muted:#93A0AD; --line:#EAEEF1; --line-soft:#F2F5F7;
+    --bg:#F4F7F8; --card:#FFFFFF;
+    --brand:#12B5A6;        /* 실제 앱 로고 민트 틸 */
+    --brand-ink:#0C8578; --brand-soft:#E3F7F4; --brand-soft2:#EFFAF8;
+    --accent:#F26D6D;       /* 현재 '인기' 배지 계열 (경고용으로만) */
+    --chip:#EEF1F3; --chip-ink:#54626F;
+    --shadow:0 1px 2px rgba(20,40,50,.04),0 8px 22px rgba(20,40,50,.06);
+    --r-lg:20px; --r-md:14px;
+    --font:"Pretendard","Apple SD Gothic Neo",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Malgun Gothic",sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#E7ECEE;font-family:var(--font);color:var(--ink);-webkit-font-smoothing:antialiased;line-height:1.5;padding:30px 16px 80px}
+  .wrap{max-width:1180px;margin:0 auto}
+  .kicker{display:inline-block;font-size:12px;font-weight:800;letter-spacing:.1em;color:var(--brand-ink);background:var(--brand-soft);padding:5px 11px;border-radius:999px}
+  h1.top{font-size:25px;font-weight:800;margin:12px 0 6px;letter-spacing:-.02em}
+  .lead{color:var(--ink-soft);font-size:14.5px;max-width:820px}
+
+  .tabs{position:sticky;top:0;z-index:50;display:flex;gap:6px;flex-wrap:wrap;background:rgba(231,236,238,.9);backdrop-filter:blur(8px);padding:14px 0 12px;margin:22px 0}
+  .tab{font-size:13px;font-weight:700;color:var(--ink-soft);background:#fff;border:1px solid var(--line);padding:9px 15px;border-radius:999px;cursor:pointer;user-select:none;transition:.15s}
+  .tab.active{background:var(--brand);border-color:var(--brand);color:#fff;box-shadow:var(--shadow)}
+
+  .blk{display:none}.blk.active{display:block}
+  h2.sec{font-size:19px;font-weight:800;letter-spacing:-.02em;margin:6px 0 4px}
+  .sec-sub{color:var(--ink-soft);font-size:13.5px;margin-bottom:20px;max-width:820px}
+
+  /* ---- 의사결정 사다리 ---- */
+  .ladder{display:grid;grid-template-columns:1fr;gap:12px;max-width:860px}
+  .rung{display:flex;gap:16px;align-items:flex-start;background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px 18px;box-shadow:var(--shadow);position:relative}
+  .rung .n{flex:0 0 40px;width:40px;height:40px;border-radius:12px;background:var(--brand-soft);color:var(--brand-ink);font-weight:800;font-size:17px;display:flex;align-items:center;justify-content:center}
+  .rung .q{font-size:16px;font-weight:800;color:var(--ink)}
+  .rung .why{font-size:13px;color:var(--ink-soft);margin-top:4px;line-height:1.55}
+  .rung .info{font-size:12px;font-weight:700;color:var(--brand-ink);margin-top:8px;background:var(--brand-soft2);display:inline-block;padding:4px 10px;border-radius:999px}
+  .rung.last{opacity:.72}
+  .rung.last .n{background:#F0F2F4;color:var(--muted)}
+  .arrow-note{font-size:12.5px;color:var(--muted);text-align:center;margin:2px 0}
+
+  /* ---- 폰 & 카드 ---- */
+  .stage{display:flex;gap:30px;flex-wrap:wrap;align-items:flex-start}
+  .col{flex:1 1 340px;min-width:320px}
+  .col .caption{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:800;margin-bottom:12px}
+  .pill-bad{font-size:11px;font-weight:800;color:#C0392B;background:#FDECEA;padding:3px 9px;border-radius:999px}
+  .pill-good{font-size:11px;font-weight:800;color:var(--brand-ink);background:var(--brand-soft);padding:3px 9px;border-radius:999px}
+
+  .frame{background:var(--bg);border:1px solid var(--line);border-radius:24px;padding:16px;box-shadow:var(--shadow)}
+  .app-h{display:flex;align-items:center;justify-content:space-between;padding:2px 4px 14px}
+  .app-h .t{font-size:18px;font-weight:800}
+  .app-h .r{display:flex;gap:8px;color:var(--muted)}
+
+  /* 일러스트 얼굴 (현재 스타일 재현) */
+  .face{border-radius:50%;background:#F0F2F4;display:flex;align-items:center;justify-content:center;color:#B7C0C8;flex:0 0 auto}
+  .face svg{width:58%;height:58%}
+  .face.lg{width:96px;height:96px}
+  .face.md{width:54px;height:54px}
+  .face.sm{width:30px;height:30px}
+
+  .tag{display:inline-flex;font-size:12px;font-weight:600;color:var(--chip-ink);background:var(--chip);padding:5px 11px;border-radius:8px}
+  .tag.brand{color:var(--brand-ink);background:var(--brand-soft)}
+  .tags{display:flex;flex-wrap:wrap;gap:7px}
+
+  /* ===== BEFORE 카드 (현재 재현) ===== */
+  .card-now{background:#fff;border:1px solid var(--line);border-radius:var(--r-lg);padding:18px;box-shadow:var(--shadow);margin-bottom:14px}
+  .card-now .head{display:flex;gap:14px;align-items:flex-start}
+  .card-now .name{font-size:19px;font-weight:800;letter-spacing:-.01em}
+  .card-now .role{font-size:12.5px;color:var(--ink-soft);margin-top:5px;line-height:1.45}
+  .card-now .intro{font-size:13.5px;color:var(--ink);margin:14px 0 12px;line-height:1.55}
+
+  /* ===== AFTER 카드 (제안) ===== */
+  .card-new{background:#fff;border:1px solid var(--line);border-radius:var(--r-lg);padding:18px;box-shadow:var(--shadow);margin-bottom:14px}
+  .verify{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:800;color:var(--brand-ink);background:var(--brand-soft);padding:4px 10px;border-radius:999px}
+  .verify .ck{width:14px;height:14px;border-radius:50%;background:var(--brand);color:#fff;display:flex;align-items:center;justify-content:center;font-size:9px}
+  .card-new .role{font-size:17px;font-weight:800;letter-spacing:-.02em;line-height:1.34;margin-top:11px}
+  .card-new .role .yr{color:var(--brand-ink)}
+  .card-new .meta{font-size:12px;color:var(--muted);font-weight:600;margin-top:4px}
+  .qbox{background:var(--brand-soft2);border:1px solid #D6EFEB;border-radius:var(--r-md);padding:11px 13px;margin-top:14px}
+  .qbox .lbl{font-size:11px;font-weight:800;color:var(--brand-ink);letter-spacing:.02em}
+  .qbox .q{font-size:13.5px;font-weight:700;color:var(--ink);margin-top:5px;line-height:1.5}
+  .metrics{display:flex;align-items:center;gap:7px;flex-wrap:wrap;font-size:12.5px;color:var(--ink-soft);font-weight:600;margin-top:13px}
+  .metrics .s{color:var(--brand-ink);font-weight:800}
+  .metrics .dot{color:var(--line)}
+  .foot{display:flex;align-items:center;gap:9px;margin-top:14px;padding-top:13px;border-top:1px solid var(--line-soft)}
+  .foot .nm{font-size:12.5px;color:var(--muted);font-weight:600}
+  .foot .nm b{color:var(--ink-soft)}
+
+  /* 홈 가로 카드 */
+  .hscroll{display:flex;gap:12px;overflow-x:auto;padding-bottom:6px}
+  .hscroll::-webkit-scrollbar{height:0}
+  .hcard-now{flex:0 0 150px;background:#fff;border:1px solid var(--line);border-radius:var(--r-lg);padding:16px;text-align:center;box-shadow:var(--shadow);position:relative}
+  .hcard-now .badge{position:absolute;top:12px;left:12px;font-size:11px;font-weight:800;padding:3px 8px;border-radius:999px}
+  .badge.pop{color:#E5556B;background:#FDE9EC}
+  .badge.new{color:var(--brand-ink);background:var(--brand-soft)}
+  .hcard-now .nm{font-size:15px;font-weight:800;margin-top:10px}
+  .hcard-now .st{font-size:12px;color:var(--muted);margin-top:3px}
+
+  .hcard-new{flex:0 0 230px;background:#fff;border:1px solid var(--line);border-radius:var(--r-lg);padding:15px;box-shadow:var(--shadow)}
+  .hcard-new .verify{margin-bottom:9px}
+  .hcard-new .role{font-size:14.5px;font-weight:800;line-height:1.35;letter-spacing:-.01em}
+  .hcard-new .role .yr{color:var(--brand-ink)}
+  .hcard-new .q{font-size:12.5px;color:var(--ink-soft);margin-top:9px;line-height:1.45;background:var(--brand-soft2);border-radius:10px;padding:9px 10px}
+  .hcard-new .mini{font-size:11.5px;color:var(--ink-soft);font-weight:700;margin-top:9px}
+  .hcard-new .mini .s{color:var(--brand-ink)}
+  .hcard-new .who{display:flex;align-items:center;gap:7px;margin-top:11px}
+  .hcard-new .who .n2{font-size:11.5px;color:var(--muted);font-weight:600}
+
+  /* 주석 */
+  .annot{margin-top:12px;background:#fff;border:1px solid var(--line);border-left:4px solid var(--brand);border-radius:12px;padding:14px 16px}
+  .annot.warn{border-left-color:var(--accent)}
+  .annot h4{font-size:13.5px;font-weight:800;margin-bottom:8px}
+  .annot ul{list-style:none;margin:0;padding:0}
+  .annot li{font-size:12.5px;color:var(--ink-soft);line-height:1.55;padding-left:18px;position:relative;margin-top:6px}
+  .annot li.p::before{content:"＋";position:absolute;left:0;color:var(--brand-ink);font-weight:800}
+  .annot li.c::before{content:"－";position:absolute;left:0;color:#C0392B;font-weight:800}
+  .annot li.a::before{content:"→";position:absolute;left:0;color:var(--muted);font-weight:800}
+
+  .map{max-width:860px;margin-top:22px;background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:var(--shadow)}
+  .map .row{display:grid;grid-template-columns:56px 1fr 1fr;border-top:1px solid var(--line-soft)}
+  .map .row:first-child{border-top:none;background:var(--brand-soft2)}
+  .map .cell{padding:12px 14px;font-size:12.5px}
+  .map .cell.h{font-weight:800;color:var(--brand-ink);font-size:12px}
+  .map .cell.rank{font-weight:800;color:var(--brand-ink);text-align:center;background:var(--brand-soft2)}
+  .map .now{color:#B23A2E}
+  .map .new{color:var(--brand-ink);font-weight:700}
+
+  .callout{max-width:860px;margin:24px 0;background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 18px;font-size:13.5px;color:var(--ink-soft);line-height:1.65;border-left:4px solid var(--brand)}
+  .callout b{color:var(--ink)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <span class="kicker">HELLO MYME · 커피챗 재설계</span>
+  <h1 class="top">정보 노출 우선순위 재설계 — Before / After</h1>
+  <p class="lead">현재 커피챗 카드는 <b>‘이름’이 가장 크고 먼저</b> 나옵니다. 하지만 학생이 “이 카드를 클릭할까?”를 결정할 때 <b>‘누구인가(이름)’는 논리적으로 마지막에 필요한 정보</b>입니다. 이 순서를 학생의 실제 의사결정 순서에 맞게 뒤집는 것이 이번 제안의 핵심입니다.</p>
+
+  <div class="tabs" id="tabs"></div>
+
+  <!-- 0. 논리 -->
+  <div class="blk active" data-b="logic">
+    <h2 class="sec">학생이 카드를 클릭하기까지의 의사결정 순서</h2>
+    <p class="sec-sub">클릭은 4단계 판단을 통과해야 일어납니다. 정보는 이 <b>판단 순서대로</b> 위에서 아래로 배치돼야 합니다. 판단에 먼저 필요한 정보일수록 크고 위에.</p>
+
+    <div class="ladder">
+      <div class="rung"><div class="n">1</div><div><div class="q">“이거… 내 주제 맞아?”</div><div class="why">학생은 수십 개 카드를 스크롤합니다. 0.5초 안에 ‘내 관심 직무/고민’이 아니면 그냥 지나칩니다. <b>관련성</b>이 없으면 나머지는 안 읽힙니다.</div><div class="info">노출 정보 · 직무 + 회사유형/산업 + 연차</div></div></div>
+      <div class="arrow-note">▼ 관련 있다고 느껴야 다음으로</div>
+      <div class="rung"><div class="n">2</div><div><div class="q">“내 질문에 답해줄 사람일까?”</div><div class="why">“내 질문이 너무 초보적일까 봐” 하는 불안이 여기서 갈립니다. <b>‘이런 질문에 잘 답해요’ + ‘이런 학생에게 추천’</b>이 “나 같은 사람도 물어도 되는구나”를 만듭니다.</div><div class="info">노출 정보 · 잘 답하는 질문 · 추천 학생 태그</div></div></div>
+      <div class="arrow-note">▼ 나에게 맞다고 느껴야 다음으로</div>
+      <div class="rung"><div class="n">3</div><div><div class="q">“믿어도 될까?”</div><div class="why">클릭·결제 직전의 마지막 불안. <b>검증 배지 · 도움됐어요 % · 평균 응답시간</b>이 “답이 올까?” 걱정을 없앱니다.</div><div class="info">노출 정보 · 검증 배지 · 도움 지표 · 응답시간</div></div></div>
+      <div class="arrow-note">▼ 믿을 만하면 마지막으로</div>
+      <div class="rung last"><div class="n">4</div><div><div class="q">“누구지?”</div><div class="why">이름·얼굴은 <b>클릭을 결정한 뒤 확인</b>하는 정보입니다. 앞에 크게 두면 판단에 도움도 안 되면서 카드를 ‘소개팅앱’처럼 보이게 만듭니다.</div><div class="info">노출 정보 · 이름(작게) · 얼굴(작은 일러스트)</div></div></div>
+    </div>
+
+    <div class="map">
+      <div class="row"><div class="cell h" style="grid-column:1">순위</div><div class="cell h">현재 카드가 노출하는 순서</div><div class="cell h">제안 순서</div></div>
+      <div class="row"><div class="cell rank">1</div><div class="cell now">이름 (가장 큼)</div><div class="cell new">직무 + 회사유형 + 연차 (메인 타이틀)</div></div>
+      <div class="row"><div class="cell rank">2</div><div class="cell now">회사/연차/직책 (영어 직함)</div><div class="cell new">이런 질문에 잘 답해요 (질문 적합도)</div></div>
+      <div class="row"><div class="cell rank">3</div><div class="cell now">한 줄 소개 (코치 1인칭 말투)</div><div class="cell new">추천 학생 태그</div></div>
+      <div class="row"><div class="cell rank">4</div><div class="cell now">태그</div><div class="cell new">검증 배지 · 도움됐어요 % · 응답시간</div></div>
+      <div class="row"><div class="cell rank">5</div><div class="cell now">—</div><div class="cell new">이름 · 얼굴 (하단 작게)</div></div>
+    </div>
+
+    <div class="callout"><b>한 문장 요약:</b> 지금은 학생의 판단에 <b>가장 나중에</b> 필요한 정보(이름)를 <b>가장 먼저·크게</b> 보여주고, 가장 먼저 필요한 정보(내 질문에 맞는가)는 없거나 아래에 묻혀 있습니다. 순서만 뒤집어도 클릭률이 오릅니다.</div>
+  </div>
+
+  <!-- 1. 커피챗 리스트 카드 -->
+  <div class="blk" data-b="list">
+    <h2 class="sec">① 커피챗 탭 · 현직자 카드</h2>
+    <p class="sec-sub">현재 카드(왼쪽)를 그대로 재현하고, 의사결정 순서대로 재배치한 제안(오른쪽)을 나란히 뒀습니다.</p>
+    <div class="stage">
+      <!-- BEFORE -->
+      <div class="col">
+        <div class="caption"><span class="pill-bad">BEFORE</span> 현재 화면</div>
+        <div class="frame">
+          <div class="card-now">
+            <div class="head">
+              <div class="face md"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg></div>
+              <div><div class="name">한태용</div><div class="role">핀테크 P사 / 17년차 · Data Science Lead, 데이터 분석 디렉터</div></div>
+            </div>
+            <div class="intro">통계·코딩 전공 아니어도 데이터 일 가능. 전공자와 비전공자들의 로드맵도 알려드려요 :)</div>
+            <div class="tags"><span class="tag">#데이터 분석</span><span class="tag">#데이터 사이언스</span><span class="tag">#비전공자</span></div>
+          </div>
+        </div>
+        <div class="annot warn">
+          <h4>진단</h4>
+          <ul>
+            <li class="c"><b>이름이 1순위</b> — 판단에 마지막으로 필요한 정보가 가장 큼</li>
+            <li class="c"><b>‘Data Science Lead / 디렉터’ 영어 직함</b> — 대학생이 무슨 일인지 모름(용어 장벽)</li>
+            <li class="c"><b>한 줄 소개가 코치 1인칭</b> — “내가 물어도 되나”엔 답을 못 줌</li>
+            <li class="c"><b>신뢰 지표 없음</b> — 답이 올지, 도움됐는지 알 수 없음</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- AFTER -->
+      <div class="col">
+        <div class="caption"><span class="pill-good">AFTER</span> 제안</div>
+        <div class="frame">
+          <div class="card-new">
+            <span class="verify"><span class="ck">✓</span>헬로마이미 검증 파트너</span>
+            <div class="role">핀테크 데이터 분석 리더 <span class="yr">· 17년차</span></div>
+            <div class="meta">데이터 분석 · 핀테크 · 비전공 출신</div>
+            <div class="qbox">
+              <div class="lbl">이런 질문에 잘 답해요</div>
+              <div class="q">“비전공자인데 데이터 분석가가 될 수 있을까요?”</div>
+            </div>
+            <div class="tags" style="margin-top:12px">
+              <span class="tag brand">#비전공자</span><span class="tag brand">#데이터입문</span><span class="tag brand">#포트폴리오</span>
+            </div>
+            <div class="metrics"><span class="s">도움됐어요 94%</span><span class="dot">·</span><span>질문 31개</span><span class="dot">·</span><span>평균 12시간</span></div>
+            <div class="foot">
+              <div class="face sm"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg></div>
+              <div class="nm"><b>한태용</b> 파트너</div>
+            </div>
+          </div>
+        </div>
+        <div class="annot">
+          <h4>개선 포인트</h4>
+          <ul>
+            <li class="p"><b>메인 타이틀 = 역할</b> “핀테크 데이터 분석 리더 · 17년차” → 0.5초 관련성 판단</li>
+            <li class="p"><b>영어 직함을 학생 언어로</b> 번역 (Lead/Director → 리더)</li>
+            <li class="p"><b>‘잘 답하는 질문’을 학생 1인칭 질문</b>으로 → “이거 내 질문인데!”</li>
+            <li class="p"><b>검증 배지 + 도움 지표 + 응답시간</b>으로 신뢰·응답 불안 제거</li>
+            <li class="a"><b>이름·얼굴은 하단에 작게</b> — 확인용 보조 정보로 강등</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="callout">데이터 모델은 그대로 두고 <b>배치와 크기만 재배열</b>해도 됩니다. ‘잘 답하는 질문 1개’와 ‘도움 지표’ 필드만 추가하면 현재 카드로 바로 전환 가능합니다.</div>
+  </div>
+
+  <!-- 2. 홈 섹션 -->
+  <div class="blk" data-b="home">
+    <h2 class="sec">② 홈 · ‘지금 신청 가능한 커피챗’</h2>
+    <p class="sec-sub">현재는 <b>얼굴+이름+“커피챗 가능”</b>만 있어 정보가 거의 없고, ‘인기/신규’ 배지가 랭킹처럼 보입니다. 학생은 이름을 보고 클릭할 이유가 없습니다.</p>
+    <div class="stage">
+      <!-- BEFORE -->
+      <div class="col" style="flex-basis:100%">
+        <div class="caption"><span class="pill-bad">BEFORE</span> 현재 화면</div>
+        <div class="frame">
+          <div class="app-h"><div class="t" style="font-size:16px">지금 신청 가능한 커피챗</div><div class="r" style="font-size:12px;color:var(--muted)">더보기</div></div>
+          <div class="hscroll">
+            <div class="hcard-now"><span class="badge pop">인기</span><div class="face lg" style="margin:8px auto 0"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg></div><div class="nm">한태용</div><div class="st">커피챗 가능</div></div>
+            <div class="hcard-now"><span class="badge new">신규</span><div class="face lg" style="margin:8px auto 0"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg></div><div class="nm">민영호</div><div class="st">커피챗 가능</div></div>
+            <div class="hcard-now"><span class="badge new">신규</span><div class="face lg" style="margin:8px auto 0"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg></div><div class="nm">이민지</div><div class="st">커피챗 가능</div></div>
+          </div>
+        </div>
+        <div class="annot warn">
+          <h4>진단</h4>
+          <ul>
+            <li class="c"><b>얼굴이 카드의 60%</b> — 전형적인 소개팅앱 그리드. 얼굴로 코치를 고르게 됨</li>
+            <li class="c"><b>“커피챗 가능”은 정보가 아님</b> — 모든 카드가 똑같음, 클릭 이유 못 줌</li>
+            <li class="c"><b>‘인기/신규’ 배지</b> — 랭킹/신상품처럼 보여 ‘멘토 판매’ 인상</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- AFTER -->
+      <div class="col" style="flex-basis:100%">
+        <div class="caption"><span class="pill-good">AFTER</span> 제안</div>
+        <div class="frame">
+          <div class="app-h"><div class="t" style="font-size:16px">지금 물어볼 수 있는 파트너</div><div class="r" style="font-size:12px;color:var(--muted)">더보기</div></div>
+          <div class="hscroll">
+            <div class="hcard-new">
+              <span class="verify"><span class="ck">✓</span>검증 파트너</span>
+              <div class="role">핀테크 데이터 분석 리더 <span class="yr">· 17년차</span></div>
+              <div class="q">“비전공자도 데이터 직무 될 수 있나요?”</div>
+              <div class="mini"><span class="s">도움됐어요 94%</span> · 평균 12시간</div>
+              <div class="who"><div class="face sm"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg></div><div class="n2">한태용 파트너</div></div>
+            </div>
+            <div class="hcard-new">
+              <span class="verify"><span class="ck">✓</span>검증 파트너</span>
+              <div class="role">글로벌 헬스케어 사업개발 리더 <span class="yr">· 15년차</span></div>
+              <div class="q">“외국계 BD는 어떻게 준비하나요?”</div>
+              <div class="mini"><span class="s">도움됐어요 91%</span> · 평균 20시간</div>
+              <div class="who"><div class="face sm"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg></div><div class="n2">민영호 파트너</div></div>
+            </div>
+            <div class="hcard-new">
+              <span class="verify"><span class="ck">✓</span>검증 파트너</span>
+              <div class="role">스타트업 UX/UI 디자이너 <span class="yr">· 주니어</span></div>
+              <div class="q">“신입 디자이너 포트폴리오, 뭐가 중요해요?”</div>
+              <div class="mini"><span class="s">학생과 가장 가까운 연차</span></div>
+              <div class="who"><div class="face sm"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg></div><div class="n2">이민지 파트너</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="annot">
+          <h4>개선 포인트</h4>
+          <ul>
+            <li class="p"><b>얼굴 축소 → 역할·질문이 카드의 주인공</b>. 소개팅앱 인상 제거</li>
+            <li class="p"><b>“커피챗 가능” → ‘잘 답하는 질문’</b>으로 교체해 클릭 이유 제공</li>
+            <li class="p"><b>‘인기/신규’ → ‘검증 파트너’·매칭 근거</b>(“학생과 가장 가까운 연차”)로 대체</li>
+            <li class="a">섹션 제목도 “<b>지금 물어볼 수 있는 파트너</b>”로 → ‘질문’ 행동을 유도</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const B=[["logic","0. 정보 우선순위 논리"],["list","① 커피챗 리스트 카드"],["home","② 홈 커피챗 섹션"]];
+  const t=document.getElementById("tabs");
+  B.forEach(([id,l],i)=>{const b=document.createElement("div");b.className="tab"+(i?"":" active");b.textContent=l;
+    b.onclick=()=>{document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));document.querySelectorAll(".blk").forEach(x=>x.classList.remove("active"));b.classList.add("active");document.querySelector('[data-b="'+id+'"]').classList.add("active");window.scrollTo({top:0,behavior:"smooth"});};
+    t.appendChild(b);});
+</script>
+</body>
+</html>
