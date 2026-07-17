@@ -183,6 +183,25 @@
   .reco-row{padding:0 15px 8px}
   .reco-row .scard{background:#fff}
   .feed-end{text-align:center;font-size:12px;color:var(--muted);font-weight:600;padding:16px 0 8px}
+  /* 추천 엔진 (라이브) */
+  .engbtn{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:11px;background:#1B2733;color:#fff;border-radius:14px;padding:13px 15px;font-size:13px;font-weight:800;cursor:pointer}
+  .engbtn.on{background:var(--brand-ink)}
+  .engbtn .ea{opacity:.6}
+  .engpanel{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:var(--shadow)}
+  .eng-h{font-size:14.5px;font-weight:850}
+  .eng-sub{font-size:12px;color:var(--ink-soft);margin-top:4px;line-height:1.5}
+  .eng-lbl{font-size:11.5px;font-weight:800;color:var(--brand-ink);margin:16px 0 8px;letter-spacing:.02em}
+  .chiprow{display:flex;flex-wrap:wrap;gap:7px}
+  .stchip{font-size:12.5px;font-weight:700;color:var(--ink-soft);background:var(--bg);border:1px solid var(--line);padding:7px 12px;border-radius:999px;cursor:pointer}
+  .stchip.on{background:var(--brand);border-color:var(--brand);color:#fff}
+  .wrow{margin-top:10px}
+  .wl{display:flex;justify-content:space-between;font-size:12px;font-weight:700;color:var(--ink-soft);margin-bottom:3px}
+  .wl .wv{color:var(--brand-ink);font-weight:800;font-variant-numeric:tabular-nums}
+  .wrow input[type=range]{width:100%;accent-color:var(--brand);height:20px}
+  .eng-reset{margin-top:16px;text-align:center;font-size:12.5px;font-weight:800;color:var(--ink-soft);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px;cursor:pointer}
+  .scorebar{display:flex;align-items:center;gap:9px;background:var(--brand-soft2);border:1px solid #D6EFEB;border-radius:10px;padding:8px 11px;margin-bottom:12px;flex-wrap:wrap}
+  .scorebar .sc{font-size:12.5px;font-weight:800;color:var(--brand-ink)}
+  .scorebar .scwhy{font-size:11.5px;color:var(--ink-soft);font-weight:600}
 
   /* 홈 가로 카드 */
   .hrow{display:flex;gap:11px;overflow-x:auto;padding:2px 18px 4px;scrollbar-width:none}
@@ -343,15 +362,23 @@
           <div class="pad" style="padding-bottom:6px">
             <div class="search" onclick="openExplore()"><span class="i">🔍</span><span class="ph">질문·직무·회사로 찾아보세요</span></div>
             <div class="guide" style="margin-top:11px" onclick="toast('활용 가이드는 프로토타입에서 생략')"><span class="e">📄</span><span class="t">커피챗 활용 가이드</span><span class="a">›</span></div>
+            <div class="engbtn" id="engbtn" onclick="toggleEngine()"><span>⚙️ 추천 엔진 체험 · 라이브 랭킹</span><span class="ea">›</span></div>
           </div>
-          <div class="filters" id="filters"></div>
-          <div class="facetpicker" id="facetPicker"></div>
 
-          <div class="pad" style="padding-top:2px">
-            <div class="sec-h" style="margin-top:16px">현직자 커피챗</div>
-            <div class="sec-sub">헬로마이미가 직접 검증한 현직자예요. <b>내 질문에 맞는지</b> 먼저 보세요.</div>
-            <div id="feed"></div>
-            <div id="feedEnd" class="feed-end"></div>
+          <div id="normalFeed">
+            <div class="filters" id="filters"></div>
+            <div class="facetpicker" id="facetPicker"></div>
+            <div class="pad" style="padding-top:2px">
+              <div class="sec-h" style="margin-top:16px">현직자 커피챗</div>
+              <div class="sec-sub">헬로마이미가 직접 검증한 현직자예요. <b>내 질문에 맞는지</b> 먼저 보세요.</div>
+              <div id="feed"></div>
+              <div id="feedEnd" class="feed-end"></div>
+            </div>
+          </div>
+
+          <div id="engineMode" style="display:none">
+            <div class="pad" style="padding-top:8px"><div id="enginePanel" class="engpanel"></div></div>
+            <div class="pad" style="padding-top:0"><div class="sec-h" style="margin:6px 4px 12px">추천 결과 <span class="more" id="engMeta"></span></div><div id="engineList"></div></div>
           </div>
         </div>
         <nav class="tabbar" id="tabbar1"></nav>
@@ -590,9 +617,11 @@
     const v=viewOf(c,pf); const yr=c.totalYr||c.yr; const role=v.roleName||v.job;
     return `<div class="role"><span class="logo" style="background:${v.logo.bg}">${v.logo.text}</span><span class="co">${v.company}</span> · ${role} <span class="yr">· ${yr}</span> ${statusBadge(v.status)}</div><div class="meta">${v.job} · ${v.companyType}</div>`;
   }
-  function coachCard(c, pf){
+  function coachCard(c, pf, scoreInfo){
     const multi = c.profiles && c.profiles.length>1;
+    const sbar = scoreInfo ? `<div class="scorebar"><span class="sc">🎯 매칭 ${scoreInfo.pct}점</span><span class="scwhy">왜? ${scoreInfo.why}</span></div>` : '';
     return `<div class="ccard" onclick="openCoach('${c.id}')">
+      ${sbar}
       <span class="verify"><span class="ck">✓</span>헬로마이미 검증 파트너</span>
       ${titleHTML(c, pf)}
       <div class="qbox intro"><div class="l">💬 이런 고민을 도와드려요</div><div class="q">${c.intro}</div></div>
@@ -606,6 +635,94 @@
     const out=[];
     coaches.forEach(c=>{ if(c.profiles) c.profiles.forEach(pf=>out.push([c,pf])); else out.push([c,null]); });
     return out;
+  }
+
+  /* ============================================================
+     추천 엔진 (라이브) — design/engine/ 모듈의 인라인 버전
+     설정(weights) 슬라이더로 조절하면 순서가 실시간 재계산됨
+     ============================================================ */
+  const clamp01 = n => Math.max(0, Math.min(1, n));
+  const overlap = (a=[],b=[]) => a.some(x=>b.some(y=>y.includes(x)||x.includes(y)));
+  const ENGINE = {
+    weights: { jobMatch:1.0, companyMatch:0.8, concernMatch:0.9, coachQuality:0.7, schoolMatch:0.5, freshness:0.3, fairness:0.4, seenPenalty:0.6 },
+    rules: { verifiedOnly:true, dedupPerson:true, explainTopN:2 },
+    features: [
+      {key:'jobMatch', label:'직무 관심', fn:(s,v)=> s.interestJobs.length ? (s.interestJobs.some(j=>v.job.includes(j))?1:0) : null},
+      {key:'companyMatch', label:'회사유형', fn:(s,v)=> s.interestCompanyTypes.length ? (s.interestCompanyTypes.some(t=>v.companyType.includes(t))?1:0) : null},
+      {key:'concernMatch', label:'고민 적합', fn:(s,v)=> s.concerns.length ? (overlap(s.concerns,[...(v.rec||[]),...(v.tags||[])])?1:0) : null},
+      {key:'coachQuality', label:'품질', fn:(s,v)=> clamp01((v.help/100)*0.6 + clamp01(1-(v.timeHours||24)/48)*0.2 + clamp01((v.cnt||0)/50)*0.2)},
+      {key:'schoolMatch', label:'동문', fn:(s,v)=> s.school ? (s.school===v.school?1:0) : null},
+      {key:'freshness', label:'활성', fn:(s,v)=> v.status==='current'?1:0.6},
+      {key:'fairness', label:'공정 노출', fn:(s,v,ctx)=> clamp01(1-(v.exposure||0)/(ctx.maxExposure||1))},
+      {key:'seenPenalty', label:'이미 본', neg:true, fn:(s,v,ctx)=> ctx.seen.has(v.id)?1:0},
+    ],
+    scoreOne(s,v,ctx){
+      const contrib=[]; let sum=0,wsum=0;
+      for(const f of this.features){ const w=this.weights[f.key]??0; if(!w)continue;
+        const val=f.fn(s,v,ctx); if(val==null)continue;
+        const part=(f.neg?-1:1)*val*w; sum+=part; wsum+=Math.abs(w);
+        contrib.push({label:f.label,part}); }
+      const score=wsum?sum/wsum:0.5;
+      const why=contrib.filter(c=>c.part>0).sort((a,b)=>b.part-a.part).slice(0,this.rules.explainTopN);
+      return {score,why};
+    },
+    rank(s,views,ctx){
+      let arr=views.filter(v=>!this.rules.verifiedOnly||v.verified!==false).map(v=>({v,...this.scoreOne(s,v,ctx)}));
+      arr.sort((a,b)=>b.score-a.score);
+      if(this.rules.dedupPerson){ const seen=new Set(); arr=arr.filter(x=>seen.has(x.v.personId)?false:(seen.add(x.v.personId),true)); }
+      return arr;
+    },
+  };
+  const EXPOSURE={han:8,min:14,lee:4,kang:20}; // mock 노출 로그 집계값
+  function engineViews(){
+    return profileViews().map(([c,pf])=>{ const v=viewOf(c,pf); const idx=pf?c.profiles.indexOf(pf):0;
+      return {id:c.id+'#'+idx, personId:c.id, _c:c, _pf:pf,
+        company:v.company, companyType:v.companyType, job:v.job, roleName:v.roleName, status:v.status||'current',
+        help:c.help, cnt:c.cnt, timeHours:parseInt(String(c.time).replace(/[^0-9]/g,''))||24,
+        school:c.school, tags:c.tags, rec:c.rec, verified:true, exposure:EXPOSURE[c.id]||10}; });
+  }
+  // 가상 학생 (패널에서 조절)
+  let student={ interestJobs:['데이터'], interestCompanyTypes:[], concerns:['비전공'], school:'홍익대', seen:new Set() };
+  const JOB_OPTS=['데이터','마케팅','UX/UI','사업개발'];
+  const CONCERN_OPTS=['비전공','문과생','포트폴리오','외국계'];
+  const W_LABELS={jobMatch:'직무 관심',companyMatch:'회사유형',concernMatch:'고민 적합',coachQuality:'품질',schoolMatch:'동문',freshness:'활성',fairness:'공정 노출',seenPenalty:'이미 본(감점)'};
+
+  let engineOn=false;
+  function toggleEngine(){
+    engineOn=!engineOn;
+    document.getElementById('normalFeed').style.display = engineOn?'none':'block';
+    document.getElementById('engineMode').style.display = engineOn?'block':'none';
+    document.getElementById('engbtn').classList.toggle('on', engineOn);
+    document.querySelector('#engbtn span').textContent = engineOn?'⚙️ 추천 엔진 끄기 · 일반 피드로':'⚙️ 추천 엔진 체험 · 라이브 랭킹';
+    if(engineOn){ renderEnginePanel(); renderEngine(); }
+  }
+  function toggleStJob(j){ student.interestJobs.includes(j)?student.interestJobs=student.interestJobs.filter(x=>x!==j):student.interestJobs.push(j); renderEnginePanel(); renderEngine(); }
+  function toggleStConcern(c){ student.concerns.includes(c)?student.concerns=student.concerns.filter(x=>x!==c):student.concerns.push(c); renderEnginePanel(); renderEngine(); }
+  function toggleStSchool(){ student.school = student.school?null:'홍익대'; renderEnginePanel(); renderEngine(); }
+  function setWeight(k,val){ ENGINE.weights[k]=parseFloat(val); document.getElementById('wv-'+k).textContent=(+val).toFixed(1); renderEngine(); }
+  function engReset(){ ENGINE.weights={jobMatch:1.0,companyMatch:0.8,concernMatch:0.9,coachQuality:0.7,schoolMatch:0.5,freshness:0.3,fairness:0.4,seenPenalty:0.6}; renderEnginePanel(); renderEngine(); }
+  function renderEnginePanel(){
+    const jobs=JOB_OPTS.map(j=>`<div class="stchip ${student.interestJobs.includes(j)?'on':''}" onclick="toggleStJob('${j}')">${j}</div>`).join('');
+    const cons=CONCERN_OPTS.map(c=>`<div class="stchip ${student.concerns.includes(c)?'on':''}" onclick="toggleStConcern('${c}')">#${c}</div>`).join('');
+    const sch=`<div class="stchip ${student.school?'on':''}" onclick="toggleStSchool()">🎓 홍익대</div>`;
+    const sliders=Object.keys(ENGINE.weights).map(k=>`<div class="wrow"><div class="wl">${W_LABELS[k]}<span class="wv" id="wv-${k}">${ENGINE.weights[k].toFixed(1)}</span></div><input type="range" min="0" max="1.5" step="0.1" value="${ENGINE.weights[k]}" oninput="setWeight('${k}',this.value)"></div>`).join('');
+    document.getElementById('enginePanel').innerHTML=`
+      <div class="eng-h">⚙️ 추천 엔진 (라이브)</div>
+      <div class="eng-sub">가상 학생·가중치를 바꾸면 아래 순서와 점수가 실시간으로 바뀝니다.</div>
+      <div class="eng-lbl">가상 학생 · 관심 직무</div><div class="chiprow">${jobs}</div>
+      <div class="eng-lbl">고민 · 학교</div><div class="chiprow">${cons}${sch}</div>
+      <div class="eng-lbl">가중치 (weights)</div>${sliders}
+      <div class="eng-reset" onclick="engReset()">기본값으로 초기화</div>`;
+  }
+  function renderEngine(){
+    const views=engineViews();
+    const ctx={maxExposure:Math.max(...views.map(v=>v.exposure)), seen:student.seen};
+    const ranked=ENGINE.rank(student,views,ctx);
+    document.getElementById('engMeta').textContent=`${ranked.length}명 · 점수순`;
+    document.getElementById('engineList').innerHTML=ranked.map(r=>{
+      const pct=Math.round(r.score*100); const why=r.why.map(w=>w.label).join(' · ')||'기본 점수';
+      return coachCard(r.v._c, r.v._pf, {pct,why});
+    }).join('');
   }
   function homeCard(c){
     const mini = c.id==='lee' ? '<span class="s">학생과 가장 가까운 연차</span>' : `<span class="s">도움됐어요 ${c.help}%</span> · ${c.time}`;
