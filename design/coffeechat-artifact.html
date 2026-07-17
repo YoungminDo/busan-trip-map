@@ -819,10 +819,32 @@
   let scope = 'q'; // 'q' | 'job' | 'company'
   const scopes = [{k:'q',label:'질문으로'},{k:'job',label:'직무로'},{k:'company',label:'회사로'}];
   const placeholders = {q:'비전공자인데 데이터 분석가 될 수 있을까요?', job:'예: 마케팅, 데이터, UX/UI', company:'예: 토스, 네이버, 외국계'};
+  // 대학생 취업 선호 기업 시드 (2025 인크루트 대기업 TOP + 네카라쿠배 + 게임 + 금융 + 외국계)
   const popCompanies = [
-    {name:'토스', logo:{text:'toss',bg:'#3182F6'}},{name:'네이버', logo:{text:'NAVER',bg:'#03C75A'}},
-    {name:'당근', logo:{text:'당근',bg:'#FF6F0F'}},{name:'존슨앤존슨', logo:{text:'J&J',bg:'#EB1700'}},
-    {name:'외국계', logo:null},{name:'스타트업', logo:null},{name:'대기업', logo:null},
+    // 대기업 (선호도 상위)
+    {name:'SK하이닉스', logo:{text:'SK',bg:'#EA002C'}},{name:'삼성전자', logo:{text:'삼성',bg:'#1428A0'}},
+    {name:'CJ ENM', logo:{text:'CJ',bg:'#E2231A'}},{name:'CJ제일제당', logo:{text:'CJ',bg:'#E2231A'}},
+    {name:'현대자동차', logo:{text:'현대',bg:'#002C5F'}},{name:'LG전자', logo:{text:'LG',bg:'#A50034'}},
+    {name:'삼성바이오로직스', logo:{text:'삼성',bg:'#1428A0'}},{name:'아모레퍼시픽', logo:{text:'아모레',bg:'#1A1A1A'}},
+    {name:'오뚜기', logo:{text:'오뚜기',bg:'#E4002B'}},{name:'대한항공', logo:{text:'KAL',bg:'#00256C'}},
+    // IT·플랫폼 (네카라쿠배+)
+    {name:'네이버', logo:{text:'NAVER',bg:'#03C75A'}},{name:'카카오', logo:{text:'kakao',bg:'#FEE500',fg:'#3A1D1D'}},
+    {name:'라인', logo:{text:'LINE',bg:'#06C755'}},{name:'쿠팡', logo:{text:'쿠팡',bg:'#E01931'}},
+    {name:'배달의민족', logo:{text:'배민',bg:'#2AC1BC'}},{name:'토스', logo:{text:'toss',bg:'#3182F6'}},
+    {name:'당근', logo:{text:'당근',bg:'#FF6F0F'}},{name:'야놀자', logo:{text:'야놀자',bg:'#FF3478'}},
+    {name:'무신사', logo:{text:'무신사',bg:'#111111'}},
+    // 게임
+    {name:'크래프톤', logo:{text:'크래프톤',bg:'#000000'}},{name:'엔씨소프트', logo:{text:'NC',bg:'#111111'}},
+    {name:'넥슨', logo:{text:'넥슨',bg:'#000000'}},{name:'넷마블', logo:{text:'넷마블',bg:'#3D5AFE'}},
+    // 금융
+    {name:'신한은행', logo:{text:'신한',bg:'#003C88'}},{name:'KB국민은행', logo:{text:'KB',bg:'#FFB800',fg:'#3A2D00'}},
+    {name:'카카오뱅크', logo:{text:'kakao',bg:'#FEE500',fg:'#3A1D1D'}},
+    // 외국계
+    {name:'구글', logo:{text:'G',bg:'#4285F4'}},{name:'애플', logo:{text:'애플',bg:'#111111'}},
+    {name:'P&G', logo:{text:'P&G',bg:'#004B93'}},{name:'로레알', logo:{text:'로레알',bg:'#1A1A1A'}},
+    {name:'존슨앤존슨', logo:{text:'J&J',bg:'#EB1700'}},
+    // 유형 (버킷)
+    {name:'외국계', logo:null},{name:'스타트업', logo:null},{name:'대기업', logo:null},{name:'공기업', logo:null},
   ];
   const popJobs = ['마케팅/브랜드','데이터/AI','UX/UI','PM/기획','BD/사업개발','영업','콘텐츠/미디어','HR','금융/전략'];
   const recentQs = ['비전공자인데 데이터 분석가 될 수 있을까요?','스타트업 첫 커리어, 괜찮을까요?','브랜드 마케터는 무슨 일을 하나요?'];
@@ -832,7 +854,7 @@
     document.getElementById('explScopes').innerHTML = scopes.map(s=>`<div class="escope ${s.k===scope?'on':''}" onclick="setScope('${s.k}')">${s.label}</div>`).join('');
   }
   function logoChip(name, logo){
-    const lg = logo ? `<span class="logo" style="background:${logo.bg}">${logo.text}</span>` : '';
+    const lg = logo ? `<span class="logo" style="background:${logo.bg}${logo.fg?';color:'+logo.fg:''}">${logo.text}</span>` : '';
     return `<div class="cchip ${logo?'':'plain'}" onclick="searchFor('${name}')">${lg}${name}</div>`;
   }
   // 실시간 인기 '검색어(주제)' 랭킹 — 사람이 아닌 주제를 줄세움 (코치 명예 보호)
@@ -888,7 +910,7 @@
         if(scope==='job') html += reqLine('직무');
       }
       if(scope==='q'||scope==='company'){
-        html += `<div class="expl-sec">회사로 찾기</div>`;
+        html += `<div class="expl-sec">회사로 찾기 · 대학생 선호 순</div>`;
         if(scope==='company') html += chipIndex(popCompanies.map(c=>c.name));
         const shown = (scope==='company'&&idxSel)? popCompanies.filter(c=>initialOf(c.name)===idxSel) : popCompanies;
         html += `<div class="chipwrap">` + shown.map(c=>logoChip(c.name,c.logo)).join('') + `</div>`;
