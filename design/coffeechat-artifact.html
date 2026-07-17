@@ -178,7 +178,9 @@
   .reco-row .scard{background:#fff}
   .feed-end{text-align:center;font-size:12px;color:var(--muted);font-weight:600;padding:16px 0 8px}
   /* 추천 엔진 (라이브) */
-  .engbtn{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:11px;background:#1B2733;color:#fff;border-radius:14px;padding:13px 15px;font-size:13px;font-weight:800;cursor:pointer}
+  .engbtn{display:none;align-items:center;justify-content:space-between;gap:8px;margin-top:11px;background:#1B2733;color:#fff;border-radius:14px;padding:13px 15px;font-size:13px;font-weight:800;cursor:pointer}
+  .engbtn.show{display:flex}
+  .engbtn .dev{font-size:9px;font-weight:800;background:#E5556B;color:#fff;padding:2px 6px;border-radius:5px;margin-left:6px;letter-spacing:.04em}
   .engbtn.on{background:var(--brand-ink)}
   .engbtn .ea{opacity:.6}
   .engpanel{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:var(--shadow)}
@@ -356,7 +358,7 @@
           <div class="pad" style="padding-bottom:6px">
             <div class="search" onclick="openExplore()"><span class="i">🔍</span><span class="ph">질문·직무·회사로 찾아보세요</span></div>
             <div class="guide" style="margin-top:11px" onclick="toast('활용 가이드는 프로토타입에서 생략')"><span class="e">📄</span><span class="t">커피챗 활용 가이드</span><span class="a">›</span></div>
-            <div class="engbtn" id="engbtn" onclick="toggleEngine()"><span>⚙️ 추천 엔진 체험 · 라이브 랭킹</span><span class="ea">›</span></div>
+            <div class="engbtn" id="engbtn" onclick="toggleEngine()"><span>⚙️ 추천 엔진 · 라이브 랭킹<span class="dev">DEV</span></span><span class="ea">›</span></div>
           </div>
 
           <div id="normalFeed">
@@ -687,7 +689,7 @@
     document.getElementById('normalFeed').style.display = engineOn?'none':'block';
     document.getElementById('engineMode').style.display = engineOn?'block':'none';
     document.getElementById('engbtn').classList.toggle('on', engineOn);
-    document.querySelector('#engbtn span').textContent = engineOn?'⚙️ 추천 엔진 끄기 · 일반 피드로':'⚙️ 추천 엔진 체험 · 라이브 랭킹';
+    document.querySelector('#engbtn span').innerHTML = (engineOn?'⚙️ 추천 엔진 끄기 · 일반 피드로':'⚙️ 추천 엔진 · 라이브 랭킹')+'<span class="dev">DEV</span>';
     if(engineOn){ renderEnginePanel(); renderEngine(); }
   }
   function toggleStJob(j){ student.interestJobs.includes(j)?student.interestJobs=student.interestJobs.filter(x=>x!==j):student.interestJobs.push(j); renderEnginePanel(); renderEngine(); }
@@ -806,6 +808,8 @@
   renderCards();
   renderFilters();
   applyFeed();
+  // 추천 엔진 튜닝 패널은 개발자 모드에서만 노출 (?debug / ?dev / ?eng)
+  if(/[?&](debug|dev|eng)\b/i.test(location.search)) document.getElementById('engbtn').classList.add('show');
   document.getElementById('answermode').innerHTML = answerModes.map(m=>`<div class="seltag" onclick="this.classList.toggle('on')">${m}</div>`).join('');
   [1,2].forEach(n=>{
     document.getElementById('tabbar'+n).innerHTML = tabs.map(t=>`<div class="tb ${((n==1&&t.k=='list')||(n==2&&t.k=='home'))?'on':''}" onclick="tabGo('${t.k}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="${t.path}"/></svg>${t.label}</div>`).join('');
