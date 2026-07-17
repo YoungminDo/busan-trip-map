@@ -644,7 +644,7 @@
     for(let i=0;i<3 && feedCount<MAXFEED;i++){ html += coachCard(pool[i%pool.length]); feedCount++; }
     html += recoBlock(nextReco());   // 3장마다 추천 블록
     batchNo++;
-    if(batchNo%2===0) html += requestCard();   // 가끔 요청 카드 삽입
+    if(batchNo%2===1) html += requestCard();   // 첫 묶음 직후부터 요청 카드 삽입
     document.getElementById('feed').insertAdjacentHTML('beforeend', html);
   }
   function buildFeed(){ feedCount=0; recoQueue=[]; batchNo=0; document.getElementById('feed').innerHTML=''; document.getElementById('feedEnd').innerHTML='불러오는 중…'; appendBatch(); appendBatch(); }
