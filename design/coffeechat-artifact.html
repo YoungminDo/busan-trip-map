@@ -83,7 +83,30 @@
   .filters::-webkit-scrollbar{display:none}
   .fp{flex:0 0 auto;font-size:12.5px;font-weight:700;color:var(--ink-soft);background:#fff;border:1px solid var(--line);padding:8px 13px;border-radius:999px;white-space:nowrap;cursor:pointer;transition:.15s;display:flex;align-items:center;gap:5px}
   .fp.on{background:var(--brand-soft);border-color:#BFEAE3;color:var(--brand-ink)}
+  .fp.open{border-color:var(--brand)}
+  .fp.reset{color:#C0392B;border-color:#F3D6D2;background:#FDECEA}
   .fp .cnt{font-size:10px}
+  .facetpicker{display:none;gap:7px;flex-wrap:wrap;padding:0 18px 12px;background:var(--bg)}
+  .facetpicker.show{display:flex}
+  .foption{font-size:12.5px;font-weight:700;color:var(--ink-soft);background:#fff;border:1px solid var(--line);padding:8px 14px;border-radius:999px;cursor:pointer}
+  .foption.on{background:var(--brand);border-color:var(--brand);color:#fff}
+  .filtered-h{font-size:12.5px;font-weight:800;color:var(--brand-ink);margin:2px 2px 12px}
+  .noresult{text-align:center;padding:26px 10px}
+  .noresult .nr-t{font-size:13.5px;color:var(--ink-soft);font-weight:600}
+  .noresult .nr-req{margin-top:14px;display:inline-block;font-size:13px;font-weight:800;color:var(--brand-ink);background:var(--brand-soft);border:1px solid #CFE9E3;padding:11px 16px;border-radius:12px;cursor:pointer}
+  /* 요청 카드 (피드/검색) */
+  .reqcard{display:flex;align-items:center;gap:12px;background:#fff;border:1px dashed #CFDEE9;border-radius:16px;padding:15px;margin-bottom:13px;cursor:pointer}
+  .reqcard.slim{margin-top:12px}
+  .reqcard .rq-ic{font-size:22px;flex:0 0 auto}
+  .reqcard .rq-body{flex:1}
+  .reqcard .rq-t{font-size:13.5px;font-weight:800;letter-spacing:-.01em}
+  .reqcard .rq-d{font-size:11.5px;color:var(--ink-soft);margin-top:3px;line-height:1.45}
+  .reqcard .rq-cta{font-size:12.5px;font-weight:800;color:var(--brand-ink);flex:0 0 auto}
+  /* ㄱㄴㄷ 인덱스 */
+  .idxbar{display:flex;gap:5px;overflow-x:auto;padding:2px 0 12px;scrollbar-width:none}
+  .idxbar::-webkit-scrollbar{display:none}
+  .idx{flex:0 0 auto;font-size:12px;font-weight:800;color:var(--ink-soft);background:#fff;border:1px solid var(--line);min-width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:8px;cursor:pointer;padding:0 6px}
+  .idx.on{background:var(--brand);border-color:var(--brand);color:#fff}
 
   .sec-h{font-size:16px;font-weight:800;letter-spacing:-.02em;margin:22px 4px 4px;display:flex;justify-content:space-between;align-items:center}
   .sec-h .more{font-size:12px;color:var(--muted);font-weight:700;cursor:pointer}
@@ -107,8 +130,8 @@
   .ccard .role{font-size:16.5px;font-weight:800;letter-spacing:-.02em;line-height:1.32;margin-top:10px}
   .ccard .role .yr{color:var(--brand-ink)}
   .role .co{color:var(--brand-ink);font-weight:800}
-  .role .logo{display:inline-flex;align-items:center;justify-content:center;height:19px;padding:0 6px;border-radius:6px;color:#fff;font-size:10px;font-weight:800;letter-spacing:.01em;vertical-align:2px;margin-right:6px}
-  .detail-hero .role .logo{height:24px;padding:0 8px;font-size:12px;vertical-align:2px;margin-right:7px}
+  .role .logo{display:inline-flex;align-items:center;justify-content:center;height:24px;padding:0 9px;border-radius:8px;color:#fff;font-size:12px;font-weight:800;letter-spacing:.01em;vertical-align:middle;margin-right:8px;box-shadow:0 2px 6px rgba(20,40,50,.18)}
+  .detail-hero .role .logo{height:30px;padding:0 11px;font-size:14px;margin-right:9px}
   .seg{display:flex;gap:4px;background:#EEF1F3;border-radius:12px;padding:4px;margin-bottom:14px}
   .seg-b{flex:1;text-align:center;font-size:12.5px;font-weight:800;color:var(--ink-soft);padding:9px 6px;border-radius:9px;cursor:pointer;transition:.15s;display:flex;align-items:center;justify-content:center;gap:5px}
   .seg-b.on{background:#fff;color:var(--brand-ink);box-shadow:0 1px 3px rgba(20,40,50,.12)}
@@ -305,6 +328,7 @@
             <div class="guide" style="margin-top:11px" onclick="toast('활용 가이드는 프로토타입에서 생략')"><span class="e">📄</span><span class="t">커피챗 활용 가이드</span><span class="a">›</span></div>
           </div>
           <div class="filters" id="filters"></div>
+          <div class="facetpicker" id="facetPicker"></div>
 
           <div class="pad" style="padding-top:2px">
             <div class="sec-h" style="margin-top:16px">현직자 커피챗</div>
@@ -509,9 +533,14 @@
       reviewTags:['#정리가명쾌'], review:'“흩어져 있던 마케팅 직무가 한 장으로 정리됐어요.”', reviewBy:'문과 3학년 · 매우 도움이 됐어요' },
   ];
 
-  const filters = [
-    {label:'추천순', drop:true, on:true},{label:'내 상황'},{label:'직무'},{label:'회사유형'},{label:'응답 빠른순'},{label:'도움 많은순'}
-  ];
+  // 실제 작동하는 필터 (정렬 + 패싯)
+  const SORTS = [{k:'rec',label:'추천순'},{k:'fast',label:'응답 빠른순'},{k:'help',label:'도움 많은순'}];
+  const FACETS = {
+    job:  {label:'직무',   opts:['데이터','마케팅','UX/UI','사업개발']},
+    comp: {label:'회사유형', opts:['스타트업','외국계','플랫폼','대기업']},
+    sit:  {label:'내 상황', opts:['비전공','문과생','포트폴리오','외국계']},
+  };
+  let sortMode='rec', facet={job:null,comp:null,sit:null}, openFacetKey=null, filtering=false;
   const answerModes = ['현실적으로','단계별로','따뜻하게','짧고 핵심만'];
 
   const tabs = [
@@ -592,18 +621,29 @@
       <div class="hrow reco-row">${list.map(c=>shelfCard(c,def.ctx(c))).join('')}</div>
     </div>`;
   }
-  let feedCount=0, recoQueue=[], MAXFEED=20;
+  let feedCount=0, recoQueue=[], batchNo=0, MAXFEED=20;
   function nextReco(){ if(!recoQueue.length) recoQueue=shuffled(recoDefs); return recoQueue.shift(); }
+  function requestCard(){
+    return `<div class="reqcard" onclick="reqToast()">
+      <div class="rq-ic">🙋</div>
+      <div class="rq-body"><div class="rq-t">찾는 회사·직무가 있나요?</div><div class="rq-d">“○○ 다니는 분”, “○○ 직무 하시는 분” 요청하면 파트너를 찾아드려요</div></div>
+      <div class="rq-cta">요청 ›</div>
+    </div>`;
+  }
   function appendBatch(){
+    if(filtering) return;
     if(feedCount>=MAXFEED){ document.getElementById('feedEnd').innerHTML='검증된 파트너를 모두 둘러봤어요 ☕'; return; }
     let html='';
     const pool = shuffled(coaches);
     for(let i=0;i<3 && feedCount<MAXFEED;i++){ html += coachCard(pool[i%pool.length]); feedCount++; }
-    html += recoBlock(nextReco());   // 3장마다 추천 블록 삽입
+    html += recoBlock(nextReco());   // 3장마다 추천 블록
+    batchNo++;
+    if(batchNo%2===0) html += requestCard();   // 가끔 요청 카드 삽입
     document.getElementById('feed').insertAdjacentHTML('beforeend', html);
   }
-  function buildFeed(){ feedCount=0; recoQueue=[]; document.getElementById('feed').innerHTML=''; document.getElementById('feedEnd').innerHTML='불러오는 중…'; appendBatch(); appendBatch(); }
+  function buildFeed(){ feedCount=0; recoQueue=[]; batchNo=0; document.getElementById('feed').innerHTML=''; document.getElementById('feedEnd').innerHTML='불러오는 중…'; appendBatch(); appendBatch(); }
   document.getElementById('listScroll').addEventListener('scroll', e=>{
+    if(filtering) return;
     const el=e.target;
     if(el.scrollTop+el.clientHeight >= el.scrollHeight-320) appendBatch();
   });
@@ -613,8 +653,8 @@
     renderCards();
   }
   renderCards();
-  buildFeed();
-  document.getElementById('filters').innerHTML = filters.map((f,i)=>`<div class="fp ${f.on?'on':''}" onclick="toggleFilter(this)">${f.label}${f.drop?' ▾':''}</div>`).join('');
+  renderFilters();
+  applyFeed();
   document.getElementById('answermode').innerHTML = answerModes.map(m=>`<div class="seltag" onclick="this.classList.toggle('on')">${m}</div>`).join('');
   [1,2].forEach(n=>{
     document.getElementById('tabbar'+n).innerHTML = tabs.map(t=>`<div class="tb ${((n==1&&t.k=='list')||(n==2&&t.k=='home'))?'on':''}" onclick="tabGo('${t.k}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="${t.path}"/></svg>${t.label}</div>`).join('');
@@ -632,7 +672,7 @@
   const popJobs = ['마케팅/브랜드','데이터/AI','UX/UI','PM/기획','BD/사업개발','영업','콘텐츠/미디어','HR','금융/전략'];
   const recentQs = ['비전공자인데 데이터 분석가 될 수 있을까요?','스타트업 첫 커리어, 괜찮을까요?','브랜드 마케터는 무슨 일을 하나요?'];
   function openExplore(){ scope='q'; document.getElementById('explInput').value=''; renderScopes(); exploreRender(); go('explore'); }
-  function setScope(k){ scope=k; document.getElementById('explInput').placeholder=placeholders[k]; renderScopes(); exploreRender(); }
+  function setScope(k){ scope=k; idxSel=null; document.getElementById('explInput').placeholder=placeholders[k]; renderScopes(); exploreRender(); }
   function renderScopes(){
     document.getElementById('explScopes').innerHTML = scopes.map(s=>`<div class="escope ${s.k===scope?'on':''}" onclick="setScope('${s.k}')">${s.label}</div>`).join('');
   }
@@ -657,6 +697,25 @@
         `<div class="row" onclick="searchFor('${r.t}')"><span class="rk ${i<3?'top':''}">${i+1}</span><span class="tm">${r.t}</span>${trendMark(r.d)}</div>`
       ).join('') + `</div>`;
   }
+  // ㄱㄴㄷ / ABC 인덱스
+  const CHO=['ㄱ','ㄲ','ㄴ','ㄷ','ㄸ','ㄹ','ㅁ','ㅂ','ㅃ','ㅅ','ㅆ','ㅇ','ㅈ','ㅉ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
+  const CHO_BASE={'ㄲ':'ㄱ','ㄸ':'ㄷ','ㅃ':'ㅂ','ㅆ':'ㅅ','ㅉ':'ㅈ'};
+  function initialOf(s){
+    const ch=(s||'').trim()[0]||''; const code=ch.charCodeAt(0);
+    if(code>=0xAC00 && code<=0xD7A3){ const c=CHO[Math.floor((code-0xAC00)/588)]; return CHO_BASE[c]||c; }
+    if(/[A-Za-z]/.test(ch)) return ch.toUpperCase();
+    return '#';
+  }
+  function choRank(i){ const k=CHO.indexOf(i); return k>=0?k:100+(i.charCodeAt(0)||0); }
+  let idxSel=null;
+  function setIdx(i){ idxSel=i; exploreRender(); }
+  function chipIndex(names){
+    const inits=[...new Set(names.map(initialOf))].sort((a,b)=>choRank(a)-choRank(b));
+    return `<div class="idxbar"><span class="idx ${!idxSel?'on':''}" onclick="setIdx(null)">전체</span>`
+      + inits.map(i=>`<span class="idx ${idxSel===i?'on':''}" onclick="setIdx('${i}')">${i}</span>`).join('')+`</div>`;
+  }
+  function reqLine(kind){ return `<div class="reqcard slim" onclick="reqToast()"><div class="rq-ic">🙋</div><div class="rq-body"><div class="rq-t">찾는 ${kind}가 없나요?</div><div class="rq-d">“${kind==='회사'?'○○ 다니는':'○○ 하시는'} 분” 요청하면 현직자를 찾아드려요</div></div><div class="rq-cta">요청 ›</div></div>`; }
+
   function exploreRender(){
     const qv = (document.getElementById('explInput').value||'').trim().toLowerCase();
     const body = document.getElementById('exploreBody');
@@ -667,23 +726,31 @@
         html += `<div class="expl-sec">이렇게 물어보세요</div>` + recentQs.map(q=>`<div class="rq" onclick="searchFor('${q}')"><span class="m">Q</span>${q}</div>`).join('');
       }
       if(scope==='q'||scope==='job'){
-        html += `<div class="expl-sec">직무로 찾기</div><div class="chipwrap">` + popJobs.map(j=>`<div class="jchip" onclick="searchFor('${j}')">${j}</div>`).join('') + `</div>`;
+        html += `<div class="expl-sec">직무로 찾기</div>`;
+        if(scope==='job') html += chipIndex(popJobs);
+        const shown = (scope==='job'&&idxSel)? popJobs.filter(j=>initialOf(j)===idxSel) : popJobs;
+        html += `<div class="chipwrap">` + shown.map(j=>`<div class="jchip" onclick="searchFor('${j}')">${j}</div>`).join('') + `</div>`;
+        if(scope==='job') html += reqLine('직무');
       }
       if(scope==='q'||scope==='company'){
-        html += `<div class="expl-sec">회사로 찾기</div><div class="chipwrap">` + popCompanies.map(c=>logoChip(c.name,c.logo)).join('') + `</div>`;
+        html += `<div class="expl-sec">회사로 찾기</div>`;
+        if(scope==='company') html += chipIndex(popCompanies.map(c=>c.name));
+        const shown = (scope==='company'&&idxSel)? popCompanies.filter(c=>initialOf(c.name)===idxSel) : popCompanies;
+        html += `<div class="chipwrap">` + shown.map(c=>logoChip(c.name,c.logo)).join('') + `</div>`;
+        if(scope==='company') html += reqLine('회사');
       }
       body.innerHTML = html;
       return;
     }
-    // 매칭: 회사·직무·역할·태그·질문 전체 대상 (의도/엔티티 하이브리드)
     const hits = coaches.filter(c=>{
       const hay = [c.company,c.companyType,c.job,c.role,c.meta,c.q,...(c.tags||[]),...(c.rec||[])].join(' ').toLowerCase();
       return qv.split(/\s+/).some(w=>hay.includes(w));
     });
     body.innerHTML = `<div class="expl-sec">‘${document.getElementById('explInput').value.trim()}’ 결과 ${hits.length}명</div>`
-      + (hits.length ? hits.map(coachCard).join('') : `<div class="empty">일치하는 파트너가 없어요.<br>다른 키워드로 찾아보세요.</div>`);
+      + (hits.length ? hits.map(coachCard).join('')
+        : `<div class="noresult"><div class="nr-t">일치하는 파트너가 아직 없어요</div><div class="nr-req" onclick="reqToast()">🙋 이 회사·직무 현직자를 찾아달라고 요청하기</div></div>`);
   }
-  function searchFor(t){ const el=document.getElementById('explInput'); el.value=t; exploreRender(); }
+  function searchFor(t){ const el=document.getElementById('explInput'); el.value=t; idxSel=null; exploreRender(); }
 
   /* ---------- 코치 상세 ---------- */
   function openCoach(id){
@@ -746,7 +813,46 @@
   function go(id){ stack.push(id); show(id); }
   function back(){ stack.pop(); show(stack[stack.length-1]||'list'); }
   function tabGo(k){ const map={home:'home',list:'list'}; if(map[k]){ stack.length=0; stack.push(map[k]); show(map[k]); } else toast('프로토타입에서는 홈/커피챗만 열려요'); }
-  function toggleFilter(el){ if(el.textContent.includes('▾'))return; el.classList.toggle('on'); }
+  /* ===== 작동하는 필터 엔진 ===== */
+  function renderFilters(){
+    const anyFacet = facet.job||facet.comp||facet.sit;
+    let html = SORTS.map(s=>`<div class="fp ${sortMode===s.k?'on':''}" onclick="setSort('${s.k}')">${s.label}</div>`).join('');
+    html += Object.entries(FACETS).map(([k,f])=>{
+      const v=facet[k];
+      return `<div class="fp ${v?'on':''} ${openFacetKey===k?'open':''}" onclick="toggleFacet('${k}')">${v||f.label} ▾</div>`;
+    }).join('');
+    if(anyFacet||sortMode!=='rec') html += `<div class="fp reset" onclick="clearFilters()">✕ 초기화</div>`;
+    document.getElementById('filters').innerHTML = html;
+    const pk=document.getElementById('facetPicker');
+    if(openFacetKey){ const f=FACETS[openFacetKey];
+      pk.innerHTML = f.opts.map(o=>`<div class="foption ${facet[openFacetKey]===o?'on':''}" onclick="pickFacet('${openFacetKey}','${o}')">${o}</div>`).join('');
+      pk.classList.add('show');
+    } else { pk.innerHTML=''; pk.classList.remove('show'); }
+  }
+  function setSort(k){ sortMode=k; openFacetKey=null; renderFilters(); applyFeed(); }
+  function toggleFacet(k){ openFacetKey = openFacetKey===k ? null : k; renderFilters(); }
+  function pickFacet(k,v){ facet[k] = facet[k]===v ? null : v; openFacetKey=null; renderFilters(); applyFeed(); }
+  function clearFilters(){ sortMode='rec'; facet={job:null,comp:null,sit:null}; openFacetKey=null; renderFilters(); applyFeed(); }
+  function computeFiltered(){
+    let list=[...coaches];
+    if(facet.job)  list=list.filter(c=>(c.job+c.role+c.tags.join('')).includes(facet.job));
+    if(facet.comp) list=list.filter(c=>(c.companyType+c.meta).includes(facet.comp));
+    if(facet.sit)  list=list.filter(c=>(c.rec.join('')+c.tags.join('')+c.meta).includes(facet.sit));
+    if(sortMode==='fast') list.sort((a,b)=>num(a.time)-num(b.time));
+    if(sortMode==='help') list.sort((a,b)=>b.help-a.help);
+    return list;
+  }
+  function applyFeed(){
+    const anyFacet = facet.job||facet.comp||facet.sit;
+    const feed=document.getElementById('feed'), end=document.getElementById('feedEnd');
+    if(sortMode==='rec' && !anyFacet){ filtering=false; buildFeed(); return; }
+    filtering=true;
+    const list=computeFiltered();
+    feed.innerHTML = list.length ? `<div class="filtered-h">${list.length}명 · ${SORTS.find(s=>s.k===sortMode).label}</div>`+list.map(coachCard).join('')
+      : `<div class="noresult"><div class="nr-t">조건에 맞는 파트너가 아직 없어요</div><div class="nr-req" onclick="reqToast()">🙋 이 조건의 현직자 찾아달라고 요청하기</div></div>`;
+    end.innerHTML='';
+  }
+  function reqToast(){ toast('요청 접수! 파트너가 합류하면 알림으로 알려드려요'); }
 
   let tmr;
   function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(tmr); tmr=setTimeout(()=>t.classList.remove('show'),1600); }
